@@ -1,3 +1,5 @@
+import { createForest, drawPixelFox } from './forest.js';
+
 const palettes = {
   peach: ['#efd6bc','#f8e8ce','#efc99f','#c1c6a0','#8cae90','#497c65','#e9b986'],
   lavender: ['#d2cce6','#eee4ed','#e9c9de','#b9bdd3','#8faaa9','#526f70','#c8b4d6'],
@@ -10,6 +12,7 @@ export function createScene(canvas) {
   const ctx = canvas.getContext('2d');
   let previous = initialState, state = initialState, changedAt = 0, lastCollected = 0;
   let particles = [], backgroundKey, background;
+  const forest = createForest(() => { backgroundKey = null; });
   const ellipse = (x,y,rx,ry,color) => { ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill(); };
   const shape = (points,color) => {ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
   function star(x,y,r,color,rotation=0){const pts=[];for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2+rotation;pts.push([x+Math.cos(a)*(i%2?r*.45:r),y+Math.sin(a)*(i%2?r*.45:r)]);}shape(pts,color);}
@@ -18,6 +21,7 @@ export function createScene(canvas) {
     const p=palettes[state.world.sky]||palettes.peach;
     const gradient=ctx.createLinearGradient(0,0,0,480);gradient.addColorStop(0,p[0]);gradient.addColorStop(1,p[1]);ctx.fillStyle=gradient;ctx.fillRect(0,0,840,480);
     if(state.kind){drawArcadeBackground(p);return;}
+    if(forest.draw(ctx,state))return;
     ellipse(671,94,39,39,p[2]);ellipse(671,94,48,48,p[2]+'33');
     if(state.world.sky==='night')for(let i=0;i<42;i++)ellipse((i*127+31)%840,(i*63+17)%220,1.3,1.3,'#efe8c699');
     for(const [x,y,s] of [[107,99,1],[368,66,.7],[780,158,.8]]){ellipse(x,y,44*s,9*s,'#fff8eb80');ellipse(x-15*s,y-7*s,18*s,14*s,'#fff8eb80');ellipse(x+11*s,y-12*s,22*s,19*s,'#fff8eb80');}
@@ -73,6 +77,7 @@ export function createScene(canvas) {
   }
   function character(x,y,t){
     const p=state.player, moving=Math.abs(p.x-previous.player.x)>.1, bounce=moving&&p.on_ground?Math.sin(t*.017)*1.7:Math.sin(t*.003)*.65;
+    if(p.costume==='fox'){drawPixelFox(ctx,p,x,y,t,moving);return;}
     ctx.save();ctx.translate(x,y+bounce);ctx.scale(p.facing||1,1);
     const fox=p.costume==='fox',bunny=p.costume==='bunny',color=fox?'#ca7848':bunny?'#eee6d3':'#687784',dark=fox?'#945737':bunny?'#b4a58e':'#495d67';
     ellipse(-3,1,21,4,'#25443820');
@@ -85,7 +90,7 @@ export function createScene(canvas) {
   return {
     update(next){if(next.kind!==state.kind){backgroundKey=null;particles=[];previous=next;}else previous=state;state=next;changedAt=performance.now();if(next.player&&next.collected>lastCollected){for(let i=0;i<12;i++)particles.push({x:next.player.x,y:next.player.y-30,vx:Math.cos(i)*1.9,vy:-2-Math.sin(i)*1.8,life:1});}lastCollected=next.collected;},
     draw(time){
-      const key=state.world.sky+state.kind;
+      const key=state.world.sky+state.kind+JSON.stringify(state.platforms);
       if(backgroundKey!==key){drawBackground();background=ctx.getImageData(0,0,840,480);backgroundKey=key;}else ctx.putImageData(background,0,0);
       if(state.kind){drawArcade(time);return;}
       for(const [i,s] of state.stars.entries())if(s.visible){const y=s.y+Math.sin(time*.002+i)*3;ellipse(s.x,y,16,16,'#fff0b02e');star(s.x,y,10,'#fff0b5',Math.sin(time*.001+i)*.12);star(s.x-1,y-1,6,'#f7d77b');}

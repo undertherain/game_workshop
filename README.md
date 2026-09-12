@@ -151,8 +151,11 @@ saved drafts and progress.
 Python owns movement rules, gravity, collisions, callbacks and score. JavaScript draws
 state snapshots at 30 fps and pauses work in hidden tabs. A stalled worker is terminated
 so an infinite loop does not lock the page. The supported API is deliberately small;
-arbitrary new assets, scrolling levels, multiplayer, voice and a general scene editor
-are outside this prototype. Artwork is original Canvas 2D, with no Pyxel dependency.
+arbitrary learner-supplied assets, scrolling levels, multiplayer, voice and a general scene editor
+are outside this prototype. The platformer combines an original generated pixel-art
+forest background with Canvas grass-and-earth platforms and an animated pixel fox.
+Sky choices tint the forest; bunny and cat retain their existing drawn costumes.
+Other scenes use original Canvas 2D artwork, with no Pyxel dependency.
 
 AI receives the selected template and exercise, check feedback, local learning-progress
 evidence, question, current code,

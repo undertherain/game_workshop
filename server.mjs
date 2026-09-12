@@ -18,7 +18,7 @@ if (process.env.WORKSHOP_LOAD_DOTENV !== '0') {
   }
 }
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript',
-  '.css': 'text/css', '.json': 'application/json', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
+  '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
 function json(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));

@@ -8,7 +8,12 @@ platformer sample.
 `runtime.py` supplies the platform game API; `arcade_runtime.py` supplies the two
 arcade games and mini-exercise checks. `python-worker.js` runs real Python through
 local Pyodide and isolates checks from the live game. `app.js` connects editor,
-templates and helper; `scene.js` only draws snapshots.
+templates and helper; `scene.js` only draws snapshots. `forest.js` loads the
+platformer's generated forest background, draws deterministic pixel terrain at the
+runtime's platform coordinates, and animates a small pixel fox. The background is
+sampled to 420×240 and drawn without smoothing. The previous scenery remains a
+fallback while the image loads or if it fails. See `assets/forest/README.md` for
+the asset's generation prompt and scope.
 
 Return to the [prototype README](../README.md).
 
