@@ -1,0 +1,33 @@
+{
+  "id": "event",
+  "branch": "foundations",
+  "actor": "character",
+  "title": "From actions to events",
+  "heading": "Now your code waits for you.",
+  "description": "Before, Run performed your actions. Here, Run installs a rule: when Space is pressed, call this function. Replace pass with character.jump(), run, then press the Space button below the scene.",
+  "rows": 3,
+  "mode": "event",
+  "skill": "events",
+  "starter": [
+    "def on_space_pressed():",
+    "    pass"
+  ],
+  "scene": {
+    "title": "A little meadow. Your instructions.",
+    "label": "Your game. Use Space or Right to try your rule."
+  },
+  "placeholder": "Type character. to discover its actions",
+  "completions": [
+    {
+      "code": "character.jump()",
+      "description": "Jump up and land"
+    },
+    {
+      "code": "character.move()",
+      "description": "Move right"
+    }
+  ],
+  "feedback": {
+    "triggered": "Your function ran because you pressed Space. Run installed the rule; the event triggered it."
+  }
+}

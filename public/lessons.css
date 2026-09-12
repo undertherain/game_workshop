@@ -75,3 +75,12 @@ body:not([data-mode="workshop"]) #save-status,body:not([data-mode="workshop"]) #
     box-shadow: 0 5px 14px #284b4314;
   }
 }
+
+/* A running loop has a persistent, visibly pressed Stop control. */
+#lesson-run[aria-pressed="true"], #run[aria-pressed="true"] {
+  background: #e0e9d2;
+  color: #284b43;
+  box-shadow: inset 0 2px 4px #284b4328;
+  outline: 1px solid #a3b78d;
+  outline-offset: -1px;
+}

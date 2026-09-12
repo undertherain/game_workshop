@@ -27,14 +27,14 @@ class LessonTests(unittest.TestCase):
             self.assertIn('error', json.loads(runtime.run_lesson(source, 'loop')))
 
     def test_properties_change_scene_and_reject_unknown_values(self):
-        data = json.loads(runtime.run_lesson('world.sky = "night"\nfox.costume = "bunny"\nfox.jump()', 'style'))
+        data = json.loads(runtime.run_lesson('world.sky = "night"\ncharacter.costume = "bunny"\ncharacter.jump()', 'style'))
         self.assertEqual(data['world']['sky'], 'night')
         self.assertEqual(data['player']['costume'], 'bunny')
         self.assertEqual(data['actions'], ['jump'])
         self.assertIn('error', json.loads(runtime.run_lesson('world.sky = "unknown"', 'style')))
 
     def test_event_waits_for_press_and_fires_once_per_press(self):
-        data = json.loads(runtime.run_lesson('def on_space_pressed():\n    fox.jump()', 'event'))
+        data = json.loads(runtime.run_lesson('def on_space_pressed():\n    character.jump()', 'event'))
         self.assertNotIn('error', data)
         self.assertEqual(data['player']['y'], 430)
         idle = json.loads(runtime.step_lesson('{}'))
@@ -50,7 +50,7 @@ class LessonTests(unittest.TestCase):
         self.assertTrue(json.loads(runtime.step_lesson('{"space":true}'))['changed'])
 
     def test_update_runs_repeatedly_but_movement_requires_right(self):
-        data = json.loads(runtime.run_lesson('def update():\n    if keyboard.right:\n        fox.move()', 'update'))
+        data = json.loads(runtime.run_lesson('def update():\n    if keyboard.right:\n        character.move()', 'update'))
         self.assertNotIn('error', data)
         start = data['player']['x']
         for _ in range(3):
@@ -75,7 +75,7 @@ class LessonTests(unittest.TestCase):
             self.assertIn('error', json.loads(runtime.run_lesson(source, 'drawing')))
 
     def test_bad_load_clears_old_rule_and_rejects_function_defaults(self):
-        runtime.run_lesson('def update():\n    fox.move()', 'update')
-        for source in ['def update(x=fox.move()):\n    pass', '@fox.jump()\ndef update():\n    pass', 'def other():\n    pass']:
+        runtime.run_lesson('def update():\n    character.move()', 'update')
+        for source in ['def update(x=character.move()):\n    pass', '@character.jump()\ndef update():\n    pass', 'def other():\n    pass']:
             self.assertIn('error', json.loads(runtime.run_lesson(source, 'update')))
             self.assertIn('error', json.loads(runtime.step_lesson('{}')))

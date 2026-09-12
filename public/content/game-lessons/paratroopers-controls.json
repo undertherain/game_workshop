@@ -1,0 +1,6 @@
+{
+  "id": "paratroopers-controls",
+  "title": "Write the controls",
+  "description": "Robots already fall. Make the arrow keys move your launcher.",
+  "hint": "Give me a hint for implementing left and right cannon movement in update(). Point at the place to write, but let me write it first."
+}

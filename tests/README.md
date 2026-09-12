@@ -16,3 +16,6 @@ Browser checks cover autocomplete, prediction, loops, appearance edits, live les
 controls, drawing, map navigation, movement checks and transfer, draft preservation,
 reload persistence, and mobile width. Use an isolated browser profile for checks
 that reset test progress; do not clear the learner's own browser data.
+
+`content.test.mjs` validates lesson files and manifests, checks malformed or missing
+content, and executes starters through the Python runtimes.

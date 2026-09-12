@@ -1,0 +1,6 @@
+{
+  "id": "platformer-controls",
+  "title": "Write the controls",
+  "description": "The world is ready. Make Right move your fox right, and Left move it left.",
+  "hint": "Give me a hint for implementing left and right keyboard movement in update(). Point at the place to write, but let me write it first."
+}

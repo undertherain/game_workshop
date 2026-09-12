@@ -1,0 +1,29 @@
+{
+  "id": "repeat",
+  "branch": "foundations",
+  "title": "Repeat with a loop",
+  "heading": "A little code. Three jumps.",
+  "description": "The indented instruction belongs to the loop. Replace pass with fox.jump(), then run it. Change 3 to another number from 1 to 6.",
+  "rows": 3,
+  "mode": "loop",
+  "skill": "loops",
+  "starter": [
+    "for step in range(3):",
+    "    pass"
+  ],
+  "scene": {
+    "title": "A little meadow. Your instructions.",
+    "label": "Your character in a meadow. Run your instructions to make it act."
+  },
+  "placeholder": "Type fox. to discover its actions",
+  "completions": [
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    },
+    {
+      "code": "fox.move()",
+      "description": "Move right"
+    }
+  ]
+}

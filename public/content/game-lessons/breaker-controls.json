@@ -1,0 +1,6 @@
+{
+  "id": "breaker-controls",
+  "title": "Add the Right key",
+  "description": "Left already works. Read its rule, then write the matching rule for Right.",
+  "hint": "Left movement is already implemented. Give me a hint for adding only Right movement in update(). Use the existing Left rule as the example; let me write the counterpart."
+}

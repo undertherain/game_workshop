@@ -1,0 +1,53 @@
+{
+  "title": "Moon Bricks",
+  "genre": "Brick breaker",
+  "icon": "▰",
+  "description": "A paddle, a ball, a satisfying bounce.",
+  "file": "breaker.py",
+  "controls": "restart ball",
+  "action": "Reset ball ↻",
+  "placeholder": "I want my ball to…",
+  "intro": "Left already works! Try it, then look at its rule in update(). Can you write a matching rule for Right? Replace pass with your idea, run it, and try your paddle.",
+  "ideas": [
+    [
+      "Aim the ball ↗",
+      "Help me aim the ball by changing where it hits the paddle."
+    ],
+    [
+      "Bigger paddle",
+      "Show me how to make the paddle wider."
+    ],
+    [
+      "My own twist ✧",
+      "Suggest two small variations for my brick breaker and let me choose."
+    ]
+  ],
+  "guide": [
+    [
+      "paddle.speed",
+      "How quickly you move your paddle."
+    ],
+    [
+      "paddle.width",
+      "How wide the paddle is."
+    ],
+    [
+      "ball.vx / ball.vy",
+      "Ball speed sideways / vertically."
+    ],
+    [
+      "def on_paddle():",
+      "Your rule for bouncing off the paddle."
+    ],
+    [
+      "def on_break(brick):",
+      "Your rule when the ball hits a brick."
+    ]
+  ],
+  "lessons": [
+    "breaker-controls",
+    "breaker-mechanic",
+    "breaker-score",
+    "breaker-variation"
+  ]
+}

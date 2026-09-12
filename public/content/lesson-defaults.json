@@ -1,0 +1,8 @@
+{
+  "feedback": {
+    "initial": "Try it, change it, and see what happens.",
+    "success": "You made that happen! Change your instructions and try again, or take the next step.",
+    "empty": "Your program ran. Replace pass with an action to make something happen.",
+    "installed": "Your rule is running. Use your keyboard or the control below the scene. Stop ends the game loop."
+  }
+}

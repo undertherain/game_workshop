@@ -1,0 +1,33 @@
+{
+  "id": "pattern",
+  "branch": "drawing",
+  "title": "Draw a repeated pattern",
+  "heading": "Plant a row of points.",
+  "description": "The loop gives i a new value each time, starting at 0. Use it to change x. Adjust the spacing, then try drawing a second row.",
+  "rows": 4,
+  "mode": "drawing",
+  "skill": "loops",
+  "starter": [
+    "for i in range(6):",
+    "    dot(160 + i * 90, 240)"
+  ],
+  "scene": {
+    "title": "Your drawing. Your coordinates.",
+    "label": "Drawing grid: 840 pixels across, 480 down."
+  },
+  "placeholder": "Type dot or line",
+  "completions": [
+    {
+      "code": "dot(420, 240)",
+      "description": "Place a point at x, y"
+    },
+    {
+      "code": "line(220, 300, 620, 300)",
+      "description": "Connect two endpoints"
+    }
+  ],
+  "feedback": {
+    "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
+    "drawn": "Change a number and run it again."
+  }
+}

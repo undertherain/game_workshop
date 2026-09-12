@@ -1,0 +1,12 @@
+[
+  "command",
+  "choice",
+  "sequence",
+  "repeat",
+  "customize",
+  "event",
+  "update",
+  "dot",
+  "line",
+  "pattern"
+]

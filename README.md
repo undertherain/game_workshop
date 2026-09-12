@@ -45,6 +45,11 @@ lessons show the difference between executing commands once and installing rules
 that the running game calls. A visible counter shows event/update calls; buttons
 and focused-canvas keyboard controls let the learner test the rule. The introductory
 loop targets 30 updates per second; the full game runtime uses 60 Hz simulation.
+While an event/update lesson or game is running, Run becomes a pressed **Stop**
+button. Starting a live lesson or explicitly running a game focuses its canvas, so
+Space goes to the game. Stop ends execution and keeps the code and last scene; Run
+starts again from the code. One-shot commands and drawings keep their ordinary Run
+button. Editing a live lesson stops its rule until Run is pressed again.
 
 The drawing branch offers `dot(x, y)`, `line(x1, y1, x2, y2)`, and loops with simple
 coordinate expressions on a labelled grid. It uses a small workshop-specific Python
@@ -59,7 +64,11 @@ Python vocabulary expands per lesson and rejects unsupported structures. Code ca
 use at most 1,000 characters; loops use `range(1)` through `range(6)`, with a limit of
 12 animated actions or 100 drawing shapes per run.
 
-The customization lesson supports sky and character properties. Sky buttons edit
+From the customization lesson onward, the actor is named `character`, so
+`character.costume = "bunny"` and `character.jump()` still make sense after a change
+of species. The first lessons retain `fox`. Existing later lesson drafts migrate
+line-leading `fox.` references on load; the runtime also accepts the old name for
+compatibility. The customization lesson supports sky and character properties. Sky buttons edit
 the visible Python; Run applies the choice. Those appearance choices carry into
 other meadow lessons. Drafts, the last lesson and appearance choices are saved in
 this browser, with an in-memory fallback if storage is unavailable.
@@ -76,7 +85,7 @@ In the game workshop:
 2. In the brick breaker, **Left already works**. Read its rule, then replace `pass`
    with the matching Right-key rule. The other starters ask for both directions.
    Use **Give me a hint** or **Show a small example** as needed.
-3. Press **Run my code**, click the game, and try the arrow keys. **Check my step**
+3. Press **Run my code** and try the arrow keys; focus moves to the game. **Check my step**
    executes behavioral checks against the current editor code, in a separate Python
    namespace. It gives specific feedback without changing the live game.
 4. Continue to jumping / aimed bounce / firing, then scoring, then a free variation.
@@ -113,6 +122,16 @@ Pip receives the bounded progress records alongside the current game context and
 can refer to earlier practice when helping. Recommendations and transfer eligibility
 currently use explicit local rules; AI does not autonomously grade mastery or change
 the learner's curriculum. There are no accounts or cross-device progress sync.
+
+## Editing lessons
+
+Each lesson lives in its own JSON file under `public/content/lessons/`; game
+mini-exercises live under `public/content/game-lessons/`. Edit instructions,
+Python starter lines, completion choices, quizzes and feedback as data. The
+[content authoring guide](public/content/README.md) explains ordering, shared defaults,
+supported runtime modes and validation. Reload the browser for content changes;
+restart the server to refresh the tutor’s game metadata. Existing lesson IDs retain
+saved drafts and progress.
 
 ## Implementation
 

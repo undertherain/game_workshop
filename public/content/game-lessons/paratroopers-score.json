@@ -1,0 +1,6 @@
+{
+  "id": "paratroopers-score",
+  "title": "Count your hits",
+  "description": "Choose a score for each robot you intercept.",
+  "hint": "Help me add points inside on_hit. Let me choose the number of points."
+}

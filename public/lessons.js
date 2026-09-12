@@ -4,14 +4,13 @@ import { lessons, games, skillLabels } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
 const $ = id => document.getElementById(id);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
-const foundation = lessons.filter(l => l.branch === 'foundations');
 let index = 0, drafts = {}, worker, ready = false, busy = false, timer, requestPending = false;
 let actions = [], actionStart = null, startX = 250, x = 250, y = 430, quizAnswered = false;
 let interactive = false, lastStep = 0, lastFrame = 0, keys = { right: false, space: false }, spacePulse = false;
 let result = null, recorded = false, runningSource = '', personal = { sky: 'peach', costume: 'fox' };
 try {
   const saved = JSON.parse(localStorage.getItem('little-makers-lessons-v2') || '{}');
-  for (const lesson of lessons) if (typeof saved.drafts?.[lesson.id] === 'string' && saved.drafts[lesson.id].length <= 1000) drafts[lesson.id] = saved.drafts[lesson.id];
+  for (const lesson of lessons) if (typeof saved.drafts?.[lesson.id] === 'string' && saved.drafts[lesson.id].length <= 1000) drafts[lesson.id] = lesson.actor === 'character' ? saved.drafts[lesson.id].replace(/^([ \t]*)fox(?=\s*\.)/gm, '$1character') : saved.drafts[lesson.id];
   const savedIndex = lessons.findIndex(l => l.id === saved.lesson); if (savedIndex >= 0) index = savedIndex;
   if (['peach', 'lavender', 'mint', 'night'].includes(saved.personal?.sky)) personal.sky = saved.personal.sky;
   if (['fox', 'cat', 'bunny'].includes(saved.personal?.costume)) personal.costume = saved.personal.costume;
@@ -23,14 +22,22 @@ function persist() {
 }
 function feedback(message, error = false) { if ($('lesson-feedback').textContent !== message) $('lesson-feedback').textContent = message; $('lesson-feedback').dataset.error = String(error); }
 function clearKeys() { keys = { right: false, space: false }; spacePulse = false; }
-function resetScene() { actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); }
+function syncRunButton() {
+  $('lesson-run').textContent = interactive ? '■ Stop' : '▶ Run';
+  $('lesson-run').setAttribute('aria-pressed', String(interactive));
+}
+function stopLesson() {
+  stopWorker(); finish();
+  $('lesson-space').disabled = $('lesson-right').disabled = true;
+  $('lesson-loop-status').textContent = 'Stopped · Run starts your rule again.';
+  feedback('Stopped. Your code is still here. Press Run to start again.');
+}
+function resetScene() { actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
 function suggestions() {
   const line = input.value.slice(0, input.selectionStart).split('\n').at(-1).trim();
   $('lesson-completions').replaceChildren();
   if (!line) return;
-  const options = current().mode === 'drawing' ? [['dot(420, 240)', 'Place a point at x, y'], ['line(220, 300, 620, 300)', 'Connect two endpoints']]
-    : [['fox.jump()', 'Jump up and land'], ['fox.move()', 'Move right'], ...(current().mode === 'style' ? [['world.sky = "night"', 'Change the sky'], ['fox.costume = "bunny"', 'Choose a character']] : [])];
-  for (const [command, description] of options) {
+  for (const { code: command, description } of current().completions) {
     if (!command.startsWith(line) || command === line) continue;
     const button = document.createElement('button'); button.type = 'button';
     button.textContent = command; const small = document.createElement('small'); small.textContent = description; button.append(small);
@@ -50,24 +57,24 @@ function render() {
   $('lesson-progress').textContent = `${lesson.branch === 'drawing' ? 'Drawing' : 'Foundations'} · ${position + 1} / ${branch.length}`;
   $('lesson-dots').replaceChildren(...branch.map((_, i) => { const dot = document.createElement('span'); dot.className = i <= position ? 'active' : ''; return dot; }));
   input.value = drafts[lesson.id] ?? lesson.code; input.rows = lesson.rows; input.disabled = false;
-  input.placeholder = lesson.mode === 'drawing' ? 'Type dot or line' : 'Type fox. to discover its actions';
+  input.placeholder = lesson.placeholder;
   $('lesson-back').disabled = position === 0;
   $('lesson-next').textContent = position === branch.length - 1 ? 'Choose a game or another path →' : 'Next little step →';
   $('lesson-quiz').hidden = !lesson.quiz; quizAnswered = !lesson.quiz;
-  $('quiz-feedback').textContent = ''; resetScene(); recorded = false; suggestions();
+  $('quiz-feedback').textContent = ''; renderQuiz(lesson.quiz); renderPalette(lesson.palette); resetScene(); recorded = false; suggestions();
   const live = ['event', 'update'].includes(lesson.mode);
   $('lesson-live').hidden = !live; $('lesson-space').hidden = lesson.mode !== 'event'; $('lesson-right').hidden = lesson.mode !== 'update';
   $('lesson-space').disabled = true; $('lesson-right').disabled = true;
   $('lesson-loop-status').textContent = 'Run installs your rule. Then try the control.';
-  $('lesson-palette').hidden = lesson.mode !== 'style';
-  $('lesson-scene-title').textContent = lesson.mode === 'drawing' ? 'Your drawing. Your coordinates.' : 'A little meadow. Your instructions.';
+  $('lesson-palette').hidden = !lesson.palette;
+  $('lesson-scene-title').textContent = lesson.scene.title;
   canvas.dataset.drawing = String(lesson.mode === 'drawing');
-  canvas.setAttribute('aria-label', lesson.mode === 'drawing' ? 'Drawing grid: 840 pixels across, 480 down.' : live ? 'Your game. Click here, then use Space or Right to try your rule.' : 'Your character in a meadow. Run your instructions to make it act.');
+  canvas.setAttribute('aria-label', lesson.scene.label);
   $('lesson-input-help').textContent = lesson.rows === 1 ? 'Tab completes a suggestion. Enter runs your instruction.' : 'Tab completes a suggestion or indents. Ctrl / ⌘ + Enter runs your program.';
-  feedback(lesson.quiz ? 'Make a prediction below, then try the program.' : 'Try it, change it, and see what happens.');
+  feedback(lesson.quiz ? lesson.quiz.initial : lesson.feedback.initial);
 }
-function stopWorker() { worker?.terminate(); worker = null; ready = false; requestPending = false; interactive = false; clearTimeout(timer); clearKeys(); }
-function finish() { busy = false; input.disabled = false; $('lesson-run').disabled = false; $('lesson-back').disabled = lessons.filter(l => l.branch === current().branch).indexOf(current()) === 0; $('lesson-next').disabled = false; }
+function stopWorker() { worker?.terminate(); worker = null; ready = false; requestPending = false; interactive = false; clearTimeout(timer); clearKeys(); syncRunButton(); }
+function finish() { busy = false; input.disabled = false; $('lesson-run').disabled = false; $('lesson-back').disabled = lessons.filter(l => l.branch === current().branch).indexOf(current()) === 0; $('lesson-next').disabled = false; syncRunButton(); }
 function fail(message) { stopWorker(); actions = []; finish(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback(message, true); }
 function recordPractice() {
   if (recorded) return;
@@ -86,30 +93,31 @@ function receive(data) {
   clearTimeout(timer); requestPending = false;
   if (data.type === 'ready') { ready = true; send('run'); return; }
   if (data.type === 'error') { fail(data.error); return; }
-  if (data.error) { interactive = false; finish(); feedback(data.error, true); return; }
+  if (data.error) { fail(data.error); return; }
   result = data;
   if (data.type === 'step') {
     const mode = current().mode;
     $('lesson-loop-status').textContent = mode === 'event' ? `Space events: ${data.eventCalls} · your function waits between presses` : `update() calls: ${data.ticks} · Right is ${keys.right ? 'held' : 'released'}`;
-    if (data.changed) { recordPractice(); feedback(mode === 'event' ? 'Your function ran because you pressed Space. Run installed the rule; the event triggered it.' : 'Your movement instruction is inside the game loop now. Release Right and watch the rule keep checking.'); }
+    if (data.changed) { recordPractice(); feedback(current().feedback.triggered); }
     return;
   }
   interactive = data.interactive;
   if (interactive) {
     finish(); $('lesson-space').disabled = $('lesson-right').disabled = false;
-    feedback('Your rule is installed. Try the control below the scene, or click the scene and use your keyboard.');
+    canvas.focus({ preventScroll: true });
+    feedback(current().feedback.installed);
   } else if (current().mode === 'drawing') {
-    finish(); recordPractice(); feedback(data.shapes.length ? `You drew ${data.shapes.length} ${data.shapes.length === 1 ? 'shape' : 'shapes'}. Change a number and run it again.` : 'Your program ran. Add dot(...) or line(...) to draw something.');
+    finish(); recordPractice(); feedback(data.shapes.length ? `You drew ${data.shapes.length} ${data.shapes.length === 1 ? 'shape' : 'shapes'}. ${current().feedback.drawn}` : current().feedback.empty);
   } else {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
-    if (!actions.length) { finish(); recordPractice(); feedback(current().mode === 'style' ? 'You changed the scene with code. Try another choice.' : 'Your program ran. Replace pass with an action to make something happen.'); }
+    if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.empty); }
     else feedback(`Your instructions: ${data.actions.join(' → ')}.`);
   }
 }
 function run() {
   if (busy) return;
-  if (!quizAnswered) { feedback('Choose what you think happens first below. It’s okay to guess.'); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+  if (!quizAnswered) { feedback(current().quiz.prompt); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   if (!input.value.trim()) { feedback('Write an instruction first. Try the example above.', true); input.focus(); return; }
   if (current().rows === 1 && input.value.trim().split('\n').length > 1) { feedback('For this step, try just one command. We’ll combine commands next.', true); return; }
   persist(); runningSource = input.value; recorded = false;
@@ -145,11 +153,11 @@ function frame(time) {
       const t = Math.min(1, (time - actionStart) / 700);
       if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
       else x = Math.min(790, startX + t * 80);
-      if (t === 1) { actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback('You made that happen! Change your instructions and try again, or take the next step.'); } }
+      if (t === 1) { actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
     }
     if (current().mode === 'drawing') drawGrid();
     else {
-      scene.update({ ...initialState, stars: [], platforms: [[0, 430, 840]], world: { ...initialState.world, sky: personal.sky }, player: interactive && result ? { ...result.player, costume: personal.costume } : { x, y, facing: 1, costume: personal.costume, on_ground: y === 430 } });
+      scene.update({ ...initialState, stars: [], platforms: [[0, 430, 840]], world: { ...initialState.world, sky: personal.sky }, player: result?.interactive ? { ...result.player, costume: current().actor ? personal.costume : 'fox' } : { x, y, facing: 1, costume: current().actor ? personal.costume : 'fox', on_ground: y === 430 } });
       scene.draw(time);
     }
   }
@@ -202,12 +210,12 @@ async function openWorkshop(id) {
   finally { opening = false; }
 }
 function edited() {
-  if (interactive) { stopWorker(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback('Your rule changed. Run it to install this version.'); }
+  if (interactive) { stopWorker(); finish(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback('Your rule changed. Run it to install this version.'); }
   persist(); suggestions();
 }
 $('map-toggle').onclick = openMap;
 $('mode-toggle').onclick = () => document.body.dataset.mode === 'lessons' ? openWorkshop() : openLesson(current().id);
-$('lesson-form').onsubmit = event => { event.preventDefault(); run(); };
+$('lesson-form').onsubmit = event => { event.preventDefault(); if (interactive) stopLesson(); else run(); };
 input.oninput = edited; input.onclick = suggestions;
 input.onkeydown = event => {
   if (event.key === 'Tab' && !event.shiftKey) {
@@ -227,18 +235,38 @@ function navigate(delta) {
   if (next) openLesson(next.id); else openMap();
 }
 $('lesson-back').onclick = () => navigate(-1); $('lesson-next').onclick = () => navigate(1);
-document.querySelectorAll('[data-answer]').forEach(button => button.onclick = () => {
-  quizAnswered = true;
-  const first = input.value.trim().split('\n')[0].trim();
-  $('quiz-feedback').textContent = first === `fox.${button.dataset.answer}()` ? 'That matches the first line. Run it and see!' : 'Let’s test your prediction. Run the program and watch which line happens first.';
-  feedback('Prediction made. Press Run to see what happens.');
-});
-document.querySelectorAll('[data-sky]').forEach(button => button.onclick = () => {
-  if (busy) return;
-  const assignment = `world.sky = "${button.dataset.sky}"`;
-  input.value = /^world\.sky\s*=.*$/m.test(input.value) ? input.value.replace(/^world\.sky\s*=.*$/m, assignment) : assignment + '\n' + input.value;
-  edited(); feedback('The sky choice changed your code. Run it to see the result.');
-});
+function renderQuiz(quiz) {
+  $('quiz-choices').replaceChildren();
+  $('quiz-title').textContent = quiz?.title || '';
+  for (const choice of quiz?.choices || []) {
+    const button = document.createElement('button'); button.type = 'button';
+    button.dataset.answer = choice.id; button.textContent = choice.label;
+    button.onclick = () => {
+      quizAnswered = true;
+      const first = input.value.trim().split('\n')[0].trim();
+      $('quiz-feedback').textContent = first === choice.firstLine ? quiz.match : quiz.different;
+      feedback(quiz.ready);
+    };
+    $('quiz-choices').append(button);
+  }
+}
+function renderPalette(palette) {
+  $('lesson-palette').replaceChildren();
+  if (!palette) return;
+  const label = document.createElement('span'); label.textContent = palette.label;
+  $('lesson-palette').append(label);
+  for (const choice of palette.choices) {
+    const button = document.createElement('button'); button.type = 'button';
+    button.dataset.sky = choice.value; button.textContent = choice.label;
+    button.onclick = () => {
+      if (busy) return;
+      const assignment = `world.sky = "${choice.value}"`;
+      input.value = /^world\.sky\s*=.*$/m.test(input.value) ? input.value.replace(/^world\.sky\s*=.*$/m, assignment) : assignment + '\n' + input.value;
+      edited(); feedback('The sky choice changed your code. Run it to see the result.');
+    };
+    $('lesson-palette').append(button);
+  }
+}
 $('lesson-space').onclick = () => { spacePulse = true; };
 $('lesson-right').onpointerdown = event => { event.preventDefault(); $('lesson-right').setPointerCapture(event.pointerId); keys.right = true; };
 for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) $('lesson-right').addEventListener(name, () => keys.right = false);

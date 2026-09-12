@@ -32,7 +32,7 @@ def _validate(body, mode, loop_names=(), depth=0):
             if call.keywords:
                 raise ValueError('Use the arguments shown in this lesson.')
             if (mode != 'drawing' and isinstance(call.func, ast.Attribute)
-                    and isinstance(call.func.value, ast.Name) and call.func.value.id == 'fox'
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id in (('fox', 'character') if mode in ('style', 'event', 'update') else ('fox',))
                     and call.func.attr in ('jump', 'move') and not call.args):
                 continue
             if mode == 'drawing' and isinstance(call.func, ast.Name) and call.func.id in ('dot', 'line'):
@@ -53,11 +53,11 @@ def _validate(body, mode, loop_names=(), depth=0):
         if isinstance(node, ast.Assign) and mode == 'style' and len(node.targets) == 1:
             target = node.targets[0]
             if isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name) and isinstance(node.value, ast.Constant):
-                choices = {('world', 'sky'): ('peach', 'lavender', 'mint', 'night'), ('fox', 'costume'): ('fox', 'cat', 'bunny')}
+                choices = {('world', 'sky'): ('peach', 'lavender', 'mint', 'night'), ('fox', 'costume'): ('fox', 'cat', 'bunny'), ('character', 'costume'): ('fox', 'cat', 'bunny')}
                 options = choices.get((target.value.id, target.attr), ())
                 if node.value.value in options:
                     continue
-            raise ValueError('Choose world.sky = "peach", "lavender", "mint" or "night"; fox.costume = "fox", "cat" or "bunny".')
+            raise ValueError('Choose world.sky = "peach", "lavender", "mint" or "night"; character.costume = "fox", "cat" or "bunny".')
         if isinstance(node, ast.If) and mode == 'update' and not node.orelse:
             test = node.test
             if isinstance(test, ast.Attribute) and isinstance(test.value, ast.Name) and test.value.id == 'keyboard' and test.attr == 'right':
@@ -78,13 +78,13 @@ class Lesson:
         self.mode, self.actions, self.shapes = mode, [], []
         self.ticks, self.last_space, self.event_calls = 0, False, 0
         self.world = SimpleNamespace(sky='peach', score=0)
-        self.fox = SimpleNamespace(x=250, y=430, vy=0, costume='fox', facing=1, on_ground=True)
+        self.character = SimpleNamespace(x=250, y=430, vy=0, costume='fox', facing=1, on_ground=True)
         self.keyboard = SimpleNamespace(right=False)
         self.changed = False
-        self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.fox,
+        self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
                       'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
-        self.fox.jump = lambda: self.action('jump')
-        self.fox.move = lambda: self.action('move')
+        self.character.jump = lambda: self.action('jump')
+        self.character.move = lambda: self.action('move')
         interactive = mode in ('event', 'update')
         if interactive:
             name = 'on_space_pressed' if mode == 'event' else 'update'
@@ -104,10 +104,10 @@ class Lesson:
     def action(self, name):
         if self.mode in ('event', 'update'):
             if name == 'move':
-                self.fox.x = min(800, self.fox.x + 4)
+                self.character.x = min(800, self.character.x + 4)
                 self.changed = True
-            elif self.fox.on_ground:
-                self.fox.vy, self.fox.on_ground = -10, False
+            elif self.character.on_ground:
+                self.character.vy, self.character.on_ground = -10, False
                 self.changed = True
         else:
             if len(self.actions) >= 12:
@@ -131,7 +131,7 @@ class Lesson:
         return {'actions': self.actions, 'shapes': self.shapes, 'features': self.features,
                 'interactive': self.mode in ('event', 'update'), 'ticks': self.ticks,
                 'eventCalls': self.event_calls, 'changed': self.changed,
-                'player': {k: v for k, v in vars(self.fox).items() if not callable(v)}, 'world': vars(self.world)}
+                'player': {k: v for k, v in vars(self.character).items() if not callable(v)}, 'world': vars(self.world)}
 
     def step(self, keys):
         self.keyboard.right = bool(keys.get('right'))
@@ -143,10 +143,10 @@ class Lesson:
         if self.mode == 'update':
             self.scope['update']()
         self.last_space = space
-        self.fox.vy += 0.65
-        self.fox.y += self.fox.vy
-        if self.fox.y >= 430:
-            self.fox.y, self.fox.vy, self.fox.on_ground = 430, 0, True
+        self.character.vy += 0.65
+        self.character.y += self.character.vy
+        if self.character.y >= 430:
+            self.character.y, self.character.vy, self.character.on_ground = 430, 0, True
         self.ticks += 1
         return self.snapshot()
 

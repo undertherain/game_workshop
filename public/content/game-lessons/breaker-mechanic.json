@@ -1,0 +1,6 @@
+{
+  "id": "breaker-mechanic",
+  "title": "Build an aimed bounce",
+  "description": "Make the ball turn left or right depending on where it hits.",
+  "hint": "Help me aim the ball with the paddle. Add ball.vx based on ball.x minus paddle.x in on_paddle, using one small edit."
+}

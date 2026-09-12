@@ -49,8 +49,20 @@ function locate(line, message='This is the line Pip is talking about.', focus=tr
   $('line-note').textContent=`Line ${line} · ${message}`;
 }
 function clearKeys(){keys={left:false,right:false,jump:false};}
+function setPlaying(value){
+  playing=value;
+  $('run').textContent=value?'■ Stop':'▶ Run my code';
+  $('run').setAttribute('aria-pressed',String(value));
+}
+function stopPlayback(){
+  setPlaying(false);clearKeys();worker?.terminate();ready=false;pending=null;
+  clearTimeout(requestTimer);clearTimeout(bootTimer);
+  $('run').disabled=false;$('check-step').disabled=false;$('boot-overlay').hidden=true;
+  $('run-status').textContent='Stopped · Run my code starts the game again';
+  $('code-state').textContent=editor.value===runningCode?'Stopped':'Changes to try';
+}
 function showError(error) {
-  currentError=error;playing=false;clearKeys();
+  currentError=error;setPlaying(false);clearKeys();
   $('error-box').hidden=false;$('error-title').textContent=error.line?`Let’s look at line ${error.line}`:'Something needs a little attention';
   const friendly={SyntaxError:'Python could not read this rule yet. Check its punctuation.',IndentationError:'The spaces at the start of a line show which rule it belongs to.',NameError:'Python found a name it does not know. Check its spelling.',TypeError:'These pieces do not fit together yet. Check the values on this line.'};
   $('error-message').textContent=`${friendly[error.type]||'Your editor is still here. You can change the code and try again.'}\n${error.message}`;
@@ -63,13 +75,13 @@ function send(type, payload={}) {
   const id=++requestId;pending={id,type,template:templateId,...payload};
   requestTimer=setTimeout(()=>{
     if(pending?.id!==id)return;
-    worker.terminate();ready=false;pending=null;playing=false;$('run').disabled=false;$('check-step').disabled=false;
+    worker.terminate();ready=false;pending=null;setPlaying(false);$('run').disabled=false;$('check-step').disabled=false;
     showError({type:'TimeoutError',line:null,message:'That code kept running without giving the game a turn. Check for a loop that never ends, then press Run my code.'});
   },type==='load'?1800:1200);
   worker.postMessage({id,type,template:templateId,...payload});return true;
 }
 function boot(source) {
-  worker?.terminate();clearTimeout(requestTimer);clearTimeout(bootTimer);pending=null;ready=false;playing=false;
+  worker?.terminate();clearTimeout(requestTimer);clearTimeout(bootTimer);pending=null;ready=false;setPlaying(false);
   $('boot-overlay').hidden=false;$('run').disabled=true;
   worker=new Worker('/python-worker.js',{type:'module'});
   const thisWorker=worker;
@@ -92,10 +104,11 @@ function boot(source) {
       $('exercise-result').textContent=exerciseFeedback.message;$('exercise-result').dataset.pass=String(exerciseFeedback.passed);
       return;
     }
+    if(data.type==='step'&&!playing)return;
     if(data.error){$('run').disabled=false;showError(data.error);return;}
     if(data.state)displayState(data.state);
     if(data.type==='load'){
-      runningCode=request.code;currentError=null;playing=true;focusedLine=null;
+      runningCode=request.code;currentError=null;setPlaying(true);focusedLine=null;
       $('error-box').hidden=true;$('run').disabled=false;$('code-state').textContent=editor.value===runningCode?'Running this version':'Changes to try';
       $('run-status').textContent='Your Python is running';$('line-note').textContent='✧ Click the game and try your rules.';paintEditor();
     }
@@ -104,7 +117,7 @@ function boot(source) {
 async function run(source=editor.value) {
   if(!source.trim()){showError({type:'ValueError',line:null,message:'Your game needs a few rules. Undo your edit or paste your saved Python.'});return;}
   if(source.length>20000){showError({type:'ValueError',line:null,message:'This little workshop can run up to 20,000 characters of Python.'});return;}
-  clearKeys();playing=false;$('run-status').textContent='Trying your code…';
+  clearKeys();setPlaying(false);$('run-status').textContent='Trying your code…';
   if(!ready){boot(source);return;}
   // Finish an in-flight frame before loading a new version.
   if(pending){await new Promise(resolve=>setTimeout(resolve,40));if(pending){setTimeout(()=>run(source),80);return;}}
@@ -153,7 +166,7 @@ editor.addEventListener('keydown',event=>{
   if(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();const start=editor.selectionStart;const line=editor.value.slice(0,start).split('\n').at(-1);const indent=line.match(/^ */)[0]+(line.trimEnd().endsWith(':')?'    ':'');checkpoint();editor.setRangeText('\n'+indent,start,editor.selectionEnd,'end');save();}
 });
 editor.addEventListener('focus',clearKeys);
-$('run').onclick=()=>{run();canvas.focus({preventScroll:true});};
+$('run').onclick=()=>{if(playing){stopPlayback();return;}run();canvas.focus({preventScroll:true});};
 $('restart').onclick=()=>{run(runningCode||starter);canvas.focus({preventScroll:true});};
 $('undo').onclick=()=>{if(!snapshots.length)return;editor.value=snapshots.pop();$('undo').disabled=!snapshots.length;focusedLine=null;save();$('line-note').textContent='Edit undone. Run your code when you’re ready.';};
 $('download').onclick=()=>{const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
@@ -262,5 +275,5 @@ try {
 window.workshop={getState:()=>gameState,getError:()=>currentError,isReady:()=>ready&&!pending,
   getCode:()=>editor.value,setCode(value){checkpoint();editor.value=value;exerciseFeedback=null;save();},run,ask,
   getRunningCode:()=>runningCode,setKeys(value){keys={left:false,right:false,jump:false,...value};},
-  pause(){playing=false;clearKeys();},resume(){playing=true;},starter:()=>starter,
+  pause(){setPlaying(false);clearKeys();},resume(){setPlaying(true);},starter:()=>starter,
   selectTemplate,getTemplate:()=>templateId,checkStep,setStep(index){stepIndex=index;exerciseFeedback=null;renderStep();},getExerciseFeedback:()=>exerciseFeedback};

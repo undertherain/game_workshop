@@ -1,0 +1,53 @@
+{
+  "title": "Star Meadow",
+  "genre": "Platformer",
+  "icon": "↗",
+  "description": "Run, jump, and find your stars.",
+  "file": "platformer.py",
+  "controls": "jump",
+  "action": "Jump ↑",
+  "placeholder": "I want my fox to…",
+  "intro": "The landscape and gravity are ready. Your first little job: make the Right arrow move your fox. Write it inside update(), where pass is now. Want a hint?",
+  "ideas": [
+    [
+      "Add a jump ↗",
+      "Help me add jumping to my platformer, one small step at a time."
+    ],
+    [
+      "Change character",
+      "How can I change my fox into a bunny?"
+    ],
+    [
+      "My own twist ✧",
+      "Suggest two small variations I could make to this platformer. Let me choose."
+    ]
+  ],
+  "guide": [
+    [
+      "player.speed",
+      "How far you move each moment."
+    ],
+    [
+      "player.jump_height",
+      "The upward push at the start of a jump."
+    ],
+    [
+      "world.sky",
+      "\"peach\", \"lavender\", \"mint\", or \"night\"."
+    ],
+    [
+      "Actor(\"fox\", …)",
+      "Try \"cat\" or \"bunny\" as well."
+    ],
+    [
+      "def on_collect(star):",
+      "A rule that runs when you touch a star."
+    ]
+  ],
+  "lessons": [
+    "platformer-controls",
+    "platformer-mechanic",
+    "platformer-score",
+    "platformer-variation"
+  ]
+}

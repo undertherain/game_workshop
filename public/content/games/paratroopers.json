@@ -1,0 +1,53 @@
+{
+  "title": "Sky Patrol",
+  "genre": "Paratroopers",
+  "icon": "☂",
+  "description": "Catch the falling robots in your sights.",
+  "file": "paratroopers.py",
+  "controls": "fire",
+  "action": "Fire ↑",
+  "placeholder": "I want my sky patrol to…",
+  "intro": "The robots and landscape are ready. You write the launcher’s controls: start by connecting the arrow keys inside update(), where pass is now.",
+  "ideas": [
+    [
+      "Add firing ↑",
+      "Help me make Space fire my launcher. Show me one small edit."
+    ],
+    [
+      "Slower robots",
+      "How can I make the robots fall more slowly?"
+    ],
+    [
+      "My own twist ✧",
+      "Suggest two small variations for Sky Patrol and let me choose."
+    ]
+  ],
+  "guide": [
+    [
+      "cannon.speed",
+      "How quickly your launcher moves."
+    ],
+    [
+      "cannon.fire()",
+      "Sends one spark upward."
+    ],
+    [
+      "keyboard.fire",
+      "True when Space is first pressed."
+    ],
+    [
+      "world.fall_speed",
+      "How quickly the robots descend."
+    ],
+    [
+      "def on_hit(target):",
+      "Your rule when a spark hits a robot."
+    ]
+  ],
+  "lessons": [
+    "paratroopers-controls",
+    "paratroopers-mechanic",
+    "paratroopers-score",
+    "paratroopers-variation"
+  ]
+}

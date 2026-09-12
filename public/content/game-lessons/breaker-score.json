@@ -1,0 +1,6 @@
+{
+  "id": "breaker-score",
+  "title": "Make bricks worth points",
+  "description": "Decide how many points you earn for each brick.",
+  "hint": "Help me add points inside on_break. Let me choose how many each brick is worth."
+}

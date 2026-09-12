@@ -1,0 +1,33 @@
+{
+  "id": "line",
+  "branch": "drawing",
+  "title": "Connect two points",
+  "heading": "Give your line two ends.",
+  "description": "A line takes two pairs of coordinates: its start and its end. Move an endpoint. Can you make a diagonal, a roof, or a tiny mountain?",
+  "rows": 3,
+  "mode": "drawing",
+  "skill": "coordinates",
+  "starter": [
+    "line(220, 300, 420, 140)",
+    "line(420, 140, 620, 300)"
+  ],
+  "scene": {
+    "title": "Your drawing. Your coordinates.",
+    "label": "Drawing grid: 840 pixels across, 480 down."
+  },
+  "placeholder": "Type dot or line",
+  "completions": [
+    {
+      "code": "dot(420, 240)",
+      "description": "Place a point at x, y"
+    },
+    {
+      "code": "line(220, 300, 620, 300)",
+      "description": "Connect two endpoints"
+    }
+  ],
+  "feedback": {
+    "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
+    "drawn": "Change a number and run it again."
+  }
+}

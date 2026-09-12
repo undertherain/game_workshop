@@ -1,0 +1,83 @@
+{
+  "skillLabels": {
+    "commands": "Instructions",
+    "sequence": "Sequence",
+    "loops": "Loops",
+    "properties": "Properties",
+    "events": "Events",
+    "game-loop": "The game loop",
+    "coordinates": "Coordinates",
+    "movement": "Keyboard movement",
+    "bounce": "Aimed bounce",
+    "jump": "Grounded jumping",
+    "fire": "Firing",
+    "scoring": "Scoring"
+  },
+  "gameSkills": {
+    "platformer": [
+      "movement",
+      "jump",
+      "scoring"
+    ],
+    "breaker": [
+      "movement",
+      "bounce",
+      "scoring"
+    ],
+    "paratroopers": [
+      "movement",
+      "fire",
+      "scoring"
+    ]
+  },
+  "games": [
+    {
+      "id": "breaker",
+      "title": "Brick breaker",
+      "mark": "▰",
+      "description": "Keep the ball in play and clear a wall of bricks.",
+      "concepts": "Keyboard movement · bounce · scoring",
+      "recommendation": "A good first game: Left works already. Add Right.",
+      "available": true
+    },
+    {
+      "id": "platformer",
+      "title": "Platformer",
+      "mark": "↗",
+      "description": "Run through a meadow, jump onto platforms and collect stars.",
+      "concepts": "Keyboard movement · gravity · collisions",
+      "recommendation": "Try after the game-loop lesson, or explore now.",
+      "available": true
+    },
+    {
+      "id": "paratroopers",
+      "title": "Sky Patrol",
+      "mark": "☂",
+      "description": "Move a launcher and intercept the falling robots.",
+      "concepts": "Keyboard movement · events · scoring",
+      "recommendation": "Practise events by building the fire button.",
+      "available": true
+    },
+    {
+      "id": "sokoban",
+      "title": "Sokoban",
+      "mark": "□",
+      "description": "Push crates onto goals. Every move changes the puzzle.",
+      "concepts": "Grid movement · conditions · undo",
+      "available": false
+    },
+    {
+      "id": "xonix",
+      "title": "Xonix",
+      "mark": "⌗",
+      "description": "Draw paths to claim territory while avoiding enemies.",
+      "concepts": "Grids · regions · flood fill",
+      "available": false
+    }
+  ],
+  "templates": [
+    "platformer",
+    "breaker",
+    "paratroopers"
+  ]
+}

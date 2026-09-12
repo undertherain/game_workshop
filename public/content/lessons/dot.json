@@ -1,0 +1,32 @@
+{
+  "id": "dot",
+  "branch": "drawing",
+  "title": "Place a point",
+  "heading": "A point is a place to begin.",
+  "description": "This drawing grid is 840 across and 480 down. Change the two numbers to place your point. The first is x (across); the second is y (down).",
+  "rows": 1,
+  "mode": "drawing",
+  "skill": "coordinates",
+  "starter": [
+    "dot(420, 240)"
+  ],
+  "scene": {
+    "title": "Your drawing. Your coordinates.",
+    "label": "Drawing grid: 840 pixels across, 480 down."
+  },
+  "placeholder": "Type dot or line",
+  "completions": [
+    {
+      "code": "dot(420, 240)",
+      "description": "Place a point at x, y"
+    },
+    {
+      "code": "line(220, 300, 620, 300)",
+      "description": "Connect two endpoints"
+    }
+  ],
+  "feedback": {
+    "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
+    "drawn": "Change a number and run it again."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "update",
+  "branch": "foundations",
+  "actor": "character",
+  "title": "Inside the game loop",
+  "heading": "A rule that stays alive.",
+  "description": "The game calls update() 30 times a second in this lesson. The condition asks whether Right is held. Replace pass with character.move(), run, then hold Right. Release it: the game keeps checking, but the movement stops.",
+  "rows": 4,
+  "mode": "update",
+  "skill": "game-loop",
+  "starter": [
+    "def update():",
+    "    if keyboard.right:",
+    "        pass"
+  ],
+  "scene": {
+    "title": "A little meadow. Your instructions.",
+    "label": "Your game. Use Space or Right to try your rule."
+  },
+  "placeholder": "Type character. to discover its actions",
+  "completions": [
+    {
+      "code": "character.jump()",
+      "description": "Jump up and land"
+    },
+    {
+      "code": "character.move()",
+      "description": "Move right"
+    }
+  ],
+  "feedback": {
+    "triggered": "Your movement instruction is inside the game loop now. Release Right and watch the rule keep checking."
+  }
+}
