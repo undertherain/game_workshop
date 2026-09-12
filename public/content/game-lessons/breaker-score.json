@@ -2,5 +2,10 @@
   "id": "breaker-score",
   "title": "Make bricks worth points",
   "description": "Decide how many points you earn for each brick.",
-  "hint": "Help me add points inside on_break. Let me choose how many each brick is worth."
+  "hint": "Help me add points inside on_break. Let me choose how many each brick is worth.",
+  "guide": {
+    "function": "on_break",
+    "instruction": "Add points inside on_break(), alongside brick.hide().",
+    "review": "Add points inside on_break(), alongside brick.hide()."
+  }
 }

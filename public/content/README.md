@@ -52,6 +52,15 @@ experiment rather than blocking progress for a wrong answer.
 - `games/<game>.json` holds the game's display metadata, introduction, idea prompts,
   pocket guide and ordered `lessons` IDs.
 - `game-lessons/<id>.json` holds **one** exercise: `id`, `title`, `description`, `hint`.
+- An optional `guide` object provides editor guidance: `function` names the Python
+  function, `replace` optionally identifies an exact placeholder line, `instruction`
+  explains the edit, and `review` is shown once that placeholder is gone. Locations
+  are resolved against the current draft rather than fixed line numbers.
+- `guide.editAfter` optionally names an exact comment line inside that function.
+  The first movement tutorials use it to mark the editable rule area: code after
+  that comment through the last body line is editable; the surrounding source is
+  protected. Keep this marker aligned with the `.py` starter. Missing or ambiguous
+  anchors leave the draft unrestricted rather than guessing a location.
 - The existing `.py` files remain the game's editable starter programs.
 
 The game runtime currently expects four exercises in order: movement, a second

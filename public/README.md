@@ -29,3 +29,21 @@ starters. `app.js` records behavior checks, tracks assistance, presents the tran
 preview and sends progress to Pip. Supplied movement does not prevent independent
 checks of later mechanics; accepted AI edits conservatively mark that draft assisted.
 `gameSkills` maps each game's first three exercises to shared or specific concepts.
+
+`editor-guidance.js` resolves exercise anchors and protected edit regions. `app.js`
+paints the target and provided lines, focuses/selects the editable placeholder on
+request, and guards typed, pasted and programmatic edits against the protected
+prefix/suffix. Guided control exercises can be explicitly unlocked; later exercises
+use location hints without edit restrictions. AI edits outside a protected region
+require choosing Edit whole file before applying.
+
+Both editors offer **Reset code** without running the restored source. Game reset
+restores the template and first exercise with guided protection; its undo snapshot
+retains the previous code, exercise and explicit unlocks. Intro reset restores only
+the current lesson and offers an in-session Undo reset. Drafts are saved and
+learning evidence is preserved.
+
+The learning map marks practised introductory stages with a visible Completed
+check badge and stronger green border, plus completed-stage counts per branch.
+This uses existing successful-practice records, not a new mastery assessment;
+completed lessons remain available to revisit.

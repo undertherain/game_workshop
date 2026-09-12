@@ -34,11 +34,11 @@
     <p class="lesson-footnote">No rush. Change your command and run it again whenever you like.</p>
     </aside>
     <section class="lesson-card" aria-label="Your fox and code">
-      <div class="panel-heading"><strong id="lesson-scene-title">A little meadow. Your instructions.</strong><span class="language-badge">Python</span></div>
+      <div class="panel-heading"><strong id="lesson-scene-title">A little meadow. Your instructions.</strong></div>
       <canvas id="lesson-game" tabindex="0" width="840" height="480" aria-label="A fox in a meadow. Run a command to make it move or jump."></canvas>
       <div id="lesson-live" class="lesson-live" hidden><span id="lesson-loop-status" aria-live="off">Run your rule to begin.</span><button id="lesson-space" type="button">Space · jump</button><button id="lesson-right" type="button">Hold Right →</button></div>
       <form id="lesson-form" class="lesson-cell">
-        <label for="lesson-code">Your program</label>
+        <div class="lesson-code-tools"><label for="lesson-code">Your program</label><div><button id="lesson-undo-reset" class="quiet" type="button" hidden>↶ Undo reset</button><button id="lesson-reset" class="quiet" type="button" disabled title="Restore this lesson’s starting code">↺ Reset code</button></div></div>
         <div class="lesson-input-row"><span class="cell-prompt" aria-hidden="true">❯</span><textarea id="lesson-code" disabled rows="1" maxlength="1000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="lesson-input-help" placeholder="Type fox. to discover its actions"></textarea><button id="lesson-run" disabled aria-pressed="false" class="primary" type="submit">▶ Run</button></div>
         <div id="lesson-completions" aria-label="Suggested commands"></div>
         <p id="lesson-input-help">Type fox. for suggestions. Tab completes the first suggestion; Ctrl / ⌘ + Enter runs.</p>
@@ -71,8 +71,9 @@
       <section class="code-card" aria-labelledby="code-title">
         <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><span class="language-badge">Python</span></div>
         <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
-        <div class="run-bar"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
-        <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
+        <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the game’s starting code and return to the first exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
+        <div id="editor-guide" class="editor-guide" hidden><div><strong>Your turn</strong><p id="editor-guide-message"></p></div><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div>
+        <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-describedby="editor-guide-message" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
         <div id="line-note" class="line-note">✧ Start with a number. See what happens.</div>
         <div id="error-box" class="error-box" role="alert" hidden><strong id="error-title"></strong><p id="error-message"></p><button id="explain-error" class="quiet">Help me understand this ↗</button></div>
         <div class="code-bottom"><span id="run-status">Python is starting…</span><span>⌘ / Ctrl + Enter to run</span></div>

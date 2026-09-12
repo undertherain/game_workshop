@@ -56,11 +56,15 @@ export async function loadTemplates(ids, read = readContent) {
     for (const key of ['ideas','guide']) requireValue(Array.isArray(template[key]) && template[key].every(pair => Array.isArray(pair) && pair.length === 2 && pair.every(text)), `games/${id}.json: invalid ${key}`);
     validateIds(template.lessons, `games/${id}.json: lessons`);
     requireValue(template.lessons.length === 4, `games/${id}.json: the game runtime currently expects four exercises`);
-    const steps = await Promise.all(template.lessons.map(async lessonId => {
+    const exercises = await Promise.all(template.lessons.map(async lessonId => {
       const lesson = await read(`game-lessons/${lessonId}.json`);
       requireValue(lesson?.id === lessonId && ['title','description','hint'].every(k => text(lesson[k])), `game-lessons/${lessonId}.json: expected id, title, description and hint`);
-      return [lesson.title, lesson.description, lesson.hint];
+      if (lesson.guide) {
+        requireValue(/^[a-z][a-z0-9_]*$/.test(lesson.guide.function) && text(lesson.guide.instruction) && text(lesson.guide.review)
+          && (!lesson.guide.replace || text(lesson.guide.replace)) && (!lesson.guide.editAfter || text(lesson.guide.editAfter)), `game-lessons/${lessonId}.json: invalid editor guide`);
+      }
+      return lesson;
     }));
-    return [id, { ...template, steps }];
+    return [id, { ...template, steps: exercises.map(l => [l.title, l.description, l.hint]), guides: exercises.map(l => l.guide || null) }];
   })));
 }

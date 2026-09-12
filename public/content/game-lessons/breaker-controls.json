@@ -2,5 +2,12 @@
   "id": "breaker-controls",
   "title": "Add the Right key",
   "description": "Left already works. Read its rule, then write the matching rule for Right.",
-  "hint": "Left movement is already implemented. Give me a hint for adding only Right movement in update(). Use the existing Left rule as the example; let me write the counterpart."
+  "hint": "Left movement is already implemented. Give me a hint for adding only Right movement in update(). Use the existing Left rule as the example; let me write the counterpart.",
+  "guide": {
+    "function": "update",
+    "replace": "pass",
+    "instruction": "Left already works above. Replace pass with your Right-key rule.",
+    "review": "Your movement rules belong inside update(). Run your code, then check this step.",
+    "editAfter": "# Your turn: make the Right arrow work."
+  }
 }

@@ -84,3 +84,15 @@ body:not([data-mode="workshop"]) #save-status,body:not([data-mode="workshop"]) #
   outline: 1px solid #a3b78d;
   outline-offset: -1px;
 }
+
+.lesson-code-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.lesson-cell .lesson-code-tools label { margin:0; }
+.lesson-code-tools .quiet { font-size:11px; padding:6px 8px; }
+
+/* Completed lessons remain open for another try. */
+.skill-node { padding-left:22px; }
+.skill-node .stage-status { margin-top:4px; font-size:11px; font-weight:650; }
+.skill-node[data-practiced="true"] { background:#e5f0df; border-color:#6d9464; border-left:5px solid #527c49; padding-left:18px; }
+.skill-node[data-practiced="true"] strong { color:#315d37; }
+.skill-node[data-practiced="true"] .stage-status { background:#426c46; color:#fff; border-radius:20px; padding:4px 9px; }
+.map-branch > .branch-progress { color:#426c46; font-size:12px; font-weight:650; margin:16px 0 0; }

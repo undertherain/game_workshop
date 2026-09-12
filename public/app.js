@@ -1,3 +1,4 @@
+import { findGuidance, findEditableRegion, protectRegion, acceptsEdit } from './editor-guidance.js';
 import { createScene, initialState } from './scene.js';
 import { templates } from './templates.js';
 import { progress, movementOffer, movementStarter } from './progress.js';
@@ -9,6 +10,8 @@ let code = '', starter = '', runningCode = '', gameState = initialState, current
 let worker, ready = false, pending = null, requestId = 0, requestTimer, bootTimer, playing = false;
 let focusedLine = null, proposal = null, proposalSource = '', history = [], snapshots = [], asking = false;
 let keys = { left: false, right: false, jump: false }, lastStep = 0, lastDraw = 0;
+let protection = null;
+const unlockedExercises = new Set();
 let assisted = false, suppliedControls = false;
 let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null;
 const storageKey = () => 'little-makers-exercises-v1-'+templateId;
@@ -24,14 +27,53 @@ function colorize(line) {
   }
   return html + escape(line.slice(offset));
 }
+function currentGuidance(){
+  const guide=findGuidance(editor.value,templates[templateId]?.guides?.[stepIndex]);
+  if(guide&&protection&&!guide.replacement)guide.line=protection.prefix.split('\n').length;
+  return guide;
+}
 function paintEditor() {
+  const editableFrom = protection ? protection.prefix.split('\n').length : null;
+  const editableTo = protection ? editor.value.slice(0,editor.value.length-protection.suffix.length).split('\n').length : null;
+  const guide = currentGuidance();
+  $('editor-guide').hidden = !guide;
+  if(guide){
+    $('editor-guide-message').textContent=guide.message+(protection?' The surrounding code is provided; only your rule is editable.':'');
+    $('editor-guide-unlock').hidden=!protection;
+    $('editor-guide-focus').textContent=`${guide.replacement?'Write here':protection?'Edit your rule':'Find this rule'} · line ${guide.line} ↗`;
+  }
   const lines = editor.value.split('\n');
-  $('syntax').innerHTML = lines.map((line,i) => `<span class="syntax-line${i+1===focusedLine?' active':''}">${colorize(line)||' '}</span>`).join('\n');
-  $('line-numbers').innerHTML = lines.map((_,i) => `<div class="number-line${i+1===focusedLine?' active':''}">${i+1}</div>`).join('');
+  $('syntax').innerHTML = lines.map((line,i) => `<span class="syntax-line${protection?(i+1>=editableFrom&&i+1<=editableTo?' editable-line':' provided-line'):''}${i+1===focusedLine?' active':''}${i+1===guide?.line?(guide.replacement?' write-target':' rule-target'):''}">${colorize(line)||' '}</span>`).join('\n');
+  $('line-numbers').innerHTML = lines.map((_,i) => `<div class="number-line${protection?(i+1>=editableFrom&&i+1<=editableTo?' editable-line':' provided-line'):''}${i+1===focusedLine?' active':''}${i+1===guide?.line?(guide.replacement?' write-target':' rule-target'):''}">${i+1}</div>`).join('');
   syncScroll();
+}
+$('editor-guide-focus').onclick=()=>{
+  const guide=currentGuidance();
+  if(!guide)return;
+  locate(guide.line,guide.message);
+  if(guide.replacement)editor.setSelectionRange(guide.from,guide.to);
+  else if(protection)editor.setSelectionRange(protection.prefix.length,editor.value.length-protection.suffix.length);
+  editor.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+$('editor-guide-unlock').onclick=()=>{
+  unlockedExercises.add(templateId+':'+stepIndex);protection=null;paintEditor();
+  $('line-note').textContent='The whole file is editable. Undo is available for your changes.';
+};
+function scrollToGuidance(){
+  const guide=currentGuidance();
+  if(!guide)return;
+  editor.scrollTop=Math.max(0,(guide.line-5)*parseFloat(getComputedStyle(editor).lineHeight));syncScroll();
 }
 function syncScroll() { $('syntax').scrollTop=editor.scrollTop; $('syntax').scrollLeft=editor.scrollLeft; $('line-numbers').scrollTop=editor.scrollTop; }
 function save() {
+  if(protection){
+    if(!acceptsEdit(protection,editor.value)){
+      editor.value=protection.source;
+      editor.setSelectionRange(protection.prefix.length,protection.prefix.length);
+      $('line-note').textContent='The surrounding code is provided. Use Write here to edit your rule.';
+    }else protection.source=editor.value;
+  }
+  if(editor.value!==code){exerciseFeedback=null;$('exercise-result').textContent='';}
   code=editor.value;
   try { localStorage.setItem(storageKey(),code); $('save-status').textContent='Saved in this browser'; }
   catch { $('save-status').textContent='Use Save Python to keep your work'; }
@@ -159,16 +201,54 @@ async function ask(question,mode='chat') {
   finally{setAsking(false);}
 }
 
-editor.addEventListener('beforeinput',checkpoint);
+editor.addEventListener('beforeinput',event=>{
+  if(protection){
+    const start=protection.prefix.length,end=editor.value.length-protection.suffix.length;
+    const collapsed=editor.selectionStart===editor.selectionEnd;
+    if(editor.selectionStart<start||editor.selectionEnd>end||
+      (collapsed&&event.inputType==='deleteContentBackward'&&editor.selectionStart===start)||
+      (collapsed&&event.inputType==='deleteContentForward'&&editor.selectionEnd===end)){
+      event.preventDefault();$('line-note').textContent='That code is provided. Choose Write here to edit your rule.';return;
+    }
+  }
+  checkpoint();
+});
 editor.addEventListener('input',()=>{focusedLine=null;exerciseFeedback=null;$('exercise-result').textContent='';$('transfer-offer').hidden=true;save();});editor.addEventListener('scroll',syncScroll);
 editor.addEventListener('keydown',event=>{
+  if(protection&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='a'){
+    event.preventDefault();editor.setSelectionRange(protection.prefix.length,editor.value.length-protection.suffix.length);return;
+  }
   if(event.key==='Tab'){event.preventDefault();const start=editor.selectionStart,end=editor.selectionEnd;checkpoint();editor.setRangeText('    ',start,end,'end');save();}
   if(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();const start=editor.selectionStart;const line=editor.value.slice(0,start).split('\n').at(-1);const indent=line.match(/^ */)[0]+(line.trimEnd().endsWith(':')?'    ':'');checkpoint();editor.setRangeText('\n'+indent,start,editor.selectionEnd,'end');save();}
 });
 editor.addEventListener('focus',clearKeys);
 $('run').onclick=()=>{if(playing){stopPlayback();return;}run();canvas.focus({preventScroll:true});};
 $('restart').onclick=()=>{run(runningCode||starter);canvas.focus({preventScroll:true});};
-$('undo').onclick=()=>{if(!snapshots.length)return;editor.value=snapshots.pop();$('undo').disabled=!snapshots.length;focusedLine=null;save();$('line-note').textContent='Edit undone. Run your code when you’re ready.';};
+$('undo').onclick=()=>{
+  if(!snapshots.length)return;
+  const snapshot=snapshots.pop();
+  if(typeof snapshot==='string')editor.value=snapshot;
+  else {
+    protection=null;editor.value=snapshot.code;stepIndex=snapshot.step;
+    for(const key of [...unlockedExercises])if(key.startsWith(templateId+':'))unlockedExercises.delete(key);
+    for(const key of snapshot.unlocked)unlockedExercises.add(key);
+    renderStep();
+  }
+  $('undo').disabled=!snapshots.length;focusedLine=null;save();
+  $('line-note').textContent='Edit undone. Run your code when you’re ready.';
+};
+$('reset-code').onclick=()=>{
+  snapshots.push({code:editor.value,step:stepIndex,unlocked:[...unlockedExercises].filter(key=>key.startsWith(templateId+':'))});
+  if(snapshots.length>30)snapshots.shift();$('undo').disabled=false;
+  stopPlayback();protection=null;editor.value=starter;stepIndex=0;runningCode='';
+  for(const key of [...unlockedExercises])if(key.startsWith(templateId+':'))unlockedExercises.delete(key);
+  currentError=null;proposal=null;proposalSource='';focusedLine=null;exerciseFeedback=null;
+  $('error-box').hidden=true;$('suggestion').hidden=true;$('transfer-offer').hidden=true;
+  save();renderStep();
+  $('run-status').textContent='Starting code ready · press Run my code';
+  $('editor-guide-focus').click();
+  $('line-note').textContent='Starting code restored. Undo brings your previous code back.';
+};
 $('download').onclick=()=>{const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('ask-form').onsubmit=event=>{event.preventDefault();ask($('question').value);};
 document.querySelectorAll('[data-question]').forEach(button=>button.onclick=()=>ask(button.dataset.question));
@@ -178,6 +258,10 @@ $('show-line').onclick=()=>proposal&&locate(proposal.line);
 $('apply').onclick=()=>{
   if(!proposal)return;
   if(editor.value!==proposalSource){$('suggestion').hidden=true;appendMessage('assistant','Your code has changed since this suggestion. Ask me again so I can suggest an edit for this version.');proposal=null;return;}
+  const proposedCode=editor.value.replace(proposal.before,()=>proposal.after);
+  if(protection&&!acceptsEdit(protection,proposedCode)){
+    appendMessage('assistant','This edit changes provided code outside your exercise. Choose Edit whole file first if you want to explore that change.');return;
+  }
   assisted=true;try{localStorage.setItem(storageKey()+'-assisted','true');}catch{}
   checkpoint();editor.value=editor.value.replace(proposal.before,()=>proposal.after);save();locate(proposal.line,'Your suggested edit is ready. Run it to see what happens.');
   $('suggestion').hidden=true;proposal=null;$('run-status').textContent='Edit ready · press Run my code';
@@ -213,7 +297,7 @@ function renderTransfer(){
 }
 $('transfer-use').onclick=()=>{
   if(editor.value!==starter){$('transfer-offer').hidden=true;return;}
-  checkpoint();editor.value=movementStarter(starter,templateId);suppliedControls=true;
+  checkpoint();protection=null;editor.value=movementStarter(starter,templateId);suppliedControls=true;
   try{localStorage.setItem(storageKey()+'-controls-supplied','true');}catch{}
   progress.record({skill:'movement',source:'game:'+templateId,evidence:'supplied'});
   stepIndex=1;save();renderStep();$('transfer-offer').hidden=true;
@@ -222,21 +306,24 @@ $('transfer-use').onclick=()=>{
 $('transfer-practice').onclick=()=>{$('transfer-offer').hidden=true;stepIndex=0;renderStep();};
 function renderStep(){
   const template=templates[templateId];
+  const region=unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
+  protection=region?protectRegion(editor.value,region):null;
   $('build-steps').replaceChildren();
   template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>{stepIndex=i;exerciseFeedback=null;renderStep();};$('build-steps').append(button);});
   $('step-title').textContent=`${stepIndex===3?'Your variation':'Mini-exercise '+(stepIndex+1)} · ${template.steps[stepIndex][0]}`;
   $('step-description').textContent=template.steps[stepIndex][1];$('exercise-result').textContent='';
   $('next-step').hidden=stepIndex===3;
+  paintEditor();scrollToGuidance();
   try{localStorage.setItem(storageKey()+'-step',String(stepIndex));}catch{}
 }
 async function selectTemplate(id){
   if(asking||!templates[id])return;
   if(editor.value)save();
-  templateId=id;const template=templates[id];starter=sourceCache[id];
+  protection=null;templateId=id;const template=templates[id];starter=sourceCache[id];
   let saved;try{saved=localStorage.getItem(storageKey());stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(storageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
   assisted=false;suppliedControls=false;try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';suppliedControls=localStorage.getItem(storageKey()+'-controls-supplied')==='true';}catch{}
   editor.value=saved??starter;runningCode='';history=[];snapshots=[];currentError=null;proposal=null;exerciseFeedback=null;focusedLine=null;
-  $('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;$('check-step').disabled=false;
+  $('reset-code').disabled=false;$('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;$('check-step').disabled=false;
   $('game-title').textContent=template.title;canvas.setAttribute('aria-label',`${template.title}. Click to play. Arrow keys move; Space ${template.controls}.`);
   $('action-label').textContent=template.controls;document.querySelector('[data-key="jump"]').textContent=template.action;
   $('question').placeholder=template.placeholder;$('conversation').replaceChildren();appendMessage('assistant',template.intro);

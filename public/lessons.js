@@ -15,6 +15,7 @@ try {
   if (['peach', 'lavender', 'mint', 'night'].includes(saved.personal?.sky)) personal.sky = saved.personal.sky;
   if (['fox', 'cat', 'bunny'].includes(saved.personal?.costume)) personal.costume = saved.personal.costume;
 } catch { /* Lessons also work without browser storage. */ }
+let resetBackup = null;
 const current = () => lessons[index];
 function persist() {
   drafts[current().id] = input.value;
@@ -52,6 +53,7 @@ function suggestions() {
   }
 }
 function render() {
+  resetBackup = null; $('lesson-undo-reset').hidden = true;
   const lesson = current(), branch = lessons.filter(l => l.branch === lesson.branch), position = branch.indexOf(lesson);
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
   $('lesson-progress').textContent = `${lesson.branch === 'drawing' ? 'Drawing' : 'Foundations'} · ${position + 1} / ${branch.length}`;
@@ -169,12 +171,19 @@ function renderMap() {
   $('map-progress-note').textContent = count ? `${count} concepts explored in this browser. Choose any path; nothing is locked.` : 'Start with one instruction. Every path stays open, and your practice is remembered in this browser.';
   for (const [branch, target] of [['foundations', 'foundation-nodes'], ['drawing', 'drawing-nodes']]) {
     $(target).replaceChildren();
-    for (const lesson of lessons.filter(l => l.branch === branch)) {
+    const branchLessons = lessons.filter(l => l.branch === branch);
+    const completed = branchLessons.filter(l => records.some(r => r.source === 'lesson:' + l.id)).length;
+    let summary = $(target).parentElement.querySelector('.branch-progress');
+    if (!summary) { summary = document.createElement('p'); summary.className = 'branch-progress'; $(target).before(summary); }
+    summary.textContent = `${completed} of ${branchLessons.length} stages completed`;
+    for (const lesson of branchLessons) {
       const practiced = records.some(r => r.source === 'lesson:' + lesson.id);
       const button = document.createElement('button'); button.className = 'skill-node';
       const title = document.createElement('strong'); title.textContent = lesson.title;
-      const note = document.createElement('span'); note.textContent = `${skillLabels[lesson.skill]} · ${practiced ? 'practised' : 'explore'}`;
-      button.dataset.practiced = String(practiced); button.append(title, note); button.onclick = () => openLesson(lesson.id); $(target).append(button);
+      const note = document.createElement('span'); note.textContent = skillLabels[lesson.skill];
+      const status = document.createElement('span'); status.className = 'stage-status';
+      status.textContent = practiced ? '✓ Completed' : 'Explore →';
+      button.dataset.practiced = String(practiced); button.append(title, note, status); button.onclick = () => openLesson(lesson.id); $(target).append(button);
     }
   }
   $('game-library-cards').replaceChildren();
@@ -215,6 +224,22 @@ function edited() {
 }
 $('map-toggle').onclick = openMap;
 $('mode-toggle').onclick = () => document.body.dataset.mode === 'lessons' ? openWorkshop() : openLesson(current().id);
+function restoreLessonCode(source, message) {
+  stopWorker(); resetScene(); finish(); recorded = false; runningSource = '';
+  $('lesson-space').disabled = $('lesson-right').disabled = true;
+  $('lesson-loop-status').textContent = 'Run installs your rule. Then try the control.';
+  input.value = source; persist(); suggestions(); feedback(message); input.focus();
+}
+$('lesson-reset').onclick = () => {
+  if (input.value !== current().code) resetBackup = input.value;
+  restoreLessonCode(current().code, 'Starting code restored. Try your program and press Run.');
+  $('lesson-undo-reset').hidden = resetBackup === null;
+};
+$('lesson-undo-reset').onclick = () => {
+  if (resetBackup === null) return;
+  restoreLessonCode(resetBackup, 'Your code is back. Press Run when you’re ready.');
+  resetBackup = null; $('lesson-undo-reset').hidden = true;
+};
 $('lesson-form').onsubmit = event => { event.preventDefault(); if (interactive) stopLesson(); else run(); };
 input.oninput = edited; input.onclick = suggestions;
 input.onkeydown = event => {

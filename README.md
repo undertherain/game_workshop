@@ -84,7 +84,12 @@ In the game workshop:
    Python draft and four-step path, saved in this browser.
 2. In the brick breaker, **Left already works**. Read its rule, then replace `pass`
    with the matching Right-key rule. The other starters ask for both directions.
-   Use **Give me a hint** or **Show a small example** as needed.
+   The editor highlights the target line and dims provided code. **Write here**
+   selects `pass` while keeping its indentation. In these first movement exercises,
+   only the rule area is editable; **Edit whole file** opts into free editing for
+   that exercise during this visit. Later steps show a function-location hint
+   without locking the surrounding code. Use **Give me a hint** or
+   **Show a small example** as needed.
 3. Press **Run my code** and try the arrow keys; focus moves to the game. **Check my step**
    executes behavioral checks against the current editor code, in a separate Python
    namespace. It gives specific feedback without changing the live game.
@@ -92,7 +97,10 @@ In the game workshop:
    Steps are navigable; checks do not lock the learner into a curriculum.
 5. Ask Pip about an error or selected line. Suggested edits only apply through
    **Try this edit**, and require a separate **Run my code** to affect the game.
-6. Use **Save Python** or **Undo edit**. Ctrl/Cmd+Enter runs code. On touch devices,
+6. **Reset code** restores the starter and stops playback. In a game it returns to
+   the first exercise; **Undo edit** recovers the previous code and exercise. Intro
+   lessons reset only their own code and offer **Undo reset**. Learning progress is
+   kept. Use **Save Python** to export your work. Ctrl/Cmd+Enter runs code. On touch devices,
    on-screen controls supply the same inputs once the child has implemented them.
 
 The brick breaker starts with only Left implemented; the other starters have no arrow

@@ -2,5 +2,10 @@
   "id": "platformer-mechanic",
   "title": "Build a jump",
   "description": "Teach your character to jump when you press Space.",
-  "hint": "Help me add jumping with Space. Show one small edit and explain the ground check."
+  "hint": "Help me add jumping with Space. Show one small edit and explain the ground check.",
+  "guide": {
+    "function": "update",
+    "instruction": "Add a grounded jump rule inside update(), alongside your movement rules.",
+    "review": "Add a grounded jump rule inside update(), alongside your movement rules."
+  }
 }

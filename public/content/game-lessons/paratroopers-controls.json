@@ -2,5 +2,12 @@
   "id": "paratroopers-controls",
   "title": "Write the controls",
   "description": "Robots already fall. Make the arrow keys move your launcher.",
-  "hint": "Give me a hint for implementing left and right cannon movement in update(). Point at the place to write, but let me write it first."
+  "hint": "Give me a hint for implementing left and right cannon movement in update(). Point at the place to write, but let me write it first.",
+  "guide": {
+    "function": "update",
+    "replace": "pass",
+    "instruction": "Replace pass with the arrow-key rules for your cannon.",
+    "review": "Your movement rules belong inside update(). Run your code, then check this step.",
+    "editAfter": "# Step 1: make the arrow keys move your launcher."
+  }
 }

@@ -2,5 +2,10 @@
   "id": "platformer-score",
   "title": "Give stars a score",
   "description": "Make each star add points when you collect it.",
-  "hint": "Help me add scoring when I collect a star. Let me choose how many points each is worth."
+  "hint": "Help me add scoring when I collect a star. Let me choose how many points each is worth.",
+  "guide": {
+    "function": "on_collect",
+    "instruction": "Add points inside on_collect(), alongside star.hide().",
+    "review": "Add points inside on_collect(), alongside star.hide()."
+  }
 }

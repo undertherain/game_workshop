@@ -19,3 +19,7 @@ that reset test progress; do not clear the learner's own browser data.
 
 `content.test.mjs` validates lesson files and manifests, checks malformed or missing
 content, and executes starters through the Python runtimes.
+
+`editor-guidance.test.mjs` checks scope-based anchors, shifted lines, saved rule
+regions, and protection of provided code. Browser checks exercise actual typing,
+placeholder selection, multiline replacement, deletion boundaries, undo and unlock.
