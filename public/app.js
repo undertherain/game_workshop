@@ -73,7 +73,12 @@ function save() {
       $('line-note').textContent='The surrounding code is provided. Use Write here to edit your rule.';
     }else protection.source=editor.value;
   }
-  if(editor.value!==code){exerciseFeedback=null;$('exercise-result').textContent='';}
+  if(editor.value!==code){
+    focusedLine=null;proposal=null;proposalSource='';$('suggestion').hidden=true;
+    currentError=null;$('error-box').hidden=true;
+    $('line-note').textContent='Code changed · highlights follow your current exercise.';
+    exerciseFeedback=null;$('exercise-result').textContent='';
+  }
   code=editor.value;
   try { localStorage.setItem(storageKey(),code); $('save-status').textContent='Saved in this browser'; }
   catch { $('save-status').textContent='Use Save Python to keep your work'; }
@@ -254,7 +259,7 @@ $('ask-form').onsubmit=event=>{event.preventDefault();ask($('question').value);}
 document.querySelectorAll('[data-question]').forEach(button=>button.onclick=()=>ask(button.dataset.question));
 $('explain').onclick=()=>{const selected=editor.value.slice(editor.selectionStart,editor.selectionEnd);const line=editor.value.slice(0,editor.selectionStart).split('\n').length;ask(selected?`Please explain this selected code: ${selected}`:`Please explain line ${line} in my game. Show how it affects what happens when I play.`,'explain');};
 $('explain-error').onclick=()=>ask('Help me understand the error in my game. Show me where to look and how to fix it.');
-$('show-line').onclick=()=>proposal&&locate(proposal.line);
+$('show-line').onclick=()=>proposal&&editor.value===proposalSource&&locate(proposal.line);
 $('apply').onclick=()=>{
   if(!proposal)return;
   if(editor.value!==proposalSource){$('suggestion').hidden=true;appendMessage('assistant','Your code has changed since this suggestion. Ask me again so I can suggest an edit for this version.');proposal=null;return;}
@@ -263,7 +268,8 @@ $('apply').onclick=()=>{
     appendMessage('assistant','This edit changes provided code outside your exercise. Choose Edit whole file first if you want to explore that change.');return;
   }
   assisted=true;try{localStorage.setItem(storageKey()+'-assisted','true');}catch{}
-  checkpoint();editor.value=editor.value.replace(proposal.before,()=>proposal.after);save();locate(proposal.line,'Your suggested edit is ready. Run it to see what happens.');
+  const editLine=proposal.line;
+  checkpoint();editor.value=proposedCode;save();locate(editLine,'Your suggested edit is ready. Run it to see what happens.');
   $('suggestion').hidden=true;proposal=null;$('run-status').textContent='Edit ready · press Run my code';
 };
 function keyName(event){if(['ArrowLeft','KeyA'].includes(event.code))return'left';if(['ArrowRight','KeyD'].includes(event.code))return'right';if(['Space','ArrowUp','KeyW'].includes(event.code))return'jump';}
@@ -305,6 +311,7 @@ $('transfer-use').onclick=()=>{
 };
 $('transfer-practice').onclick=()=>{$('transfer-offer').hidden=true;stepIndex=0;renderStep();};
 function renderStep(){
+  focusedLine=null;
   const template=templates[templateId];
   const region=unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
   protection=region?protectRegion(editor.value,region):null;

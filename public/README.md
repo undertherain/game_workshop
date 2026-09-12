@@ -41,6 +41,9 @@ request, and guards typed, pasted and programmatic edits against the protected
 prefix/suffix. Guided control exercises can be explicitly unlocked; later exercises
 use location hints without edit restrictions. AI edits outside a protected region
 require choosing Edit whole file before applying.
+Code changes clear previous helper highlights and suggestions, including edits made
+with Enter and Tab. Exercise targets are resolved again against the current draft;
+switching exercises also clears the previous line selection highlight.
 
 Both editors offer **Reset code** without running the restored source. Game reset
 restores the template and first exercise with guided protection; its undo snapshot

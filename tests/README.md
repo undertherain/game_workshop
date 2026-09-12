@@ -23,3 +23,6 @@ content, and executes starters through the Python runtimes.
 `editor-guidance.test.mjs` checks scope-based anchors, shifted lines, saved rule
 regions, and protection of provided code. Browser checks exercise actual typing,
 placeholder selection, multiline replacement, deletion boundaries, undo and unlock.
+`editor-highlights.test.mjs` runs the editor handlers with a minimal DOM stub to
+check stale helper highlights, Enter/Tab edits, proposal application and switching
+exercises after earlier edits shift the target function.
