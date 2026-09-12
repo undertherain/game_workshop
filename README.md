@@ -143,6 +143,13 @@ saved drafts and progress.
 
 ## Implementation
 
+Framework exploration: [north star and current slice](docs/framework-north-star.md).
+The [brick-breaker framework example](public/examples/breaker_framework.py) adds
+explicit screen/brick context and paddle/ball methods; paste it into Brick breaker
+after choosing **Edit whole file**. Existing beginner exercises are unchanged.
+The longer-term direction includes browser and standalone rendering backends;
+only the browser host exists today.
+
 - `public/`: browser UI, Canvas 2D art, Python worker and game runtime.
 - `server.mjs`: static server and OpenAI Responses API helper endpoint.
 - `tutor.mjs`: tutor instructions, response validation, built-in guided examples.

@@ -82,6 +82,36 @@ class ArcadeTests(unittest.TestCase):
         self.assertEqual(game.world.score, 5)
         self.assertFalse(game.items[0].visible)
 
+    def test_framework_example_passes_existing_behavior_checks(self):
+        source = (ROOT / "examples/breaker_framework.py").read_text()
+        for step in range(3):
+            with self.subTest(step=step):
+                self.assertTrue(self.check(source, "breaker", step)["passed"])
+
+    def test_framework_objects_use_live_collisions_and_screen_bounds(self):
+        source = (ROOT / "examples/breaker_framework.py").read_text()
+        loaded = json.loads(self.runtime["_load_selected"](source, "breaker"))
+        self.assertIn("state", loaded)
+        game = self.runtime["_arcade"]
+        positions = [(brick.x, brick.y) for brick in game.items]
+        game.paddle.x = game.screen.width
+        game.step({"right": True})
+        self.assertEqual(game.paddle.x, game.screen.width - 12 - game.paddle.width / 2)
+        game.paddle.x = 0
+        game.step({"left": True})
+        self.assertEqual(game.paddle.x, 12 + game.paddle.width / 2)
+        self.assertEqual(positions, [(brick.x, brick.y) for brick in game.items])
+        brick = game.items[-1]
+        game.ball.x, game.ball.y = brick.x + brick.width / 2, brick.y + brick.height + 9
+        game.ball.vx, game.ball.vy = 0, -4
+        game.step({})
+        self.assertFalse(brick.visible)
+        self.assertEqual(game.world.score, brick.points)
+        self.assertGreater(game.ball.vy, 0)
+        # New object methods must not break the JSON contract used by the renderer.
+        snapshot = json.loads(json.dumps(game.snapshot()))
+        self.assertEqual(snapshot["collected"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

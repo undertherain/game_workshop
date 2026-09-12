@@ -12,6 +12,10 @@ properties, event edges, continuously called update rules, and invalid-source
 recovery. `progress.test.mjs` checks persistence, evidence classifications, bounded
 tutor context and optional control starters against the actual Python game checks.
 
+`test_arcade.py` also runs the optional framework example through existing exercise
+checks and verifies live brick collisions, stationary bricks, paddle bounds and
+snapshot serialization with the explicit object types.
+
 Browser checks cover autocomplete, prediction, loops, appearance edits, live lesson
 controls, drawing, map navigation, movement checks and transfer, draft preservation,
 reload persistence, and mobile width. Use an isolated browser profile for checks

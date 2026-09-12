@@ -10,6 +10,41 @@ class Item:
         self.visible = False
 
 
+class StaticScreen:
+    """The current fixed, non-scrolling 840 × 480 playfield."""
+
+    width = 840
+    height = 480
+
+
+class Brick(Item):
+    """A stationary obstacle: the simulation never moves it."""
+
+
+class Paddle:
+    """Horizontal movement, measured in pixels per simulation tick (60 Hz)."""
+
+    def __init__(self, x=420, width=110, speed=6):
+        self.x, self.width, self.speed = x, width, speed
+
+    def move(self, distance):
+        self.x += distance
+
+    def move_left(self):
+        self.move(-self.speed)
+
+    def move_right(self):
+        self.move(self.speed)
+
+
+class Ball:
+    def __init__(self, x=420, y=370, vx=3, vy=-4):
+        self.x, self.y, self.vx, self.vy = x, y, vx, vy
+
+    def bounce_up(self):
+        self.vy = -abs(self.vy)
+
+
 class Cannon:
     def __init__(self, game):
         self.x, self.speed, self._game = 420, 5, game
@@ -26,17 +61,20 @@ class ArcadeGame:
         self.sparks, self.hits, self.misses, self.bounces = [], 0, 0, 0
         self.world = SimpleNamespace(sky="night" if kind == "breaker" else "mint", score=0, fall_speed=0.7)
         self.keyboard = SimpleNamespace(left=False, right=False, jump=False, fire=False)
-        self.paddle = SimpleNamespace(x=420, width=110, speed=6)
-        self.ball = SimpleNamespace(x=420, y=370, vx=3, vy=-4)
+        self.screen = StaticScreen()
+        self.paddle = Paddle()
+        self.ball = Ball()
         self.cannon = Cannon(self)
         if kind == "breaker":
-            self.items = [Item(x=83+c*98, y=87+r*29, width=88, height=19, row=r)
+            self.items = [Brick(x=83+c*98, y=87+r*29, width=88, height=19, row=r)
                           for r in range(4) for c in range(7)]
         else:
             self.items = [Item(x=75+i*95, y=-55-(i%4)*85, drift=0.2 if i%2 else -0.2)
                           for i in range(8)]
         self.scope = {"world": self.world, "keyboard": self.keyboard,
                       "paddle": self.paddle, "ball": self.ball, "cannon": self.cannon}
+        if kind == "breaker":
+            self.scope.update(screen=self.screen, bricks=self.items)
         exec(compile(source, "my_game.py", "exec"), self.scope)
         required = ("update", "on_paddle", "on_break") if kind == "breaker" else ("update", "on_hit")
         for callback in required:
@@ -87,15 +125,15 @@ class ArcadeGame:
 
     def step_breaker(self, reset):
         paddle, ball = self.paddle, self.ball
-        paddle.x = max(paddle.width/2+12, min(828-paddle.width/2, paddle.x))
+        paddle.x = max(paddle.width/2+12, min(self.screen.width-12-paddle.width/2, paddle.x))
         if reset:
             ball.x, ball.y, ball.vy = paddle.x, 380, -max(2, abs(ball.vy))
         old_y = ball.y
         ball.x += ball.vx
         ball.y += ball.vy
-        if ball.x < 18 or ball.x > 822:
+        if ball.x < 18 or ball.x > self.screen.width-18:
             ball.vx *= -1
-            ball.x = max(18, min(822, ball.x))
+            ball.x = max(18, min(self.screen.width-18, ball.x))
         if ball.y < 40:
             ball.vy = abs(ball.vy)
         if ball.vy > 0 and old_y <= 403 <= ball.y and abs(ball.x-paddle.x) <= paddle.width/2+8:
@@ -108,7 +146,7 @@ class ArcadeGame:
                 ball.vy *= -1
                 ball.y += ball.vy*2
                 break
-        if ball.y > 480:
+        if ball.y > self.screen.height:
             self.misses += 1
             ball.x, ball.y, ball.vy = paddle.x, 375, -max(2, abs(ball.vy))
 

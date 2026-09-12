@@ -17,6 +17,13 @@ the asset's generation prompt and scope.
 
 Return to the [prototype README](../README.md).
 
+`examples/breaker_framework.py` is a complete, optional framework experiment for
+the existing Brick breaker editor. `arcade_runtime.py` supplies `StaticScreen`,
+`Brick`, `Paddle` and `Ball`; the learner can inspect `screen.width`/`height`, iterate
+`bricks`, call paddle movement methods and `ball.bounce_up()`. Existing property
+access and callbacks still work. See the [framework note](../docs/framework-north-star.md)
+for scope and the proposed browser/standalone backend boundary.
+
 `content/` holds lesson and catalogue data; see the [content authoring guide](content/README.md).
 Each introductory lesson and each game mini-exercise has its own JSON file.
 `curriculum.js` and `templates.js` load those files through `content-loader.js`,
