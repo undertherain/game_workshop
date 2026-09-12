@@ -1,0 +1,13 @@
+/* Keep the code and its Run action prominent, even on a laptop-height viewport. */
+.workspace{grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr)}
+.code-card{border-color:#cbd7bf;box-shadow:0 5px 24px #284b4309}
+.code-card>.panel-heading strong{font-size:15px}
+.editor-wrap{height:445px;font-size:14px;line-height:24px}
+#editor,#syntax{line-height:24px;padding-top:15px}
+.number-line,.syntax-line{height:24px}
+#line-numbers{font-size:12px}
+.run-bar{padding:10px 16px;border-bottom:1px solid #e6eadc;background:#f9fbf1}
+.code-bottom{padding-top:12px}
+.intro h1{font-size:32px}
+@media(max-width:1050px){.editor-wrap{font-size:12px}}
+@media(max-width:780px){.workspace{grid-template-columns:1fr}.editor-wrap{font-size:13px}.intro h1{font-size:28px}}

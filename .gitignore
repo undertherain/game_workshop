@@ -1,0 +1,28 @@
+# Local agent instructions and configuration
+AGENTS.md
+.agents/
+.codex/
+
+# Dependencies and local secrets (keep the configuration template)
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Generated files and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+coverage/
+dist/
+*.log
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

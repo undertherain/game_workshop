@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ee"><title>Little Makers · Your first game</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23274c43'/%3E%3Ctext x='12' y='46' font-size='43'%3E✦%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/templates.css">
+  <link rel="stylesheet" href="/editor-focus.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
+    <div class="header-actions"><span id="save-status">Saved in this browser</span><button id="download" class="quiet">↓ Save Python</button></div>
+  </header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">YOUR VERY FIRST GAME</p><h1>Pick a game. <em>Make it yours.</em></h1><p>The world is ready. You bring it to life, one little rule at a time.</p></div><div class="edition"><span>✧</span><p>SMALL STEPS<br>BIG IDEAS</p></div></div>
+    <nav id="template-picker" class="template-picker" aria-label="Choose a game to build"></nav>
+    <section class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
+    <div class="workspace">
+      <section class="play-column" aria-label="Your game and helper">
+        <div class="game-card">
+          <div class="panel-heading"><div><span class="status-dot"></span><strong id="game-title">Star Meadow</strong><span class="subtle">your game</span></div><button id="restart" class="quiet" title="Restart the last working code">↻ Play again</button></div>
+          <div class="stage-wrap"><canvas id="game" width="840" height="480" tabindex="0" aria-label="Star Meadow. Click to play. Arrow keys move; Space jumps."></canvas><div id="boot-overlay" class="boot-overlay">Waking up your world…<small>Loading Python for the first time</small></div><div id="win-banner" class="win-banner" hidden>All seven stars!<small>Now change a rule and make it yours.</small></div></div>
+          <div class="game-footer"><span><kbd>←</kbd> <kbd>→</kbd> move <span class="separator">/</span> <kbd>space</kbd> <span id="action-label">jump</span></span><span id="score">✦ 0 / 7 stars</span></div>
+          <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="jump">Jump ↑</button></div>
+        </div>
+        <section class="helper-card" aria-labelledby="helper-title">
+          <div class="helper-heading"><div class="pip-avatar">✳</div><div><h2 id="helper-title">A little help from Pip</h2><p id="helper-mode">Connecting your coding companion…</p></div><span class="helper-badge" id="helper-badge">…</span></div>
+          <div class="ideas" aria-label="Ideas to try"><span id="template-ideas"></span><button id="explain">Explain my line ?</button></div>
+          <div id="conversation" class="conversation" role="log" aria-live="polite"><div class="message assistant"><p>Play a little first. When you have an idea, I’ll help you find the code that makes it happen.</p></div></div>
+          <div id="suggestion" class="suggestion" hidden><div class="suggestion-label">A SMALL CHANGE TO TRY <button id="show-line" class="quiet">Find this line ↗</button></div><pre id="before-code" class="before"></pre><pre id="after-code" class="after"></pre><div class="suggestion-actions"><span>You can type it yourself, too.</span><button id="apply" class="small-primary">Try this edit</button></div></div>
+          <form id="ask-form"><label class="sr-only" for="question">Ask Pip about your game</label><input id="question" maxlength="2000" placeholder="I want my fox to…" autocomplete="off"><button id="ask" type="submit" aria-label="Ask Pip">↑</button></form>
+        </section>
+      </section>
+      <section class="code-card" aria-labelledby="code-title">
+        <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><span class="language-badge">Python</span></div>
+        <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
+        <div class="run-bar"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="run" class="primary" disabled>▶ Run my code</button></div>
+        <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
+        <div id="line-note" class="line-note">✧ Start with a number. See what happens.</div>
+        <div id="error-box" class="error-box" role="alert" hidden><strong id="error-title"></strong><p id="error-message"></p><button id="explain-error" class="quiet">Help me understand this ↗</button></div>
+        <div class="code-bottom"><span id="run-status">Python is starting…</span><span>⌘ / Ctrl + Enter to run</span></div>
+        <details class="pocket-guide"><summary>Your pocket guide <span>+</span></summary><dl><dt>player.speed</dt><dd>How far you move each moment.</dd><dt>player.jump_height</dt><dd>The upward push at the start of a jump.</dd><dt>world.sky</dt><dd>"peach", "lavender", "mint", or "night".</dd><dt>Actor("fox", …)</dt><dd>Try "cat" or "bunny" as well.</dd><dt>def update():</dt><dd>The rules that repeat while you play.</dd></dl></details>
+      </section>
+    </div>
+    <footer class="page-footer"><span>Made for the “can I make a game?” kind of curious.</span><span>Play → wonder → change → play</span></footer>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
