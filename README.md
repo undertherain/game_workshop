@@ -1,7 +1,9 @@
 # Little Makers — browser Python game workshop
 
-Choose a platformer, brick breaker or Paratroopers-style
-game, then build its controls and rules through short Python mini-exercises. Scenery,
+Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`,
+choose another action with autocomplete, and predict a two-command sequence. Then
+open the split-screen workshop, choose a platformer, brick breaker or
+Paratroopers-style game, and build its controls and rules through short Python mini-exercises. Scenery,
 physics and moving game objects are provided; the child writes small behaviors.
 A live AI companion gives hints, explains selected code and, when requested, proposes
 small edits for the learner to review. The workshop is a working prototype for learning through making.
@@ -32,6 +34,43 @@ Without a key the interface explicitly offers built-in guided examples, not AI c
 
 ## Try
 
+The **Learning map** connects seven foundational lessons, three optional drawing
+lessons, and the three game workshops. All paths are open; the map recommends a
+starting route without locking later activities. Sokoban, Xonix and a fractal lesson
+are explicitly marked as planned, not playable.
+
+The foundations begin with `fox.jump()` and build through sequence, bounded loops,
+scene properties, a Space-key event and a live `update()` function. The last two
+lessons show the difference between executing commands once and installing rules
+that the running game calls. A visible counter shows event/update calls; buttons
+and focused-canvas keyboard controls let the learner test the rule. The introductory
+loop targets 30 updates per second; the full game runtime uses 60 Hz simulation.
+
+The drawing branch offers `dot(x, y)`, `line(x1, y1, x2, y2)`, and loops with simple
+coordinate expressions on a labelled grid. It uses a small workshop-specific Python
+API and Canvas renderer; pycontextfree is not integrated yet.
+
+On desktop, lessons put instructions, quizzes and navigation on the left, with
+the scene above the code cell and Run on the right. The scene adapts to viewport
+height to keep the activity together; narrow screens use a stacked layout. Type `fox.` for action completions, or start a drawing
+command for drawing suggestions. Tab accepts a completion or inserts indentation.
+Enter runs a one-line lesson; Ctrl/Cmd+Enter runs longer programs. The introductory
+Python vocabulary expands per lesson and rejects unsupported structures. Code can
+use at most 1,000 characters; loops use `range(1)` through `range(6)`, with a limit of
+12 animated actions or 100 drawing shapes per run.
+
+The customization lesson supports sky and character properties. Sky buttons edit
+the visible Python; Run applies the choice. Those appearance choices carry into
+other meadow lessons. Drafts, the last lesson and appearance choices are saved in
+this browser, with an in-memory fallback if storage is unavailable.
+
+Use **Open game workshop** at any point, or choose a game from the map after the
+foundations. **First commands** returns to your current lesson. Workshop drafts
+remain intact when switching layouts. Autocomplete currently belongs to the
+introductory cells only.
+
+In the game workshop:
+
 1. Start with **Brick breaker**, or choose **Platformer** or **Paratroopers**. Each has its own
    Python draft and four-step path, saved in this browser.
 2. In the brick breaker, **Left already works**. Read its rule, then replace `pass`
@@ -53,6 +92,28 @@ They are small scaffolds, not fully authored games. `public/starter.py` retains 
 original complete platformer sample. Exported Python uses this workshop's game API;
 it is not a standalone desktop game.
 
+## Learning progress
+
+Progress is local to this browser. Running a meaningful lesson example records
+**practice**, not mastery. A successful game behavior check records **checked**
+evidence for movement, the game's second mechanic, or scoring. Accepted AI edits
+mark subsequent checks in that draft as **assisted**; this deliberately conservative
+classification is not a judgement of the learner's ability.
+
+When movement has passed a check in one game without recorded assistance, another
+game can offer its controls already included. This is optional and available only
+when the target editor exactly matches its starter: existing custom drafts are not
+replaced. The learner can preview both rules, include them and move to exercise two,
+or practise controls again. Inclusion is undoable and requires Run to affect play.
+Those controls are recorded as **supplied**, so checking them does not establish
+independent movement evidence. Later mechanics written by the learner can still
+receive their own checked evidence.
+
+Pip receives the bounded progress records alongside the current game context and
+can refer to earlier practice when helping. Recommendations and transfer eligibility
+currently use explicit local rules; AI does not autonomously grade mastery or change
+the learner's curriculum. There are no accounts or cross-device progress sync.
+
 ## Implementation
 
 - `public/`: browser UI, Canvas 2D art, Python worker and game runtime.
@@ -66,7 +127,8 @@ so an infinite loop does not lock the page. The supported API is deliberately sm
 arbitrary new assets, scrolling levels, multiplayer, voice and a general scene editor
 are outside this prototype. Artwork is original Canvas 2D, with no Pyxel dependency.
 
-AI receives the selected template and exercise, check feedback, question, current code,
+AI receives the selected template and exercise, check feedback, local learning-progress
+evidence, question, current code,
 selected line, recent conversation, error and a compact game snapshot. It has no tools
 and cannot edit files or execute code. It
 returns an explanation, line reference and optional replacement; suggestions never
@@ -75,9 +137,13 @@ apply automatically. The local server does not record conversations.
 ## Verification
 
 `npm test` covers movement, collisions, scoring, exercise feedback, error line mapping,
-AI edit validation and HTTP behavior with a fake upstream (no API spend).
+introductory commands, bounded loops, drawing, event/update behavior, persistent progress,
+transfer provenance, generated movement starters, AI edit validation and HTTP behavior with a fake upstream (no API spend).
 Browser checks additionally exercise real Pyodide, template switching and draft
-retention, live AI hints and edits, narrow-screen layout and infinite-loop recovery.
+retention, hints and edits, narrow-screen layout and infinite-loop recovery. The
+expanded-map browser check covers lesson completions, loop/customization execution,
+event/update controls, drawing, progress transfer, reload persistence and mobile width;
+it makes no live AI requests.
 
 API reference: [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 Runtime reference: [Pyodide](https://pyodide.org/en/stable/usage/quickstart.html).

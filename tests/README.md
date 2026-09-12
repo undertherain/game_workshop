@@ -6,3 +6,13 @@ with a fake upstream response; they do not spend API credits. Browser smoke chec
 are performed separately against the running local prototype.
 
 Return to the [prototype README](../README.md).
+
+`test_lessons.py` checks introductory Python execution, loop/drawing limits,
+properties, event edges, continuously called update rules, and invalid-source
+recovery. `progress.test.mjs` checks persistence, evidence classifications, bounded
+tutor context and optional control starters against the actual Python game checks.
+
+Browser checks cover autocomplete, prediction, loops, appearance edits, live lesson
+controls, drawing, map navigation, movement checks and transfer, draft preservation,
+reload persistence, and mobile width. Use an isolated browser profile for checks
+that reset test progress; do not clear the learner's own browser data.

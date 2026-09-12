@@ -30,10 +30,11 @@ test('server serves local Python, isolates secrets, and sends contextual structu
     assert.equal((await fetch(base+'/.env')).status,404);
     assert.equal((await fetch(base+'/server.mjs')).status,404);
     assert.deepEqual(await(await fetch(base+'/api/status')).json(),{mode:'ai'});
-    const reply=await(await fetch(base+'/api/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'jump higher',code})})).json();
+    const reply=await(await fetch(base+'/api/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'jump higher',code,progress:{records:[{skill:'movement',source:'game:breaker',evidence:'checked'}]}})})).json();
     assert.equal(reply.mode,'ai');assert.equal(reply.line,4);
     assert.equal(captured.store,false);assert.equal(captured.text.format.strict,true);
     assert.equal(JSON.parse(captured.input).code,code);
+    assert.equal(JSON.parse(captured.input).progress.records[0].evidence,'checked');
     const hint=await(await fetch(base+'/api/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'Just a hint',code,mode:'hint',template:'breaker'})})).json();
     assert.equal(hint.before,null);assert.equal(hint.after,null);
     assert.equal(JSON.parse(captured.input).template,'breaker');

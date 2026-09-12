@@ -1,5 +1,7 @@
 import { createScene, initialState } from './scene.js';
 import { templates } from './templates.js';
+import { progress, movementOffer, movementStarter } from './progress.js';
+import { gameSkills, games } from './curriculum.js';
 
 const $ = id => document.getElementById(id);
 const editor = $('editor'), canvas = $('game'), scene = createScene(canvas);
@@ -7,6 +9,7 @@ let code = '', starter = '', runningCode = '', gameState = initialState, current
 let worker, ready = false, pending = null, requestId = 0, requestTimer, bootTimer, playing = false;
 let focusedLine = null, proposal = null, proposalSource = '', history = [], snapshots = [], asking = false;
 let keys = { left: false, right: false, jump: false }, lastStep = 0, lastDraw = 0;
+let assisted = false, suppliedControls = false;
 let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null;
 const storageKey = () => 'little-makers-exercises-v1-'+templateId;
 const escape = text => text.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -57,7 +60,7 @@ function showError(error) {
 function displayState(state){gameState=state;scene.update(state);const total=state.stars?.length??state.items?.length??0;const noun=state.kind==='breaker'?'bricks':state.kind==='paratroopers'?'robots':'stars';$('score').textContent=`${state.collected}/${total} ${noun} · ${state.world.score} pts`;$('win-banner').hidden=!state.won;$('win-banner').replaceChildren();const win=document.createTextNode('You got them all!');const small=document.createElement('small');small.textContent='Now give your game a new twist.';$('win-banner').append(win,small);}
 function send(type, payload={}) {
   if(!ready||pending)return false;
-  const id=++requestId;pending={id,type,...payload};
+  const id=++requestId;pending={id,type,template:templateId,...payload};
   requestTimer=setTimeout(()=>{
     if(pending?.id!==id)return;
     worker.terminate();ready=false;pending=null;playing=false;$('run').disabled=false;$('check-step').disabled=false;
@@ -83,6 +86,9 @@ function boot(source) {
       $('check-step').disabled=false;
       exerciseFeedback=data.check||{passed:false,message:data.error?.message||'Could not check this rule.'};
       if(editor.value!==request.code){exerciseFeedback={passed:null,message:'You edited the code during the check. Check your new version when ready.'};}
+      if(exerciseFeedback.passed===true && request.step < 3){
+        progress.record({skill:gameSkills[request.template][request.step],source:'game:'+request.template,evidence:(assisted||(request.step===0&&suppliedControls))?'assisted':'checked'});
+      }
       $('exercise-result').textContent=exerciseFeedback.message;$('exercise-result').dataset.pass=String(exerciseFeedback.passed);
       return;
     }
@@ -124,6 +130,7 @@ async function ask(question,mode='chat') {
     const response=await fetch('/api/help',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(35000),
       body:JSON.stringify({question,mode,code:requestedCode,runningCode,selected,selectedLine,error:currentError,template:templateId,
         exercise:{index:stepIndex,title:templates[templateId].steps[stepIndex][0],description:templates[templateId].steps[stepIndex][1],feedback:exerciseFeedback},
+        progress:progress.get(),
         state:{player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history})});
     const reply=await response.json();if(!response.ok)throw new Error(reply.error||'Pip could not answer just now.');
     waiting.remove();appendMessage('assistant',reply.message,reply.experiment);
@@ -140,7 +147,7 @@ async function ask(question,mode='chat') {
 }
 
 editor.addEventListener('beforeinput',checkpoint);
-editor.addEventListener('input',()=>{focusedLine=null;exerciseFeedback=null;$('exercise-result').textContent='';save();});editor.addEventListener('scroll',syncScroll);
+editor.addEventListener('input',()=>{focusedLine=null;exerciseFeedback=null;$('exercise-result').textContent='';$('transfer-offer').hidden=true;save();});editor.addEventListener('scroll',syncScroll);
 editor.addEventListener('keydown',event=>{
   if(event.key==='Tab'){event.preventDefault();const start=editor.selectionStart,end=editor.selectionEnd;checkpoint();editor.setRangeText('    ',start,end,'end');save();}
   if(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();const start=editor.selectionStart;const line=editor.value.slice(0,start).split('\n').at(-1);const indent=line.match(/^ */)[0]+(line.trimEnd().endsWith(':')?'    ':'');checkpoint();editor.setRangeText('\n'+indent,start,editor.selectionEnd,'end');save();}
@@ -158,11 +165,13 @@ $('show-line').onclick=()=>proposal&&locate(proposal.line);
 $('apply').onclick=()=>{
   if(!proposal)return;
   if(editor.value!==proposalSource){$('suggestion').hidden=true;appendMessage('assistant','Your code has changed since this suggestion. Ask me again so I can suggest an edit for this version.');proposal=null;return;}
+  assisted=true;try{localStorage.setItem(storageKey()+'-assisted','true');}catch{}
   checkpoint();editor.value=editor.value.replace(proposal.before,()=>proposal.after);save();locate(proposal.line,'Your suggested edit is ready. Run it to see what happens.');
   $('suggestion').hidden=true;proposal=null;$('run-status').textContent='Edit ready · press Run my code';
 };
 function keyName(event){if(['ArrowLeft','KeyA'].includes(event.code))return'left';if(['ArrowRight','KeyD'].includes(event.code))return'right';if(['Space','ArrowUp','KeyW'].includes(event.code))return'jump';}
 document.addEventListener('keydown',event=>{
+  if(document.body.dataset.mode!=='workshop')return;
   if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();run();canvas.focus({preventScroll:true});return;}
   if(document.activeElement!==canvas)return;const name=keyName(event);if(name){event.preventDefault();keys[name]=true;}
 });
@@ -173,13 +182,31 @@ document.querySelectorAll('[data-key]').forEach(button=>{
   for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,()=>keys[button.dataset.key]=false);
 });
 function frame(time){
-  if(!document.hidden){
+  if(!document.hidden&&document.body.dataset.mode==='workshop'){
     if(time-lastStep>=33.33){lastStep=time;if(playing&&ready&&!pending)send('step',{keys:{...keys}});}
     if(time-lastDraw>=32){lastDraw=time;scene.draw(time);}
   }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+function renderTransfer(){
+  const evidence=movementOffer(progress.get(),templateId);
+  const visible=!!evidence&&editor.value===starter;
+  $('transfer-offer').hidden=!visible;
+  if(!visible)return;
+  const from=games.find(game=>'game:'+game.id===evidence.source)?.title||'another game';
+  $('transfer-message').textContent=`Your movement rules passed a check in ${from}. Try this game's controls yourself, or include both arrow-key rules and start with ${templates[templateId].steps[1][0].toLowerCase()}.`;
+  $('transfer-preview').textContent=movementStarter(starter,templateId).split('def update():')[1].split('\n#')[0].trimEnd();
+}
+$('transfer-use').onclick=()=>{
+  if(editor.value!==starter){$('transfer-offer').hidden=true;return;}
+  checkpoint();editor.value=movementStarter(starter,templateId);suppliedControls=true;
+  try{localStorage.setItem(storageKey()+'-controls-supplied','true');}catch{}
+  progress.record({skill:'movement',source:'game:'+templateId,evidence:'supplied'});
+  stepIndex=1;save();renderStep();$('transfer-offer').hidden=true;
+  $('line-note').textContent='Both controls are included. Read them, then run your code and build the next mechanic.';
+};
+$('transfer-practice').onclick=()=>{$('transfer-offer').hidden=true;stepIndex=0;renderStep();};
 function renderStep(){
   const template=templates[templateId];
   $('build-steps').replaceChildren();
@@ -194,6 +221,7 @@ async function selectTemplate(id){
   if(editor.value)save();
   templateId=id;const template=templates[id];starter=sourceCache[id];
   let saved;try{saved=localStorage.getItem(storageKey());stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(storageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
+  assisted=false;suppliedControls=false;try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';suppliedControls=localStorage.getItem(storageKey()+'-controls-supplied')==='true';}catch{}
   editor.value=saved??starter;runningCode='';history=[];snapshots=[];currentError=null;proposal=null;exerciseFeedback=null;focusedLine=null;
   $('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;$('check-step').disabled=false;
   $('game-title').textContent=template.title;canvas.setAttribute('aria-label',`${template.title}. Click to play. Arrow keys move; Space ${template.controls}.`);
@@ -204,16 +232,20 @@ async function selectTemplate(id){
   for(const [label,question] of template.ideas){const button=document.createElement('button');button.textContent=label;button.onclick=()=>ask(question);$('template-ideas').append(button);}
   const guide=document.querySelector('.pocket-guide dl');guide.replaceChildren();for(const [name,description] of template.guide){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=name;dd.textContent=description;guide.append(dt,dd);}
   document.querySelectorAll('.template-choice').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.template===id)));
-  clearKeys();save();renderStep();boot(editor.value);
+  clearKeys();save();renderStep();renderTransfer();boot(editor.value);
 }
 $('guide-step').onclick=()=>{ask(templates[templateId].steps[stepIndex][2]+' Give a hint first, without a replacement edit unless I ask for one.','hint');$('helper-title').scrollIntoView({behavior:'smooth',block:'center'});};
 $('next-step').onclick=()=>{stepIndex=Math.min(3,stepIndex+1);exerciseFeedback=null;renderStep();};
 async function checkStep(){
   if(!ready){$('exercise-result').textContent='Run your code to start Python, then check this step.';return;}
   if(pending){setTimeout(checkStep,60);return;}
-  $('check-step').disabled=true;$('exercise-result').textContent='Trying your rule with a few key presses…';send('check',{code:editor.value,step:stepIndex});
+  exerciseFeedback=null;$('check-step').disabled=true;$('exercise-result').textContent='Trying your rule with a few key presses…';send('check',{code:editor.value,step:stepIndex});
 }
 $('check-step').onclick=checkStep;
+let started = false;
+export async function startWorkshop(){
+  if(started)return;
+  started=true;
 try {
   await Promise.all(Object.entries(templates).map(async([id,template])=>{const response=await fetch('/'+template.file);if(!response.ok)throw Error('Could not load the '+template.genre+' starter.');sourceCache[id]=await response.text();}));
   for(const id of ['breaker','platformer','paratroopers']){const template=templates[id];const button=document.createElement('button');button.className='template-choice';button.dataset.template=id;button.innerHTML=`<span class="template-icon">${template.icon}</span><span><strong>${template.genre}</strong><small>${template.description}</small></span>`;button.onclick=()=>selectTemplate(id);$('template-picker').append(button);}
@@ -224,9 +256,11 @@ try {
   $('helper-badge').textContent=status.mode==='ai'?'AI helper':'Examples';
 }catch(error){showError({type:'StartupError',message:error.message,line:null});$('boot-overlay').hidden=true;}
 
+}
+
 // Small inspection surface for smoke checks. Python remains the source of game behavior.
 window.workshop={getState:()=>gameState,getError:()=>currentError,isReady:()=>ready&&!pending,
-  getCode:()=>editor.value,setCode(value){checkpoint();editor.value=value;save();},run,ask,
+  getCode:()=>editor.value,setCode(value){checkpoint();editor.value=value;exerciseFeedback=null;save();},run,ask,
   getRunningCode:()=>runningCode,setKeys(value){keys={left:false,right:false,jump:false,...value};},
   pause(){playing=false;clearKeys();},resume(){playing=true;},starter:()=>starter,
-  selectTemplate,getTemplate:()=>templateId,checkStep,setStep(index){stepIndex=index;renderStep();},getExerciseFeedback:()=>exerciseFeedback};
+  selectTemplate,getTemplate:()=>templateId,checkStep,setStep(index){stepIndex=index;exerciseFeedback=null;renderStep();},getExerciseFeedback:()=>exerciseFeedback};

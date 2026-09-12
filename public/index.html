@@ -7,15 +7,50 @@
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/templates.css">
   <link rel="stylesheet" href="/editor-focus.css">
+  <link rel="stylesheet" href="/lessons.css">
 </head>
-<body>
+<body data-mode="lessons">
   <header class="topbar">
     <a class="brand" href="/"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
-    <div class="header-actions"><span id="save-status">Saved in this browser</span><button id="download" class="quiet">↓ Save Python</button></div>
+    <div class="header-actions"><button id="map-toggle">Learning map</button><button id="mode-toggle">Open game workshop ↗</button><span id="save-status">Saved in this browser</span><button id="download" class="quiet">↓ Save Python</button></div>
   </header>
-  <main>
+  <main id="learning-map" hidden aria-labelledby="map-title">
+    <div class="intro"><div><p class="eyebrow">LITTLE MAKERS · YOUR LEARNING MAP</p><h1 id="map-title" tabindex="-1">Small discoveries. <em>Your own games.</em></h1><p>Follow the foundations, take a drawing detour, or pick a game to build.</p></div></div>
+    <p id="map-progress-note" class="map-note"></p>
+    <div class="map-branches">
+      <section class="map-branch"><p class="eyebrow">RECOMMENDED START</p><h2>Make things happen</h2><p>From a first instruction to rules that stay alive.</p><div id="foundation-nodes" class="skill-nodes"></div></section>
+      <section class="map-branch"><p class="eyebrow">OPTIONAL EXPLORATION</p><h2>Draw your world</h2><p>Learn coordinates and loops by making a picture.</p><div id="drawing-nodes" class="skill-nodes"></div><div class="future-node"><strong>Grow a fractal forest</strong><span>Recursion · planned</span></div></section>
+    </div>
+    <section class="game-library" aria-labelledby="library-title"><p class="eyebrow">A LITTLE ENCYCLOPEDIA OF GAMES</p><h2 id="library-title">Find your next creation</h2><p>Each game is another place to use what you know. You can revisit any foundation.</p><div id="game-library-cards"></div></section>
+    <p class="map-note">Practice means you tried a concept. A passed check means a game behavior worked. Neither is a grade or a lock.</p>
+  </main>
+  <main id="lessons" aria-labelledby="lesson-title">
+    <aside class="lesson-instructions" aria-label="Lesson instructions">
+    <div class="lesson-topline"><span class="eyebrow">YOUR FIRST LITTLE PROGRAM</span><span id="lesson-progress"></span></div>
+    <div id="lesson-dots" class="lesson-dots" aria-label="Lesson progress"></div>
+    <section class="lesson-copy"><h1 id="lesson-title" tabindex="-1"></h1><p id="lesson-description"></p></section>
+    <section id="lesson-quiz" class="lesson-quiz" hidden aria-labelledby="quiz-title"><h2 id="quiz-title">Before you run: what happens first?</h2><div><button data-answer="jump">The fox jumps</button><button data-answer="move">The fox moves</button></div><p id="quiz-feedback" role="status"></p></section>
+    <nav class="lesson-navigation" aria-label="Lesson navigation"><button id="lesson-back" class="quiet">← Back</button><button id="lesson-next" class="primary">Next little step →</button></nav>
+    <p class="lesson-footnote">No rush. Change your command and run it again whenever you like.</p>
+    </aside>
+    <section class="lesson-card" aria-label="Your fox and code">
+      <div class="panel-heading"><strong id="lesson-scene-title">A little meadow. Your instructions.</strong><span class="language-badge">Python</span></div>
+      <canvas id="lesson-game" tabindex="0" width="840" height="480" aria-label="A fox in a meadow. Run a command to make it move or jump."></canvas>
+      <div id="lesson-live" class="lesson-live" hidden><span id="lesson-loop-status" aria-live="off">Run your rule to begin.</span><button id="lesson-space" type="button">Space · jump</button><button id="lesson-right" type="button">Hold Right →</button></div>
+      <form id="lesson-form" class="lesson-cell">
+        <label for="lesson-code">Your program</label>
+        <div class="lesson-input-row"><span class="cell-prompt" aria-hidden="true">❯</span><textarea id="lesson-code" rows="1" maxlength="1000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="lesson-input-help" placeholder="Type fox. to discover its actions"></textarea><button id="lesson-run" class="primary" type="submit">▶ Run</button></div>
+        <div id="lesson-completions" aria-label="Suggested commands"></div>
+        <p id="lesson-input-help">Type fox. for suggestions. Tab completes the first suggestion; Ctrl / ⌘ + Enter runs.</p>
+      </form>
+      <div id="lesson-palette" class="lesson-palette" hidden><span>Try a sky:</span><button data-sky="peach">Peach</button><button data-sky="lavender">Lavender</button><button data-sky="mint">Mint</button><button data-sky="night">Night</button></div>
+      <p id="lesson-feedback" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <main id="workshop-main" hidden>
     <div class="intro"><div><p class="eyebrow">YOUR VERY FIRST GAME</p><h1>Pick a game. <em>Make it yours.</em></h1><p>The world is ready. You bring it to life, one little rule at a time.</p></div><div class="edition"><span>✧</span><p>SMALL STEPS<br>BIG IDEAS</p></div></div>
     <nav id="template-picker" class="template-picker" aria-label="Choose a game to build"></nav>
+    <section id="transfer-offer" class="transfer-offer" hidden><strong>A familiar skill, a new game</strong><p id="transfer-message"></p><details><summary>See the controls that will be included</summary><pre id="transfer-preview"></pre></details><div><button id="transfer-use" class="primary">Include controls · try the next mechanic</button><button id="transfer-practice" class="quiet">I’ll practise controls again</button></div></section>
     <section class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
     <div class="workspace">
       <section class="play-column" aria-label="Your game and helper">
@@ -46,6 +81,6 @@
     </div>
     <footer class="page-footer"><span>Made for the “can I make a game?” kind of curious.</span><span>Play → wonder → change → play</span></footer>
   </main>
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="/lessons.js"></script>
 </body>
 </html>
