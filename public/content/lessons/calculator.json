@@ -1,0 +1,24 @@
+{
+  "id": "calculator",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Your tiny Python lab",
+  "heading": "Try it: calculate.",
+  "description": "Change the numbers in 10 - 3 and press Enter. Then try + instead of -.",
+  "starter": [
+    "10 - 3"
+  ],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "expressions",
+  "placeholder": "Try a little Python",
+  "scene": {
+    "title": "Try it. See what Python works out.",
+    "label": "A fox in a meadow. Spoken values also appear below the scene."
+  },
+  "completions": [],
+  "feedback": {
+    "initial": "Make one small change, then press Run.",
+    "success": "Change it and run again. What do you think will happen?"
+  }
+}

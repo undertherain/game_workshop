@@ -14,7 +14,7 @@ def _number(node, loop_names):
         return
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
         return _number(node.operand, loop_names)
-    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult)):
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div)):
         _number(node.left, loop_names)
         _number(node.right, loop_names)
         return
@@ -66,12 +66,46 @@ def _validate(body, mode, loop_names=(), depth=0):
         raise ValueError('This lesson uses a small vocabulary. Follow the example above; the full game editor opens up more Python.')
 
 
-_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line'}
+_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line', 'str'}
 
 
 def _name(name, functions):
     if name.startswith('_') or name in _RESERVED or name in functions:
         raise ValueError('Choose your own name, such as distance or cross_gap.')
+
+
+def _value(node, names):
+    if isinstance(node, ast.Constant) and type(node.value) in (str, bool):
+        return
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div)):
+        _value(node.left, names)
+        _value(node.right, names)
+        return
+    if isinstance(node, ast.Compare) and len(node.ops) == 1 and isinstance(node.ops[0], (ast.Lt, ast.LtE, ast.Gt, ast.GtE, ast.Eq, ast.NotEq)):
+        _value(node.left, names)
+        _value(node.comparators[0], names)
+        return
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'str' and len(node.args) == 1 and not node.keywords:
+        _value(node.args[0], names)
+        return
+    _number(node, names)
+
+
+def _calculate(left, right, op):
+    if op == 'Mult' and (isinstance(left, str) or isinstance(right, str)):
+        raise ValueError('Use + to join text. Try multiplication with two numbers.')
+    result = {'Add': lambda: left + right, 'Sub': lambda: left - right,
+              'Mult': lambda: left * right, 'Div': lambda: left / right}[op]()
+    if (isinstance(result, str) and len(result) > 1000) or (type(result) in (int, float) and abs(result) > 1000000):
+        raise ValueError('Try a smaller value in this little lesson.')
+    return result
+
+
+class _Expressions(ast.NodeTransformer):
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        return ast.copy_location(ast.Call(func=ast.Name(id='_calculate', ctx=ast.Load()),
+            args=[node.left, node.right, ast.Constant(type(node.op).__name__)], keywords=[]), node)
 
 
 def _basics(body, names=None, functions=None, depth=0):
@@ -86,7 +120,7 @@ def _basics(body, names=None, functions=None, depth=0):
         if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
             name = node.targets[0].id
             _name(name, functions)
-            _number(node.value, names)
+            _value(node.value, names)
             names.add(name)
             continue
         if isinstance(node, ast.FunctionDef) and depth == 0:
@@ -106,9 +140,15 @@ def _basics(body, names=None, functions=None, depth=0):
             _basics(node.body, params, functions, depth + 1)
             functions[node.name] = len(params)
             continue
+        if depth == 0 and isinstance(node, ast.Expr) and not isinstance(node.value, ast.Call):
+            _value(node.value, names)
+            continue
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
             call = node.value
             if not call.keywords:
+                if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name) and call.func.value.id in ('fox', 'character') and call.func.attr == 'say' and len(call.args) == 1:
+                    _value(call.args[0], names)
+                    continue
                 if (isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name)
                         and call.func.value.id in ('fox', 'character')
                         and ((call.func.attr == 'jump' and not call.args)
@@ -158,7 +198,8 @@ class Lesson:
         self.keyboard = SimpleNamespace(right=False)
         self.changed = False
         self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
-                      'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
+                      '_calculate': _calculate, 'str': str, 'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
+        self.character.say = self.say
         self.character.jump = lambda: self.action('jump')
         self.character.move = lambda distance=80: self.action('move', distance)
         interactive = mode in ('event', 'update')
@@ -176,13 +217,28 @@ class Lesson:
                 _basics(tree.body)
             else:
                 _validate(tree.body, mode)
-        exec(compile(tree, '<lesson>', 'exec'), self.scope)
+        execution = tree
+        if mode == 'basics':
+            import copy
+            execution = _Expressions().visit(copy.deepcopy(tree))
+            for original, node in zip(tree.body, execution.body):
+                if isinstance(node, ast.Expr) and not isinstance(original.value, ast.Call):
+                    node.value = ast.Call(func=ast.Attribute(value=ast.Name(id='fox', ctx=ast.Load()), attr='say', ctx=ast.Load()), args=[node.value], keywords=[])
+            ast.fix_missing_locations(execution)
+        exec(compile(execution, '<lesson>', 'exec'), self.scope)
         self.features = {'loop': any(isinstance(n, ast.For) for n in ast.walk(tree)),
                          'assignment': any(isinstance(n, ast.Assign) for n in ast.walk(tree)),
                          'expression': any(isinstance(n, ast.BinOp) for n in ast.walk(tree)),
                          'function': any(isinstance(n, ast.FunctionDef) for n in ast.walk(tree)),
                          'parameter': any(isinstance(n, ast.FunctionDef) and n.args.args for n in ast.walk(tree)),
                          'condition': any(isinstance(n, ast.If) for n in ast.walk(tree))}
+
+    def say(self, value):
+        if type(value) not in (str, int, float, bool):
+            raise ValueError('Say a word, a number, or True or False.')
+        if len(self.actions) >= 12:
+            raise ValueError('Try at most 12 actions at a time so you can watch each one.')
+        self.actions.append({'kind': 'say', 'text': str(value)[:1000]})
 
     def action(self, name, distance=80):
         if name == 'move' and not -300 <= distance <= 300:
@@ -242,8 +298,15 @@ def run_lesson(source, mode='commands'):
     try:
         _session = Lesson(source, mode)
         return json.dumps(_session.snapshot())
-    except (SyntaxError, ValueError) as error:
-        return json.dumps({'error': 'Check spelling, parentheses, and indentation. Each indented line belongs to the rule above it.' if isinstance(error, SyntaxError) else str(error)})
+    except (SyntaxError, ValueError, TypeError, ZeroDivisionError, NameError) as error:
+        message = str(error)
+        if isinstance(error, SyntaxError):
+            message = 'Text needs a quote at both ends. Try fox.say("Hi!").' if 'string literal' in message else 'Check spelling, parentheses, and indentation. Each indented line belongs to the rule above it.'
+        elif isinstance(error, TypeError):
+            message = 'Text and numbers are different kinds of value. To join them, try fox.say("Age: " + str(8)).'
+        elif isinstance(error, ZeroDivisionError):
+            message = 'We cannot divide by zero. Try another number after /.'
+        return json.dumps({'error': message})
 
 
 def step_lesson(keys_json):

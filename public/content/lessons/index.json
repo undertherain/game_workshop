@@ -1,5 +1,13 @@
 [
   "command",
+  "sum",
+  "calculator",
+  "strings-intro",
+  "hello",
+  "values-intro",
+  "text-numbers",
+  "names-intro",
+  "greeting",
   "choice",
   "sequence",
   "numbers",

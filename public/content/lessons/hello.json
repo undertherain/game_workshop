@@ -1,0 +1,29 @@
+{
+  "id": "hello",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Give your fox a voice",
+  "heading": "Try it: make the fox speak.",
+  "description": "Change Hi! to your own message. Keep the quotes, then press Run.",
+  "starter": [
+    "fox.say(\"Hi!\")"
+  ],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "commands",
+  "placeholder": "Try a little Python",
+  "scene": {
+    "title": "Your fox. Your words.",
+    "label": "A fox in a meadow. Spoken values also appear below the scene."
+  },
+  "completions": [
+    {
+      "code": "fox.say(\"Hi!\")",
+      "description": "Say some text"
+    }
+  ],
+  "feedback": {
+    "initial": "Make one small change, then press Run.",
+    "success": "Change it and run again. What do you think will happen?"
+  }
+}

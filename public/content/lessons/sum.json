@@ -1,0 +1,25 @@
+{
+  "id": "sum",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Meet Python",
+  "heading": "We’ll build things with Python.",
+  "description": "Python is a programming language: a way to give instructions to a computer.",
+  "starter": [],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "expressions",
+  "placeholder": "Try a little Python",
+  "scene": {
+    "title": "Try it. See what Python works out.",
+    "label": "A fox in a meadow. Spoken values also appear below the scene."
+  },
+  "completions": [],
+  "explanation": [
+    {
+      "title": "Python can work things out",
+      "code": "2 + 3",
+      "text": "This is an expression. Python works it out and gives a result: 5. We can use expressions when we make our games."
+    }
+  ]
+}

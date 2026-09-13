@@ -1,0 +1,30 @@
+{
+  "id": "greeting",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Remember a name",
+  "heading": "Try it: say hello to you.",
+  "description": "Change only Ola to your name. Keep the quotes, then run your greeting.",
+  "starter": [
+    "username = \"Ola\"",
+    "fox.say(\"Hello \" + username)"
+  ],
+  "rows": 2,
+  "mode": "basics",
+  "skill": "variables",
+  "placeholder": "Try a little Python",
+  "scene": {
+    "title": "Your fox. Your words.",
+    "label": "A fox in a meadow. Spoken values also appear below the scene."
+  },
+  "completions": [
+    {
+      "code": "fox.say(\"Hi!\")",
+      "description": "Say some text"
+    }
+  ],
+  "feedback": {
+    "initial": "Make one small change, then press Run.",
+    "success": "Change it and run again. What do you think will happen?"
+  }
+}

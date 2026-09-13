@@ -14,7 +14,6 @@
     "        pass"
   ],
   "scene": {
-    "title": "A little meadow. Your instructions.",
     "label": "Your game. Use Space or Right to try your rule."
   },
   "placeholder": "Type character. to discover its actions",

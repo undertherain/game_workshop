@@ -1,0 +1,29 @@
+{
+  "id": "names-intro",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "A variable remembers a value.",
+  "heading": "A variable remembers a value.",
+  "description": "Give a value a name so you can use it again.",
+  "mode": "basics",
+  "skill": "variables",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Try it on the next slide",
+  "scene": {
+    "label": "An explanation with Python examples."
+  },
+  "completions": [],
+  "explanation": [
+    {
+      "title": "Store the name",
+      "code": "username = \"Ola\"",
+      "text": "The = stores the text Ola in a variable called username."
+    },
+    {
+      "title": "Use it in a greeting",
+      "code": "\"Hello \" + username",
+      "text": "Python uses the stored value. The + joins the text to make Hello Ola. Keep the space after Hello!"
+    }
+  ]
+}

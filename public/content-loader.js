@@ -25,15 +25,25 @@ export function validateLesson(lesson, id, defaults, skills) {
   requireValue(Object.hasOwn(skills, lesson.skill), `${label}: unknown skill`);
   requireValue(['foundations', 'drawing'].includes(lesson.branch), `${label}: unknown branch`);
   requireValue(modes.includes(lesson.mode), `${label}: unknown runtime mode`);
+  requireValue(!lesson.layout || lesson.layout === 'compact', `${label}: unknown layout`);
   requireValue(!lesson.actor || lesson.actor === 'character', `${label}: unsupported actor`);
   requireValue(Number.isInteger(lesson.rows) && lesson.rows >= 1 && lesson.rows <= 12, `${label}: rows must be 1–12`);
   requireValue(Array.isArray(lesson.starter) && lesson.starter.every(line => typeof line === 'string') && lesson.starter.join('\n').length <= 1000, `${label}: starter must be an array of Python lines (up to 1,000 characters)`);
-  requireValue(text(lesson.scene?.title) && text(lesson.scene?.label), `${label}: missing scene text`);
+  requireValue((lesson.scene?.title === undefined || text(lesson.scene.title)) && text(lesson.scene?.label), `${label}: missing scene text`);
   requireValue(Array.isArray(lesson.completions) && lesson.completions.every(c => text(c.code) && text(c.description)), `${label}: invalid completions`);
+  if (lesson.examples) requireValue(Array.isArray(lesson.examples) && lesson.examples.length <= 3 && lesson.examples.every(example => text(example.label) && text(example.code) && example.code.length <= 1000), `${label}: invalid examples`);
+  if (lesson.explanation) {
+    requireValue(lesson.layout === 'compact' && Array.isArray(lesson.explanation) && lesson.explanation.length >= 1 && lesson.explanation.length <= 3 && lesson.explanation.every(card => text(card.title) && text(card.code) && text(card.text)), `${label}: explanation needs 1–3 cards with title, code and text`);
+    requireValue(lesson.starter.length === 0 || lesson.quiz?.only === true, `${label}: explanations use an empty starter or a standalone quiz`);
+  }
   if (lesson.quiz) {
     for (const key of ['title', 'initial', 'prompt', 'match', 'different', 'ready']) requireValue(text(lesson.quiz[key]), `${label}: missing quiz.${key}`);
-    validateIds(lesson.quiz.choices?.map(c => c.id), `${label}: quiz choices`);
-    requireValue(lesson.quiz.choices.every(c => text(c.label) && text(c.firstLine)), `${label}: each quiz choice needs label and firstLine`);
+    requireValue(!lesson.quiz.type || lesson.quiz.type === 'output', `${label}: unknown quiz type`);
+    requireValue(lesson.quiz.only === undefined || (lesson.quiz.only === true && lesson.quiz.type === 'output'), `${label}: quiz.only requires an output quiz`);
+    if (lesson.quiz.type !== 'output') {
+      validateIds(lesson.quiz.choices?.map(c => c.id), `${label}: quiz choices`);
+      requireValue(lesson.quiz.choices.every(c => text(c.label) && text(c.firstLine)), `${label}: each quiz choice needs label and firstLine`);
+    }
   }
   if (lesson.palette) {
     requireValue(lesson.mode === 'style' && text(lesson.palette.label) && Array.isArray(lesson.palette.choices) && lesson.palette.choices.length > 0 && lesson.palette.choices.every(c => ['peach','lavender','mint','night'].includes(c.value) && text(c.label)), `${label}: invalid sky palette`);

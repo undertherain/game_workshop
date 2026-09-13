@@ -1,0 +1,29 @@
+{
+  "id": "values-intro",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Numbers and text are different.",
+  "heading": "Numbers and text are different.",
+  "description": "Quotes change what Python does with a value.",
+  "mode": "basics",
+  "skill": "expressions",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Try it on the next slide",
+  "scene": {
+    "label": "An explanation with Python examples."
+  },
+  "completions": [],
+  "explanation": [
+    {
+      "title": "Integer = whole number",
+      "code": "3 + 4  →  7",
+      "text": "Without quotes, Python adds the numbers."
+    },
+    {
+      "title": "String = text",
+      "code": "\"3 + 4\"  →  3 + 4",
+      "text": "With quotes, Python keeps the text exactly as written."
+    }
+  ]
+}

@@ -10,6 +10,21 @@ spec.loader.exec_module(runtime)
 
 
 class LessonTests(unittest.TestCase):
+    def test_speech_and_calculator_values(self):
+        source = '2 + 3\nfox.say("3 + 4")\nusername = "Ola"\nfox.say("Hello " + username)\nfox.say(7 / 2)\nfox.say(5 > 3)\nfox.say("Age: " + str(8))'
+        data = json.loads(runtime.run_lesson(source, 'basics'))
+        self.assertEqual([a['text'] for a in data['actions']], ['5', '3 + 4', 'Hello Ola', '3.5', 'True', 'Age: 8'])
+        counted = json.loads(runtime.run_lesson('for step in range(3):\n    fox.say(step)\nfox.jump()', 'basics'))
+        self.assertEqual(counted['actions'], [{'kind': 'say', 'text': str(i)} for i in range(3)] + ['jump'])
+
+    def test_speech_errors_and_limits_recover(self):
+        for source, hint in [('fox.say("Hi)', 'quote'), ('fox.say("Age: " + 8)', 'Text and numbers'), ('7 / 0', 'zero'), ('fox.say("a" * 1000)', 'multiplication'), ('fox.say(1000 * 1000 * 1000)', 'smaller'), ('for i in range(6):\n    for step in range(6):\n        fox.say(step)', '12 actions')]:
+            with self.subTest(source=source):
+                self.assertIn(hint, json.loads(runtime.run_lesson(source, 'basics'))['error'])
+        for source in ['fox.say(fox)', 'fox.say(__import__("os"))', 'fox.say("hi".upper())', 'str = 4', 'fox.say(1, 2)', 'fox.say([1, 2])']:
+            self.assertIn('error', json.loads(runtime.run_lesson(source, 'basics')))
+        self.assertEqual(json.loads(runtime.run_lesson('fox.say("Back!")', 'basics'))['actions'][0]['text'], 'Back!')
+
     def test_commands_keep_order(self):
         for source, expected in [('fox.jump()', ['jump']), ('fox.move()\nfox.jump()', ['move', 'jump']), ('fox.jump()\nfox.jump()', ['jump', 'jump'])]:
             self.assertEqual(json.loads(runtime.run_lesson(source))['actions'], expected)

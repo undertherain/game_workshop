@@ -9,11 +9,21 @@
   <link rel="stylesheet" href="/editor-focus.css">
   <link rel="stylesheet" href="/lessons.css">
 </head>
-<body data-mode="lessons">
+<body data-mode="home">
   <header class="topbar">
-    <a class="brand" href="/"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
+    <a id="home-link" class="brand" href="/" aria-label="Little Makers title screen"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
     <div class="header-actions"><button id="map-toggle" disabled>Learning map</button><button id="mode-toggle" disabled>Open game workshop ↗</button><span id="save-status">Saved in this browser</span><button id="download" class="quiet">↓ Save Python</button></div>
   </header>
+  <main id="title-screen" aria-labelledby="title-screen-heading">
+    <p class="eyebrow">LEARN PYTHON · MAKE GAMES</p>
+    <h1 id="title-screen-heading" tabindex="-1">Little Makers</h1>
+    <p class="title-intro">Learn Python by making things happen.</p>
+    <p class="title-description">Start with a fox that follows your instructions. Read a short explanation, try some code, and see what changes. Then use what you’ve learned to build a game.</p>
+    <div class="title-actions">
+      <section class="title-choice"><h2>Pick up where you left off</h2><p id="resume-lesson">Your first Python instruction.</p><button id="title-continue" class="primary" disabled>Continue to last lesson →</button></section>
+      <section class="title-choice"><h2>Choose what to learn</h2><p>Explore Python basics, try drawing, or open a game workshop. You can visit any lesson.</p><button id="title-map" class="quiet" disabled>Study map →</button></section>
+    </div>
+  </main>
   <main id="learning-map" hidden aria-labelledby="map-title">
     <div class="intro"><div><p class="eyebrow">LITTLE MAKERS · YOUR LEARNING MAP</p><h1 id="map-title" tabindex="-1">Small discoveries. <em>Your own games.</em></h1><p>Follow the foundations, take a drawing detour, or pick a game to build.</p></div></div>
     <p id="map-progress-note" class="map-note"></p>
@@ -24,25 +34,28 @@
     <section class="game-library" aria-labelledby="library-title"><p class="eyebrow">A LITTLE ENCYCLOPEDIA OF GAMES</p><h2 id="library-title">Find your next creation</h2><p>Each game is another place to use what you know. You can revisit any foundation.</p><div id="game-library-cards"></div></section>
     <p class="map-note">Practice means you tried a concept. A passed check means a game behavior worked. Neither is a grade or a lock.</p>
   </main>
-  <main id="lessons" aria-labelledby="lesson-title">
+  <main id="lessons" hidden aria-labelledby="lesson-title">
     <aside class="lesson-instructions" aria-label="Lesson instructions">
     <div class="lesson-topline"><span class="eyebrow">YOUR FIRST LITTLE PROGRAM</span><span id="lesson-progress"></span></div>
     <div id="lesson-dots" class="lesson-dots" aria-label="Lesson progress"></div>
     <section class="lesson-copy"><h1 id="lesson-title" tabindex="-1">Loading the workshop…</h1><p id="lesson-description"></p></section>
+    <section id="lesson-explanation" class="lesson-explanation" aria-label="Python explained" hidden></section>
     <section id="lesson-quiz" class="lesson-quiz" hidden aria-labelledby="quiz-title"><h2 id="quiz-title"></h2><div id="quiz-choices"></div><p id="quiz-feedback" role="status"></p></section>
     <nav class="lesson-navigation" aria-label="Lesson navigation"><button id="lesson-back" disabled class="quiet">← Back</button><button id="lesson-next" disabled class="primary">Next little step →</button></nav>
     <p class="lesson-footnote">No rush. Change your command and run it again whenever you like.</p>
     </aside>
     <section class="lesson-card" aria-label="Your fox and code">
-      <div class="panel-heading"><strong id="lesson-scene-title">A little meadow. Your instructions.</strong></div>
+      <div class="panel-heading"><strong id="lesson-scene-title"></strong></div>
       <canvas id="lesson-game" tabindex="0" width="840" height="480" aria-label="A fox in a meadow. Run a command to make it move or jump."></canvas>
       <div id="lesson-live" class="lesson-live" hidden><span id="lesson-loop-status" aria-live="off">Run your rule to begin.</span><button id="lesson-space" type="button">Space · jump</button><button id="lesson-right" type="button">Hold Right →</button></div>
       <form id="lesson-form" class="lesson-cell">
         <div class="lesson-code-tools"><label for="lesson-code">Your program</label><div><button id="lesson-undo-reset" class="quiet" type="button" hidden>↶ Undo reset</button><button id="lesson-reset" class="quiet" type="button" disabled title="Restore this lesson’s starting code">↺ Reset code</button></div></div>
         <div class="lesson-input-row"><span class="cell-prompt" aria-hidden="true">❯</span><textarea id="lesson-code" disabled rows="1" maxlength="1000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="lesson-input-help" placeholder="Type fox. to discover its actions"></textarea><button id="lesson-run" disabled aria-pressed="false" class="primary" type="submit">▶ Run</button></div>
+        <div id="lesson-examples" aria-label="Examples to try" hidden></div>
         <div id="lesson-completions" aria-label="Suggested commands"></div>
         <p id="lesson-input-help">Type fox. for suggestions. Tab completes the first suggestion; Ctrl / ⌘ + Enter runs.</p>
       </form>
+      <section id="lesson-output" aria-labelledby="lesson-output-title" hidden><h2 id="lesson-output-title">Output</h2><div id="lesson-transcript" role="log" aria-label="Python output" hidden></div></section>
       <div id="lesson-palette" class="lesson-palette" hidden></div>
       <p id="lesson-feedback" role="status" aria-live="polite"></p>
     </section>

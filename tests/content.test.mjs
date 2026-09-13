@@ -48,3 +48,11 @@ test('a missing lesson fails clearly instead of silently dropping an entry', asy
     return readContent(path);
   }), /lessons\/event.json/);
 });
+test('typed output predictions need no fixed answer or choices', async () => {
+  const base = await readContent('lessons/sequence.json');
+  const { choices, ...quiz } = base.quiz;
+  const lesson = { ...base, quiz: { ...quiz, type: 'output' } };
+  const defaults = await readContent('lesson-defaults.json');
+  assert.equal(validateLesson(lesson, 'sequence', defaults, skillLabels).quiz.type, 'output');
+  assert.throws(() => validateLesson({ ...lesson, quiz: { ...lesson.quiz, type: 'unknown' } }, 'sequence', defaults, skillLabels), /unknown quiz type/);
+});

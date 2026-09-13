@@ -8,7 +8,8 @@ are performed separately against the running local prototype.
 Return to the [prototype README](../README.md).
 
 `test_lessons.py` checks introductory Python execution, loop/drawing limits,
-numeric expressions, parameterized helper calls, comparison boundaries,
+numeric expressions, calculator output, speech values, friendly errors, bounded text
+operations, parameterized helper calls, comparison boundaries,
 unsafe/recursive-source rejection, properties, event edges, continuously called update rules, and invalid-source
 recovery. `progress.test.mjs` checks persistence, evidence classifications, bounded
 tutor context and optional control starters against the actual Python game checks.

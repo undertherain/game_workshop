@@ -12,7 +12,6 @@
     "    pass"
   ],
   "scene": {
-    "title": "A little meadow. Your instructions.",
     "label": "Your character in a meadow. Run your instructions to make it act."
   },
   "placeholder": "Type fox. to discover its actions",

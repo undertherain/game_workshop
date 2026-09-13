@@ -1,7 +1,8 @@
 # Little Makers — browser Python game workshop
 
-Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`,
-choose another action with autocomplete, and predict a two-command sequence. Then
+Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`, meet Python and expressions, try a tiny calculator, and use `fox.say()`
+with text, numbers and a named greeting. Then choose another action and predict a
+two-command sequence. Then
 open the split-screen workshop, choose a platformer, brick breaker or
 Paratroopers-style game, and build its controls and rules through short Python mini-exercises. Scenery,
 physics and moving game objects are provided; the child writes small behaviors.
@@ -34,12 +35,29 @@ Without a key the interface explicitly offers built-in guided examples, not AI c
 
 ## Try
 
-The **Learning map** connects thirteen foundational lessons, three optional drawing
+The title screen introduces the workshop, links to the Study map, and offers
+Continue to last lesson (or Start your first lesson for a new browser). Clicking
+the Little Makers logo returns here from any activity. Returning keeps lesson
+drafts and the last visited lesson; reloading opens the title screen.
+
+The **Learning map** connects twenty-one foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations begin with `fox.jump()` and build through sequence, numeric arguments,
+The foundations open with nine compact, single-column slides. After the first jump,
+short explanations alternate with code practice: Python and expressions →
+calculator, strings → fox speech, integers versus strings → add quotes and compare,
+variables → a personal greeting. Explanation slides use large examples and short,
+separate text blocks with no editor or scene; “Try it in code” opens the next activity.
+Reading an explanation does not record code practice.
+The calculator echoes a top-level expression; `fox.say(value)` shows a speech bubble
+and a scrollable transcript beneath the code, clearly labelled Output. The second
+slide introduces Python as the language used to build things and explains 2 + 3
+as an expression. The next slide starts with 10 - 3 in an editable calculator.
+The text/number lesson runs one line at a time: calculate
+3 + 4, then add quotes and run again to see the difference. The route then builds
+through sequence, numeric arguments,
 expressions, variables, bounded loops, reusable functions, parameters, comparisons,
 scene properties, a Space-key event and a live `update()` function. The new basics
 lessons use `fox.move(distance)` to make numeric results visible, then invite predictions
@@ -60,7 +78,9 @@ The drawing branch offers `dot(x, y)`, `line(x1, y1, x2, y2)`, and loops with si
 coordinate expressions on a labelled grid. It uses a small workshop-specific Python
 API and Canvas renderer; pycontextfree is not integrated yet.
 
-On desktop, lessons put instructions, quizzes and navigation on the left, with
+The opening slides stack short instructions, an optional prediction, a compact
+scene and code cell, then navigation. Calculator slides show output without a scene.
+On desktop, later lessons put instructions, quizzes and navigation on the left, with
 the scene above the code cell and Run on the right. The scene adapts to viewport
 height to keep the activity together; narrow screens use a stacked layout. Type `fox.` for action completions, or start a drawing
 command for drawing suggestions. Tab accepts a completion or inserts indentation.
@@ -69,7 +89,10 @@ Python vocabulary expands per lesson and rejects unsupported structures. Code ca
 use at most 1,000 characters; loops use `range(1)` through `range(6)`, with a limit of
 12 animated actions or 100 drawing shapes per run. Basics movement accepts distances
 from -300 to 300 pixels and stops at the scene edges. Arithmetic supports `+`, `-`,
-`*` and parentheses. Helpers have up to two parameters and their own numeric locals;
+`*`, `/` and parentheses. Basics also supports strings, booleans, comparison values,
+and `str(value)` for joining text with numbers. Missing quotes, mixed text/number
+addition and division by zero receive specific hints. String repetition is excluded;
+computed text is limited to 1,000 characters and numeric results to magnitude 1,000,000. Helpers have up to two parameters and their own numeric locals;
 they may call previously defined helpers, but not recurse. Conditions support one
 numeric comparison, with optional `else`. Returns and general Python remain for
 later work.

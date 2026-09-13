@@ -1,0 +1,34 @@
+{
+  "id": "text-numbers",
+  "branch": "foundations",
+  "layout": "compact",
+  "title": "Text or a number?",
+  "heading": "Try it: add the quotes.",
+  "description": "Try the suggestions below, one at a time. Press Run after each one and compare the output.",
+  "starter": [
+    "fox.say(3 + 4)"
+  ],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "expressions",
+  "placeholder": "Try a little Python",
+  "scene": {
+    "title": "Your fox. Your words.",
+    "label": "A fox in a meadow. Spoken values also appear below the scene."
+  },
+  "completions": [],
+  "feedback": {
+    "initial": "Run the sum first. Then add quotes around 3 + 4 and run again.",
+    "success": "Without quotes: 7. With quotes: 3 + 4. You choose whether Python calculates or keeps the text."
+  },
+  "examples": [
+    {
+      "label": "Without quotes",
+      "code": "fox.say(3 + 4)"
+    },
+    {
+      "label": "With quotes",
+      "code": "fox.say(\"3 + 4\")"
+    }
+  ]
+}

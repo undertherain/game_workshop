@@ -32,16 +32,20 @@ The lesson fields are:
 | `rows` | Visible editor rows, 1–12; one-row lessons run on Enter |
 | `mode` | Existing Python execution mode, listed below |
 | `skill` | A key from `catalog.json`'s `skillLabels` |
+| `layout` | Optional `compact` for short single-column opening slides |
+| `explanation` | Optional 1–3 `{title, code, text}` cards on a compact reading slide; use an empty starter, or combine with `quiz.only` |
 | `actor` | Optional `character`, used after customization; omit for early fox lessons |
 | `placeholder` | Hint inside the empty editor |
-| `scene` | `title` and accessible `label` for the scene |
+| `scene` | Optional `title` (omit to hide the caption) and required accessible `label` |
 | `completions` | Array of `{ "code": "character.jump()", "description": "Jump up and land" }` |
+| `examples` | Optional `{label, code}` suggestions below the editor; selecting one replaces the code and clears the old output, then the learner presses Run |
 | `feedback` | Optional overrides of shared messages; live modes require `triggered`, drawing requires `drawn` |
-| `quiz` | Optional first-line prediction question; see `sequence.json` |
+| `quiz` | Optional first-line prediction (`sequence.json`) or typed output prediction (`type: "output"`) |
 | `palette` | Optional sky choices for `style`; see `customize.json` |
 
 Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, and `basics`.
-The `basics` mode supports numeric assignments and expressions, `fox.move(distance)`,
+The `basics` mode supports numeric and text assignments, arithmetic including division,
+comparison values, `str(value)`, `fox.say(value)`, top-level expression output, `fox.move(distance)`,
 `fox.jump()`, bounded loops, top-level named functions with up to two parameters,
 and numeric comparisons in `if`/`else`. Functions use parameters and local values
 and can call earlier helpers; recursion, defaults, and return values are not supported.
@@ -52,7 +56,12 @@ These select existing runtime behavior. A JSON edit does not introduce a new Pyt
 API or algorithm: new execution capabilities still require runtime/engine work.
 The live modes call `on_space_pressed()` or `update()`. A prediction quiz compares
 the current first code line with the chosen answer's `firstLine`; it invites an
-experiment rather than blocking progress for a wrong answer.
+experiment rather than blocking progress for a wrong answer. With `quiz.type: "output"`,
+omit choices: the learner types a prediction, which is compared to the actual output
+after Run. Set `quiz.only: true` for a standalone quiz: the editor and scene are
+hidden, Check answer runs the fixed starter, and saved code drafts do not change
+the question. Multiple output values are joined with newlines. The `sum` and `calculator`
+slides use the compact console presentation; other compact slides keep the meadow.
 
 ## Game workshops
 

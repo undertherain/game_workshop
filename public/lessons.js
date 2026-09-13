@@ -4,6 +4,7 @@ import { lessons, games, skillLabels } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
 const $ = id => document.getElementById(id);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
+let hasLastLesson = false;
 let index = 0, drafts = {}, worker, ready = false, busy = false, timer, requestPending = false;
 let actions = [], actionStart = null, startX = 250, x = 250, y = 430, quizAnswered = false;
 let interactive = false, lastStep = 0, lastFrame = 0, keys = { right: false, space: false }, spacePulse = false;
@@ -11,19 +12,26 @@ let result = null, recorded = false, runningSource = '', personal = { sky: 'peac
 try {
   const saved = JSON.parse(localStorage.getItem('little-makers-lessons-v2') || '{}');
   for (const lesson of lessons) if (typeof saved.drafts?.[lesson.id] === 'string' && saved.drafts[lesson.id].length <= 1000) drafts[lesson.id] = lesson.actor === 'character' ? saved.drafts[lesson.id].replace(/^([ \t]*)fox(?=\s*\.)/gm, '$1character') : saved.drafts[lesson.id];
-  const savedIndex = lessons.findIndex(l => l.id === saved.lesson); if (savedIndex >= 0) index = savedIndex;
+  const savedIndex = lessons.findIndex(l => l.id === saved.lesson); if (savedIndex >= 0) { index = savedIndex; hasLastLesson = true; }
   if (['peach', 'lavender', 'mint', 'night'].includes(saved.personal?.sky)) personal.sky = saved.personal.sky;
   if (['fox', 'cat', 'bunny'].includes(saved.personal?.costume)) personal.costume = saved.personal.costume;
 } catch { /* Lessons also work without browser storage. */ }
+let speech = '', prediction = '';
+// Update only unchanged examples from the earlier opening draft.
+if (drafts['text-numbers'] === 'fox.say(3 + 4)\nfox.say("3 + 4")') drafts['text-numbers'] = 'fox.say(3 + 4)';
+if (drafts.calculator === '2 + 3') drafts.calculator = '10 - 3';
 let resetBackup = null;
 const current = () => lessons[index];
 function persist() {
-  drafts[current().id] = input.value;
+  if (!current().quiz?.only) drafts[current().id] = input.value;
   try { localStorage.setItem('little-makers-lessons-v2', JSON.stringify({ drafts, lesson: current().id, personal })); } catch { /* Keep the current draft in memory. */ }
 }
-function feedback(message, error = false) { if ($('lesson-feedback').textContent !== message) $('lesson-feedback').textContent = message; $('lesson-feedback').dataset.error = String(error); }
+function feedback(message, error = false) { if (current().quiz?.only) $('quiz-feedback').textContent = message; if ($('lesson-feedback').textContent !== message) $('lesson-feedback').textContent = message; $('lesson-feedback').dataset.error = String(error); }
 function clearKeys() { keys = { right: false, space: false }; spacePulse = false; }
 function syncRunButton() {
+  if ($('quiz-check')) $('quiz-check').disabled = busy;
+  if ($('lesson-prediction')) $('lesson-prediction').disabled = busy;
+  for (const button of $('lesson-examples').querySelectorAll('button')) button.disabled = busy;
   $('lesson-run').textContent = interactive ? '■ Stop' : '▶ Run';
   $('lesson-run').setAttribute('aria-pressed', String(interactive));
 }
@@ -33,7 +41,7 @@ function stopLesson() {
   $('lesson-loop-status').textContent = 'Stopped · Run starts your rule again.';
   feedback('Stopped. Your code is still here. Press Run to start again.');
 }
-function resetScene() { actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
+function resetScene() { speech = ''; $('lesson-transcript').replaceChildren(); $('lesson-transcript').hidden = true; $('lesson-output').hidden = true; actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
 function suggestions() {
   const line = input.value.slice(0, input.selectionStart).split('\n').at(-1).trim();
   $('lesson-completions').replaceChildren();
@@ -55,13 +63,35 @@ function suggestions() {
 function render() {
   resetBackup = null; $('lesson-undo-reset').hidden = true;
   const lesson = current(), branch = lessons.filter(l => l.branch === lesson.branch), position = branch.indexOf(lesson);
+  $('lessons').dataset.layout = lesson.layout || 'split';
+  $('lessons').dataset.console = String(['sum', 'calculator'].includes(lesson.id));
+  $('lessons').dataset.explanation = String(!!lesson.explanation);
+  document.querySelector('.lesson-topline .eyebrow').textContent = lesson.explanation ? 'A LITTLE PYTHON' : lesson.layout === 'compact' ? 'TRY IT IN CODE' : 'YOUR NEXT LITTLE PROGRAM';
+  $('lesson-explanation').hidden = !lesson.explanation;
+  $('lesson-explanation').replaceChildren(...(lesson.explanation || []).map(card => {
+    const article = document.createElement('article');
+    const title = document.createElement('h2'); title.textContent = card.title;
+    const code = document.createElement('pre'); const example = document.createElement('code'); example.textContent = card.code; code.append(example);
+    const description = document.createElement('p'); description.textContent = card.text;
+    article.append(title, code, description); return article;
+  }));
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
   $('lesson-progress').textContent = `${lesson.branch === 'drawing' ? 'Drawing' : 'Foundations'} · ${position + 1} / ${branch.length}`;
   $('lesson-dots').replaceChildren(...branch.map((_, i) => { const dot = document.createElement('span'); dot.className = i <= position ? 'active' : ''; return dot; }));
-  input.value = drafts[lesson.id] ?? lesson.code; input.rows = lesson.rows; input.disabled = false;
+  document.querySelector('.lesson-card').hidden = !!lesson.quiz?.only || !!lesson.explanation;
+  input.value = lesson.quiz?.only ? lesson.code : (drafts[lesson.id] ?? lesson.code); input.rows = lesson.rows; input.disabled = false;
   input.placeholder = lesson.placeholder;
+  $('lesson-examples').hidden = !lesson.examples?.length;
+  $('lesson-examples').replaceChildren(...(lesson.examples || []).map(example => {
+    const button = document.createElement('button'); button.type = 'button';
+    const label = document.createElement('span'); label.textContent = example.label;
+    const code = document.createElement('code'); code.textContent = example.code;
+    button.append(label, code);
+    button.onclick = () => { if (!busy) restoreLessonCode(example.code, 'Press Run to try this version.'); };
+    return button;
+  }));
   $('lesson-back').disabled = position === 0;
-  $('lesson-next').textContent = position === branch.length - 1 ? 'Choose a game or another path →' : 'Next little step →';
+  $('lesson-next').textContent = position === branch.length - 1 ? 'Choose a game or another path →' : lesson.explanation ? 'Try it in code →' : branch[position + 1]?.explanation ? 'Next idea →' : 'Next little step →';
   $('lesson-quiz').hidden = !lesson.quiz; quizAnswered = !lesson.quiz;
   $('quiz-feedback').textContent = ''; renderQuiz(lesson.quiz); renderPalette(lesson.palette); resetScene(); recorded = false; suggestions();
   const live = ['event', 'update'].includes(lesson.mode);
@@ -69,7 +99,8 @@ function render() {
   $('lesson-space').disabled = true; $('lesson-right').disabled = true;
   $('lesson-loop-status').textContent = 'Run installs your rule. Then try the control.';
   $('lesson-palette').hidden = !lesson.palette;
-  $('lesson-scene-title').textContent = lesson.scene.title;
+  $('lesson-scene-title').textContent = lesson.scene.title || '';
+  $('lesson-scene-title').parentElement.hidden = !lesson.scene.title;
   canvas.dataset.drawing = String(lesson.mode === 'drawing');
   canvas.setAttribute('aria-label', lesson.scene.label);
   $('lesson-input-help').textContent = lesson.rows === 1 ? 'Tab completes a suggestion. Enter runs your instruction.' : 'Tab completes a suggestion or indents. Ctrl / ⌘ + Enter runs your program.';
@@ -98,6 +129,11 @@ function receive(data) {
   if (data.type === 'error') { fail(data.error); return; }
   if (data.error) { fail(data.error); return; }
   result = data;
+  if (current().quiz?.type === 'output' && data.type !== 'step') {
+    const output = data.actions.filter(a => a.kind === 'say').map(a => a.text).join('\n');
+    $('quiz-feedback').textContent = `${prediction.trim() === output ? current().quiz.match : current().quiz.different} Python gives ${output}.`;
+    if (current().quiz.only) { finish(); recordPractice(); return; }
+  }
   if (data.type === 'step') {
     const mode = current().mode;
     $('lesson-loop-status').textContent = mode === 'event' ? `Space events: ${data.eventCalls} · your function waits between presses` : `update() calls: ${data.ticks} · Right is ${keys.right ? 'held' : 'released'}`;
@@ -115,11 +151,11 @@ function receive(data) {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
     if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.empty); }
-    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : `${action.kind}(${action.distance})`).join(' → ')}.`);
+    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : action.kind === 'say' ? 'say' : `${action.kind}(${action.distance})`).join(' → ')}.`);
   }
 }
 function run() {
-  if (busy) return;
+  if (busy || (current().explanation && !current().quiz)) return;
   if (!quizAnswered) { feedback(current().quiz.prompt); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   if (!input.value.trim()) { feedback('Write an instruction first. Try the example above.', true); input.focus(); return; }
   if (current().rows === 1 && input.value.trim().split('\n').length > 1) { feedback('For this step, try just one command. We’ll combine commands next.', true); return; }
@@ -152,16 +188,32 @@ function frame(time) {
     lastFrame = time;
     if (interactive && ready && !requestPending && time - lastStep >= 33.33) { lastStep = time; send('step'); }
     if (actions.length) {
-      if (actionStart === null) { actionStart = time; startX = x; }
+      if (actionStart === null) {
+        actionStart = time; startX = x;
+        if (actions[0].kind === 'say') {
+          speech = actions[0].text;
+          const line = document.createElement('div'); line.textContent = speech || '“”';
+          $('lesson-output').hidden = false; $('lesson-transcript').hidden = false; $('lesson-transcript').append(line);
+        }
+      }
       const t = Math.min(1, (time - actionStart) / 700);
       if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
-      else x = Math.max(50, Math.min(790, startX + t * (actions[0].distance ?? 80)));
+      else if (actions[0].kind !== 'say') x = Math.max(50, Math.min(790, startX + t * (actions[0].distance ?? 80)));
       if (t === 1) { actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
     }
     if (current().mode === 'drawing') drawGrid();
     else {
       scene.update({ ...initialState, stars: [], platforms: [[0, 430, 840]], world: { ...initialState.world, sky: personal.sky }, player: result?.interactive ? { ...result.player, costume: current().actor ? personal.costume : 'fox' } : { x, y, facing: 1, costume: current().actor ? personal.costume : 'fox', on_ground: y === 430 } });
       scene.draw(time);
+      if (speech) {
+        ctx.save(); ctx.font = '23px system-ui'; ctx.textAlign = 'left';
+        const text = speech.length > 45 ? speech.slice(0, 42) + '…' : speech;
+        const width = Math.min(780, ctx.measureText(text).width + 32), left = Math.max(12, Math.min(x - 45, 828 - width));
+        ctx.fillStyle = '#fffef9'; ctx.strokeStyle = '#71936c'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.roundRect(left, y - 145, width, 54, 14); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(left + 25, y - 91); ctx.lineTo(left + 34, y - 77); ctx.lineTo(left + 44, y - 91); ctx.fill();
+        ctx.fillStyle = '#284b43'; ctx.fillText(text.replace(/\n/g, ' '), left + 16, y - 110, width - 32); ctx.restore();
+      }
     }
   }
   requestAnimationFrame(frame);
@@ -205,13 +257,20 @@ function setMode(mode) {
   if (document.body.dataset.mode === 'lessons') persist();
   stopWorker(); resetScene(); finish(); window.workshop?.setKeys({});
   document.body.dataset.mode = mode;
+  $('title-screen').hidden = mode !== 'home';
   $('lessons').hidden = mode !== 'lessons'; $('workshop-main').hidden = mode !== 'workshop'; $('learning-map').hidden = mode !== 'map';
   $('mode-toggle').textContent = mode === 'lessons' ? 'Open game workshop ↗' : '← First commands';
   $('map-toggle').setAttribute('aria-pressed', String(mode === 'map'));
   window.scrollTo(0, 0);
 }
+function openHome() {
+  setMode('home');
+  $('resume-lesson').textContent = hasLastLesson ? `Last lesson: ${current().title}` : 'Begin by making the fox jump. No Python experience needed.';
+  $('title-continue').textContent = hasLastLesson ? 'Continue to last lesson →' : 'Start your first lesson →';
+  $('title-screen-heading').focus({ preventScroll: true });
+}
 function openMap() { setMode('map'); renderMap(); $('map-title').focus(); }
-function openLesson(id) { setMode('lessons'); index = lessons.findIndex(l => l.id === id); render(); persist(); $('lesson-title').focus(); }
+function openLesson(id) { hasLastLesson = true; setMode('lessons'); index = lessons.findIndex(l => l.id === id); render(); persist(); $('lesson-title').focus(); }
 let opening = false;
 async function openWorkshop(id) {
   if (opening) return; opening = true;
@@ -223,6 +282,9 @@ function edited() {
   if (interactive) { stopWorker(); finish(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback('Your rule changed. Run it to install this version.'); }
   persist(); suggestions();
 }
+$('home-link').onclick = event => { if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); openHome(); };
+$('title-map').onclick = openMap;
+$('title-continue').onclick = () => openLesson(current().id);
 $('map-toggle').onclick = openMap;
 $('mode-toggle').onclick = () => document.body.dataset.mode === 'lessons' ? openWorkshop() : openLesson(current().id);
 function restoreLessonCode(source, message) {
@@ -262,7 +324,18 @@ function navigate(delta) {
 }
 $('lesson-back').onclick = () => navigate(-1); $('lesson-next').onclick = () => navigate(1);
 function renderQuiz(quiz) {
+  prediction = '';
   $('quiz-choices').replaceChildren();
+  if (quiz?.type === 'output') {
+    const answer = document.createElement('input'); answer.type = 'text'; answer.id = 'lesson-prediction'; answer.autocomplete = 'off'; answer.placeholder = 'Your prediction'; answer.setAttribute('aria-label', quiz.title);
+    answer.oninput = () => { prediction = answer.value; quizAnswered = !!prediction.trim(); $('quiz-feedback').textContent = ''; };
+    $('quiz-choices').append(answer);
+    if (quiz.only) {
+      const check = document.createElement('button'); check.id = 'quiz-check'; check.type = 'button'; check.className = 'primary'; check.textContent = 'Check answer'; check.onclick = run;
+      answer.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); run(); } };
+      $('quiz-choices').append(check);
+    }
+  }
   $('quiz-title').textContent = quiz?.title || '';
   for (const choice of quiz?.choices || []) {
     const button = document.createElement('button'); button.type = 'button';
@@ -306,4 +379,4 @@ document.addEventListener('keydown', event => {
 document.addEventListener('keyup', event => { if (event.code === 'ArrowRight') keys.right = false; if (event.code === 'Space') keys.space = false; });
 window.addEventListener('blur', clearKeys); canvas.addEventListener('blur', clearKeys); $('lesson-right').addEventListener('blur', clearKeys); document.addEventListener('visibilitychange', clearKeys);
 window.addEventListener('workshop-progress', () => { if (document.body.dataset.mode === 'map') renderMap(); });
-render(); requestAnimationFrame(frame);
+render(); openHome(); requestAnimationFrame(frame);
