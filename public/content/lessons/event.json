@@ -4,7 +4,7 @@
   "actor": "character",
   "title": "From actions to events",
   "heading": "Now your code waits for you.",
-  "description": "Before, Run performed your actions. Here, Run installs a rule: when Space is pressed, call this function. Replace pass with character.jump(), run, then press the Space button below the scene.",
+  "description": "You called your own routines before. Now the game calls on_space_pressed() when you press Space. Replace pass with character.jump(), run, then press Space below the scene. Defining a function prepares its instructions; calling it runs them.",
   "rows": 3,
   "mode": "event",
   "skill": "events",

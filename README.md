@@ -34,13 +34,18 @@ Without a key the interface explicitly offers built-in guided examples, not AI c
 
 ## Try
 
-The **Learning map** connects seven foundational lessons, three optional drawing
+The **Learning map** connects thirteen foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations begin with `fox.jump()` and build through sequence, bounded loops,
-scene properties, a Space-key event and a live `update()` function. The last two
+The foundations begin with `fox.jump()` and build through sequence, numeric arguments,
+expressions, variables, bounded loops, reusable functions, parameters, comparisons,
+scene properties, a Space-key event and a live `update()` function. The new basics
+lessons use `fox.move(distance)` to make numeric results visible, then invite predictions
+and changes. Functions are called by the learner before event callbacks are introduced.
+The routine exercise reuses a dance between different walks; there is no code-space
+penalty and loops remain available. These are practice activities, not mastery checks. The last two
 lessons show the difference between executing commands once and installing rules
 that the running game calls. A visible counter shows event/update calls; buttons
 and focused-canvas keyboard controls let the learner test the rule. The introductory
@@ -62,7 +67,12 @@ command for drawing suggestions. Tab accepts a completion or inserts indentation
 Enter runs a one-line lesson; Ctrl/Cmd+Enter runs longer programs. The introductory
 Python vocabulary expands per lesson and rejects unsupported structures. Code can
 use at most 1,000 characters; loops use `range(1)` through `range(6)`, with a limit of
-12 animated actions or 100 drawing shapes per run.
+12 animated actions or 100 drawing shapes per run. Basics movement accepts distances
+from -300 to 300 pixels and stops at the scene edges. Arithmetic supports `+`, `-`,
+`*` and parentheses. Helpers have up to two parameters and their own numeric locals;
+they may call previously defined helpers, but not recurse. Conditions support one
+numeric comparison, with optional `else`. Returns and general Python remain for
+later work.
 
 From the customization lesson onward, the actor is named `character`, so
 `character.costume = "bunny"` and `character.jump()` still make sense after a change

@@ -1,0 +1,34 @@
+{
+  "id": "conditions",
+  "branch": "foundations",
+  "title": "Make a decision",
+  "heading": "Should the fox jump?",
+  "description": "distance > 50 compares two values and produces True or False. The indented jump runs only when the comparison is True. Predict what happens at 40, 80, and exactly 50; run each one to check.",
+  "starter": [
+    "distance = 40",
+    "fox.move(distance)",
+    "if distance > 50:",
+    "    fox.jump()"
+  ],
+  "rows": 5,
+  "mode": "basics",
+  "skill": "conditions",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "fox.move(50)",
+      "description": "Move right 50 pixels; a negative number moves left"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "Change > to >=. What happens at exactly 50 now? = stores a value; == compares whether two values are equal."
+  }
+}

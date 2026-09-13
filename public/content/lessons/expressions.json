@@ -1,0 +1,31 @@
+{
+  "id": "expressions",
+  "branch": "foundations",
+  "title": "Calculate a distance",
+  "heading": "Python can work out the number.",
+  "description": "Before running, predict how far 30 + 20 will move the fox. An expression computes a value; move uses that result. Then change the expression to make a 100-pixel trip.",
+  "starter": [
+    "fox.move(30 + 20)"
+  ],
+  "rows": 4,
+  "mode": "basics",
+  "skill": "expressions",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "fox.move(50)",
+      "description": "Move right 50 pixels; a negative number moves left"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "Try 30 + 20 * 2, then (30 + 20) * 2. Multiplication happens first unless parentheses change the order."
+  }
+}

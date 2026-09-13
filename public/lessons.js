@@ -82,7 +82,8 @@ function recordPractice() {
   if (recorded) return;
   const lesson = current();
   const meaningful = result && (lesson.mode === 'loop' ? result.features.loop && result.actions.length > 0 : lesson.mode === 'style' ? result.features.assignment : lesson.mode === 'drawing' ? result.shapes.length > 0 : result.interactive ? result.changed : result.actions.length > 0);
-  if (!meaningful) return;
+  const feature = { expressions: 'expression', variables: 'assignment', functions: 'function', parameters: 'parameter', conditions: 'condition' }[lesson.skill];
+  if (!meaningful || (lesson.mode === 'basics' && feature && !result.features[feature])) return;
   recorded = true; progress.record({ skill: lesson.skill, source: 'lesson:' + lesson.id, evidence: 'practice' });
 }
 function send(type) {
@@ -114,7 +115,7 @@ function receive(data) {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
     if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.empty); }
-    else feedback(`Your instructions: ${data.actions.join(' → ')}.`);
+    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : `${action.kind}(${action.distance})`).join(' → ')}.`);
   }
 }
 function run() {
@@ -154,7 +155,7 @@ function frame(time) {
       if (actionStart === null) { actionStart = time; startX = x; }
       const t = Math.min(1, (time - actionStart) / 700);
       if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
-      else x = Math.min(790, startX + t * 80);
+      else x = Math.max(50, Math.min(790, startX + t * (actions[0].distance ?? 80)));
       if (t === 1) { actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
     }
     if (current().mode === 'drawing') drawGrid();

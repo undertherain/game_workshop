@@ -11,7 +11,13 @@
     "bounce": "Aimed bounce",
     "jump": "Grounded jumping",
     "fire": "Firing",
-    "scoring": "Scoring"
+    "scoring": "Scoring",
+    "arguments": "Arguments",
+    "expressions": "Expressions",
+    "variables": "Variables",
+    "functions": "Functions",
+    "parameters": "Parameters",
+    "conditions": "Conditions"
   },
   "gameSkills": {
     "platformer": [

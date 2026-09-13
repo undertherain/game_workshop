@@ -1,0 +1,40 @@
+{
+  "id": "parameters",
+  "branch": "foundations",
+  "title": "Give your routine an input",
+  "heading": "Same routine. Different distances.",
+  "description": "distance is a parameter: each call supplies its value. Predict the two trips, then change the second call so that the fox walks 120 pixels before jumping. Change the body to distance * 2 and predict both trips again.",
+  "starter": [
+    "def travel(distance):",
+    "    fox.move(distance)",
+    "    fox.jump()",
+    "",
+    "travel(30)",
+    "travel(80)"
+  ],
+  "rows": 7,
+  "mode": "basics",
+  "skill": "parameters",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "travel(50)",
+      "description": "Call your routine with a distance"
+    },
+    {
+      "code": "fox.move(distance)",
+      "description": "Use the parameter inside the routine"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "Add travel(50 + 10). The expression is evaluated before its value goes into the function."
+  }
+}

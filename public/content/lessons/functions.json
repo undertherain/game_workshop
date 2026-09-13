@@ -1,0 +1,41 @@
+{
+  "id": "functions",
+  "branch": "foundations",
+  "title": "Name a routine",
+  "heading": "Teach the fox a little dance.",
+  "description": "def names a routine; its indented lines run only when you call it. Run this dance, then replace pass with dance() to dance again after the longer walk. Add fox.move(-20) inside the function: both dances should change together.",
+  "starter": [
+    "def dance():",
+    "    fox.move(20)",
+    "    fox.jump()",
+    "",
+    "dance()",
+    "fox.move(80)",
+    "pass"
+  ],
+  "rows": 8,
+  "mode": "basics",
+  "skill": "functions",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "dance()",
+      "description": "Call the routine you defined"
+    },
+    {
+      "code": "fox.move(20)",
+      "description": "Move 20 pixels"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "Try a third dance after a 40-pixel walk. A loop repeats; a function lets you reuse a named task wherever you need it."
+  }
+}

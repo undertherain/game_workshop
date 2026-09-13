@@ -40,7 +40,14 @@ The lesson fields are:
 | `quiz` | Optional first-line prediction question; see `sequence.json` |
 | `palette` | Optional sky choices for `style`; see `customize.json` |
 
-Supported modes are `commands`, `loop`, `style`, `event`, `update`, and `drawing`.
+Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, and `basics`.
+The `basics` mode supports numeric assignments and expressions, `fox.move(distance)`,
+`fox.jump()`, bounded loops, top-level named functions with up to two parameters,
+and numeric comparisons in `if`/`else`. Functions use parameters and local values
+and can call earlier helpers; recursion, defaults, and return values are not supported.
+Movement results include distances for animation. See `functions.json` and
+`parameters.json` for examples.
+
 These select existing runtime behavior. A JSON edit does not introduce a new Python
 API or algorithm: new execution capabilities still require runtime/engine work.
 The live modes call `on_space_pressed()` or `update()`. A prediction quiz compares

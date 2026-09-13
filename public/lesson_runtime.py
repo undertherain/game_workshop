@@ -3,7 +3,7 @@ import ast
 import json
 from types import SimpleNamespace
 
-MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing')
+MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics')
 _session = None
 
 
@@ -18,7 +18,7 @@ def _number(node, loop_names):
         _number(node.left, loop_names)
         _number(node.right, loop_names)
         return
-    raise ValueError('Use small numbers, or a loop variable with +, - or *.')
+    raise ValueError('Use small numbers or a name you have already defined, with +, - or *.')
 
 
 def _validate(body, mode, loop_names=(), depth=0):
@@ -66,6 +66,82 @@ def _validate(body, mode, loop_names=(), depth=0):
         raise ValueError('This lesson uses a small vocabulary. Follow the example above; the full game editor opens up more Python.')
 
 
+_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line'}
+
+
+def _name(name, functions):
+    if name.startswith('_') or name in _RESERVED or name in functions:
+        raise ValueError('Choose your own name, such as distance or cross_gap.')
+
+
+def _basics(body, names=None, functions=None, depth=0):
+    """Validate sequential names and acyclic, top-level helper functions."""
+    names = set() if names is None else set(names)
+    functions = {} if functions is None else dict(functions)
+    if depth > 4:
+        raise ValueError('Keep the nesting shallow in this little lesson.')
+    for node in body:
+        if isinstance(node, ast.Pass):
+            continue
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+            _name(name, functions)
+            _number(node.value, names)
+            names.add(name)
+            continue
+        if isinstance(node, ast.FunctionDef) and depth == 0:
+            _name(node.name, functions)
+            args = node.args
+            if (node.name in names or node.decorator_list or node.returns or args.posonlyargs
+                    or args.vararg or args.kwarg or args.kwonlyargs or args.defaults
+                    or len(args.args) > 2 or any(a.annotation for a in args.args)):
+                raise ValueError('Use def routine(): or up to two simple parameters, with no defaults.')
+            params = [a.arg for a in args.args]
+            for param in params:
+                _name(param, {**functions, node.name: 0})
+            if len(set(params)) != len(params):
+                raise ValueError('Give each parameter a different name.')
+            # Helpers use their own parameters and local variables, not outer variables.
+            # Only already defined helpers can be called; recursion cannot enter execution.
+            _basics(node.body, params, functions, depth + 1)
+            functions[node.name] = len(params)
+            continue
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+            call = node.value
+            if not call.keywords:
+                if (isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name)
+                        and call.func.value.id in ('fox', 'character')
+                        and ((call.func.attr == 'jump' and not call.args)
+                             or (call.func.attr == 'move' and len(call.args) <= 1))):
+                    for arg in call.args:
+                        _number(arg, names)
+                    continue
+                if isinstance(call.func, ast.Name) and call.func.id in functions:
+                    if len(call.args) != functions[call.func.id]:
+                        raise ValueError(f'{call.func.id} needs {functions[call.func.id]} argument(s).')
+                    for arg in call.args:
+                        _number(arg, names)
+                    continue
+        if isinstance(node, ast.For) and isinstance(node.target, ast.Name) and not node.orelse:
+            it = node.iter
+            _name(node.target.id, functions)
+            if (isinstance(it, ast.Call) and isinstance(it.func, ast.Name) and it.func.id == 'range'
+                    and not it.keywords and len(it.args) == 1 and isinstance(it.args[0], ast.Constant)
+                    and type(it.args[0].value) is int and 1 <= it.args[0].value <= 6):
+                _basics(node.body, names | {node.target.id}, functions, depth + 1)
+                continue
+        if isinstance(node, ast.If):
+            test = node.test
+            if (isinstance(test, ast.Compare) and len(test.ops) == 1
+                    and isinstance(test.ops[0], (ast.Lt, ast.LtE, ast.Gt, ast.GtE, ast.Eq, ast.NotEq))):
+                _number(test.left, names)
+                _number(test.comparators[0], names)
+                _basics(node.body, names, functions, depth + 1)
+                _basics(node.orelse, names, functions, depth + 1)
+                continue
+        raise ValueError('Use numbers, named values, +, - or *, move/jump, a bounded loop, a named routine, or an if comparison.')
+
+
 class Lesson:
     def __init__(self, source, mode):
         if mode not in MODES:
@@ -84,7 +160,7 @@ class Lesson:
         self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
                       'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
         self.character.jump = lambda: self.action('jump')
-        self.character.move = lambda: self.action('move')
+        self.character.move = lambda distance=80: self.action('move', distance)
         interactive = mode in ('event', 'update')
         if interactive:
             name = 'on_space_pressed' if mode == 'event' else 'update'
@@ -96,12 +172,21 @@ class Lesson:
         else:
             if mode == 'commands' and len(tree.body) > 2:
                 raise ValueError('Try one or two commands; loops come next.')
-            _validate(tree.body, mode)
+            if mode == 'basics':
+                _basics(tree.body)
+            else:
+                _validate(tree.body, mode)
         exec(compile(tree, '<lesson>', 'exec'), self.scope)
         self.features = {'loop': any(isinstance(n, ast.For) for n in ast.walk(tree)),
-                         'assignment': any(isinstance(n, ast.Assign) for n in ast.walk(tree))}
+                         'assignment': any(isinstance(n, ast.Assign) for n in ast.walk(tree)),
+                         'expression': any(isinstance(n, ast.BinOp) for n in ast.walk(tree)),
+                         'function': any(isinstance(n, ast.FunctionDef) for n in ast.walk(tree)),
+                         'parameter': any(isinstance(n, ast.FunctionDef) and n.args.args for n in ast.walk(tree)),
+                         'condition': any(isinstance(n, ast.If) for n in ast.walk(tree))}
 
-    def action(self, name):
+    def action(self, name, distance=80):
+        if name == 'move' and not -300 <= distance <= 300:
+            raise ValueError('Choose a movement distance between -300 and 300.')
         if self.mode in ('event', 'update'):
             if name == 'move':
                 self.character.x = min(800, self.character.x + 4)
@@ -112,7 +197,7 @@ class Lesson:
         else:
             if len(self.actions) >= 12:
                 raise ValueError('Try at most 12 actions at a time so you can watch each one.')
-            self.actions.append(name)
+            self.actions.append({'kind': name, 'distance': distance} if self.mode == 'basics' and name == 'move' else name)
 
     def dot(self, x, y):
         self.draw('dot', [x, y])

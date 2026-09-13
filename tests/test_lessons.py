@@ -79,3 +79,43 @@ class LessonTests(unittest.TestCase):
         for source in ['def update(x=character.move()):\n    pass', '@character.jump()\ndef update():\n    pass', 'def other():\n    pass']:
             self.assertIn('error', json.loads(runtime.run_lesson(source, 'update')))
             self.assertIn('error', json.loads(runtime.step_lesson('{}')))
+
+
+    def test_basics_evaluates_values_and_precedence(self):
+        data = json.loads(runtime.run_lesson('distance = 30 + 20 * 2\nfox.move(distance)\nfox.move((30 + 20) * 2)\nfox.move(-50)', 'basics'))
+        self.assertEqual([a['distance'] for a in data['actions']], [70, 100, -50])
+        self.assertTrue(data['features']['expression'])
+        self.assertTrue(data['features']['assignment'])
+
+    def test_defining_does_not_run_and_calls_reuse_parameters(self):
+        source = 'def travel(distance):\n    fox.move(distance)\n    fox.jump()'
+        self.assertEqual(json.loads(runtime.run_lesson(source, 'basics'))['actions'], [])
+        data = json.loads(runtime.run_lesson(source + '\ntravel(30)\nfox.move(80)\ntravel(40 + 10)', 'basics'))
+        self.assertEqual(data['actions'], [{'kind': 'move', 'distance': 30}, 'jump', {'kind': 'move', 'distance': 80}, {'kind': 'move', 'distance': 50}, 'jump'])
+        self.assertTrue(data['features']['parameter'])
+        data = json.loads(runtime.run_lesson(source + '\nfor i in range(3):\n    travel(i * 20)', 'basics'))
+        self.assertEqual([a['distance'] for a in data['actions'] if isinstance(a, dict)], [0, 20, 40])
+
+    def test_conditions_include_boundary_and_else(self):
+        for distance, expected in [(40, ['move']), (50, ['move']), (80, ['jump'])]:
+            data = json.loads(runtime.run_lesson(f'distance = {distance}\nif distance > 50:\n    fox.jump()\nelse:\n    fox.move(distance)', 'basics'))
+            self.assertEqual([a if isinstance(a, str) else a['kind'] for a in data['actions']], expected)
+        data = json.loads(runtime.run_lesson('if 50 >= 50:\n    fox.jump()', 'basics'))
+        self.assertEqual(data['actions'], ['jump'])
+
+    def test_basics_rejects_unsafe_or_undefined_programs(self):
+        sources = [
+            'fox.move(missing)', 'fox.move(301)', 'fox.move(1000 * 1000)',
+            'fox = 3', 'range = 2', '__secret = 3', 'import os',
+            'while True:\n    fox.jump()',
+            'def dance():\n    dance()\ndance()',
+            'def one():\n    two()\ndef two():\n    one()\none()',
+            'def dance(x=1):\n    fox.jump()',
+            'def dance(x):\n    fox.move(x)\ndance()',
+            'def dance():\n    fox.jump()\ndance = 2',
+            'def dance():\n    fox.jump()\nfor i in range(6):\n    for j in range(6):\n        dance()',
+        ]
+        for source in sources:
+            with self.subTest(source=source):
+                self.assertIn('error', json.loads(runtime.run_lesson(source, 'basics')))
+        self.assertEqual(json.loads(runtime.run_lesson('fox.move(20)', 'basics'))['actions'][0]['distance'], 20)

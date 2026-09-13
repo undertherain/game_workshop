@@ -1,0 +1,34 @@
+{
+  "id": "variables",
+  "branch": "foundations",
+  "title": "Give a value a name",
+  "heading": "Change one value. Change both trips.",
+  "description": "distance = 40 stores a number under a name. The next lines use that value. Predict the length of each trip, then change only 40 so the trips become 60 and 120 pixels.",
+  "starter": [
+    "distance = 40",
+    "fox.move(distance)",
+    "fox.jump()",
+    "fox.move(distance * 2)"
+  ],
+  "rows": 5,
+  "mode": "basics",
+  "skill": "variables",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "fox.move(50)",
+      "description": "Move right 50 pixels; a negative number moves left"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "The first trip uses distance. The second uses twice that value. Try distance = 30 + 20."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "numbers",
+  "branch": "foundations",
+  "title": "Change one number",
+  "heading": "How far should the fox move?",
+  "description": "The number inside move(...) is an argument: it tells the fox how many pixels to move. Run 50, then change it to 100. Predict which trip will be longer. Each Run starts in the same place.",
+  "starter": [
+    "fox.move(50)"
+  ],
+  "rows": 4,
+  "mode": "basics",
+  "skill": "arguments",
+  "placeholder": "Try fox.move(50) or call your routine",
+  "scene": {
+    "title": "Your code. A visible result.",
+    "label": "A fox in a meadow. Movement distances are measured in scene pixels."
+  },
+  "completions": [
+    {
+      "code": "fox.move(50)",
+      "description": "Move right 50 pixels; a negative number moves left"
+    },
+    {
+      "code": "fox.jump()",
+      "description": "Jump up and land"
+    }
+  ],
+  "feedback": {
+    "success": "Compare 50 and 100. Try -50: which direction does the fox go?"
+  }
+}
