@@ -18,6 +18,11 @@ tutor context and optional control starters against the actual Python game check
 checks and verifies live brick collisions, stationary bricks, paddle bounds and
 snapshot serialization with the explicit object types.
 
+`test_topdown.py` exercises the standalone framework without a display: rectangular
+maps, strict edges, normalized and bounded movement, camera resizing and culling,
+repeatable complete trees, frame-time handling and JSON snapshots. The raylib host
+also received a three-frame desktop smoke check with real texture loading and cleanup.
+
 Browser checks cover autocomplete, prediction, loops, appearance edits, live lesson
 controls, drawing, map navigation, movement checks and transfer, draft preservation,
 reload persistence, and mobile width. Use an isolated browser profile for checks
@@ -32,3 +37,13 @@ placeholder selection, multiline replacement, deletion boundaries, undo and unlo
 `editor-highlights.test.mjs` runs the editor handlers with a minimal DOM stub to
 check stale helper highlights, Enter/Tab edits, proposal application and switching
 exercises after earlier edits shift the target function.
+
+`test_tile_interactions.py` covers framework-owned spawn/movement bounds, solid
+actors, wall sliding and tunneling, terrain speed changes, entry/exit/stay hooks,
+projectile pass-through and ordered impacts, brick replacement, friendly fire,
+expiry, repairs, battle restart and optional smooth camera following. Camera checks
+cover stationary catch-up, 30/144 Hz equivalence, disabling follow and oversized
+viewports. The tank renderer was checked in a short automatically closing window.
+
+`test_tile_variants.py` verifies seeded appearance diversity, stable redraws,
+background consistency, tile replacement and unchanged movement behavior.

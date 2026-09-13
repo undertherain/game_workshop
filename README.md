@@ -180,8 +180,12 @@ Framework exploration: [north star and current slice](docs/framework-north-star.
 The [brick-breaker framework example](public/examples/breaker_framework.py) adds
 explicit screen/brick context and paddle/ball methods; paste it into Brick breaker
 after choosing **Edit whole file**. Existing beginner exercises are unchanged.
-The longer-term direction includes browser and standalone rendering backends;
-only the browser host exists today.
+The [local tank-world example](examples/tank_world/README.md) ports `test_pyray`
+using new top-down Python primitives and a standalone raylib host. Run it with
+`python3 -m examples.tank_world` (requires `raylib`). The separate [tank battle](examples/tank_battle/README.md) runs with
+`python3 -m examples.tank_battle` and demonstrates framework-owned tile interactions,
+projectiles and a smooth following camera. See the [local framework API](framework/README.md).
+Browser and desktop exercise separate slices; a shared cross-backend game is not yet verified.
 
 - `public/`: browser UI, Canvas 2D art, Python worker and game runtime.
 - `server.mjs`: static server and OpenAI Responses API helper endpoint.

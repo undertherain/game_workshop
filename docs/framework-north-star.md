@@ -103,9 +103,37 @@ shared asset identifiers. Display, asset loading, audio and packaging belong beh
 explicit backend interfaces rather than in learner game rules.
 
 The existing Python simulation and browser snapshot renderer provide a starting
-boundary. A reusable backend contract, standalone runner and desktop renderer are
-still proposed; this slice does not implement or verify cross-backend portability.
+boundary. The local top-down experiment below adds a standalone runner and desktop
+renderer. A shared contract with the browser runtime remains proposed; neither
+slice verifies cross-backend portability.
 The choice of language remains open and should account for both targets.
+
+## Local framework slice: tank world
+
+Implemented experiment, 2026-09-13: [Tank world](../examples/tank_world/README.md)
+reimplements the local `test_pyray` terrain explorer with raylib rendering through
+`pyray`. Current development focus is the standalone version.
+
+`framework/topdown.py` provides named `Tile` definitions, a rectangular `TileMap`
+indexed by `(x, y)`, bounded `Actor` movement, a clamped `Camera` and `World`
+snapshots containing only visible tiles and actors. `examples/tank_world/game.py`
+owns seeded terrain generation and movement rules. It has no graphics dependency;
+`framework/raylib_host.py` owns windowing, input, textures and drawing.
+Movement uses pixels per second and elapsed time capped at 0.1 seconds per frame.
+
+This preserves the original arrow-key tank movement and right-drag camera, with
+Space to recenter. It fixes rectangular indexing, tree-generation edge errors,
+unbounded motion and unnecessary offscreen rendering. Tiles in the pine-tree example remain decorative. The separate
+[tank battle](../examples/tank_battle/README.md) now demonstrates actor/projectile
+blocking, slowing terrain, tile contact hooks, destructible bricks, repairs and
+framework-owned spawning, movement bounds and projectile lifecycle. It uses a new
+generated sprite atlas; recovered artwork remains available as reference.
+
+The [framework API](../framework/README.md) also provides optional smooth camera
+following, clamped to map bounds, and full-window zoom independent of aspect ratio.
+The tank game uses 2× zoom and a larger scrolling map; the explorer retains manual
+panning. A map editor, dynamic asset registration and browser integration remain
+future work.
 
 ## Further horizon: publish games from the platform
 
