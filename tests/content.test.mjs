@@ -48,6 +48,17 @@ test('a missing lesson fails clearly instead of silently dropping an entry', asy
     return readContent(path);
   }), /lessons\/event.json/);
 });
+test('presentation is configurable for any lesson and rejects invalid values', async () => {
+  const base = await readContent('lessons/hello.json');
+  const defaults = await readContent('lesson-defaults.json');
+  const validate = presentation => validateLesson({ ...base, presentation }, base.id, defaults, skillLabels);
+  assert.equal(validate('console').presentation, 'console');
+  assert.equal(validate('scene').presentation, 'scene');
+  assert.equal(validate(undefined).presentation, undefined);
+  for (const invalid of ['terminal', '', null, true]) assert.throws(() => validate(invalid), /unknown presentation/);
+  assert.equal(lessons.find(l => l.id === 'calculator').presentation, 'console');
+  assert.equal(lessons.find(l => l.id === 'sum').presentation, 'console');
+});
 test('typed output predictions need no fixed answer or choices', async () => {
   const base = await readContent('lessons/sequence.json');
   const { choices, ...quiz } = base.quiz;

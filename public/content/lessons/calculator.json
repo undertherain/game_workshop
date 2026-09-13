@@ -2,6 +2,7 @@
   "id": "calculator",
   "branch": "foundations",
   "layout": "compact",
+  "presentation": "console",
   "title": "Your tiny Python lab",
   "heading": "Try it: calculate.",
   "description": "Change the numbers in 10 - 3 and press Enter. Then try + instead of -.",
@@ -14,11 +15,26 @@
   "placeholder": "Try a little Python",
   "scene": {
     "title": "Try it. See what Python works out.",
-    "label": "A fox in a meadow. Spoken values also appear below the scene."
+    "label": "A fox in a meadow. Spoken values appear in a speech bubble."
   },
   "completions": [],
   "feedback": {
     "initial": "Make one small change, then press Run.",
     "success": "Change it and run again. What do you think will happen?"
+  },
+  "draftMigrations": [
+    {
+      "from": [
+        "2 + 3"
+      ],
+      "to": [
+        "10 - 3"
+      ]
+    }
+  ],
+  "practiceFeature": "expression",
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
   }
 }

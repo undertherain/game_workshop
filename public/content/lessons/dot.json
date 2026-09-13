@@ -28,5 +28,9 @@
   "feedback": {
     "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
     "drawn": "Change a number and run it again."
+  },
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
   }
 }

@@ -38,21 +38,27 @@ Without a key the interface explicitly offers built-in guided examples, not AI c
 The title screen introduces the workshop, links to the Study map, and offers
 Continue to last lesson (or Start your first lesson for a new browser). Clicking
 the Little Makers logo returns here from any activity. Returning keeps lesson
-drafts and the last visited lesson; reloading opens the title screen.
+drafts and the last visited lesson. Each lesson has a shareable URL such as
+`/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
+lesson navigation. The base URL opens the title screen.
 
-The **Learning map** connects twenty-one foundational lessons, three optional drawing
+The **Learning map** connects twenty foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations open with nine compact, single-column slides. After the first jump,
+The foundations open with eight compact, single-column slides. After the first jump,
 short explanations alternate with code practice: Python and expressions →
-calculator, strings → fox speech, integers versus strings → add quotes and compare,
-variables → a personal greeting. Explanation slides use large examples and short,
-separate text blocks with no editor or scene; “Try it in code” opens the next activity.
+calculator, strings → fox speech, add quotes and compare,
+variables → a personal greeting. In that exercise, only the variable assignment
+line is editable; the supplied `fox.say(...)` line stays fixed. A one-time overlay
+explains this when the editor first appears and dismisses on focus or Run.
+Explanation slides
+use large examples and short, separate text blocks with no editor or scene;
+“Try it in code” opens the next activity.
 Reading an explanation does not record code practice.
-The calculator echoes a top-level expression; `fox.say(value)` shows a speech bubble
-and a scrollable transcript beneath the code, clearly labelled Output. The second
+The calculator echoes a top-level expression in the Output panel; `fox.say(value)`
+shows a speech bubble in the scene, with no duplicate Output panel. The second
 slide introduces Python as the language used to build things and explains 2 + 3
 as an expression. The next slide starts with 10 - 3 in an editable calculator.
 The text/number lesson runs one line at a time: calculate
@@ -169,6 +175,10 @@ the learner's curriculum. There are no accounts or cross-device progress sync.
 Each lesson lives in its own JSON file under `public/content/lessons/`; game
 mini-exercises live under `public/content/game-lessons/`. Edit instructions,
 Python starter lines, completion choices, quizzes and feedback as data. The
+introductory manifest, `public/content/lessons/index.json`, controls lesson order.
+Reordering it updates the first lesson, map nodes and Back/Next within each branch.
+Presentation, editor behavior, hints, practice features and saved-draft migrations
+are declared with the lesson; branch labels and sections live in the catalogue. The
 [content authoring guide](public/content/README.md) explains ordering, shared defaults,
 supported runtime modes and validation. Reload the browser for content changes;
 restart the server to refresh the tutor’s game metadata. Existing lesson IDs retain

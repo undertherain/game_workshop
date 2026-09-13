@@ -37,5 +37,6 @@
   ],
   "feedback": {
     "success": "Try a third dance after a 40-pixel walk. A loop repeats; a function lets you reuse a named task wherever you need it."
-  }
+  },
+  "practiceFeature": "function"
 }

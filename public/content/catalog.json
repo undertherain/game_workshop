@@ -85,5 +85,27 @@
     "platformer",
     "breaker",
     "paratroopers"
+  ],
+  "branches": [
+    {
+      "id": "foundations",
+      "label": "Foundations",
+      "eyebrow": "RECOMMENDED START",
+      "title": "Make things happen",
+      "description": "From a first instruction to rules that stay alive."
+    },
+    {
+      "id": "drawing",
+      "label": "Drawing",
+      "eyebrow": "OPTIONAL EXPLORATION",
+      "title": "Draw your world",
+      "description": "Learn coordinates and loops by making a picture.",
+      "planned": [
+        {
+          "title": "Grow a fractal forest",
+          "description": "Recursion · planned"
+        }
+      ]
+    }
   ]
 }

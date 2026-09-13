@@ -25,14 +25,18 @@ The lesson fields are:
 | Field | Meaning |
 | --- | --- |
 | `id` | Stable lowercase ID, matching the file name and manifest entry |
-| `branch` | `foundations` or `drawing` |
+| `branch` | A branch ID declared in `catalog.json` |
 | `title` | Label on the learning map |
 | `heading`, `description` | Lesson heading and instructions; plain text |
 | `starter` | Array of Python source lines; spaces preserve indentation |
-| `rows` | Visible editor rows, 1–12; one-row lessons run on Enter |
+| `rows` | Visible editor rows, 1–12; controls size only |
+| `editor` | Optional `{runOnEnter: true, maxLines: 1}`; otherwise Enter inserts a line and Ctrl/Cmd+Enter runs, with no separate line limit |
+| `editorHelp` | Optional `{text, display: "once"}` for a one-time overlay, or `"always"` for inline help; omitted help describes the editor’s capabilities generically |
+| `editableLine` | Optional one-based line number; only this line is editable, with other lines restored from the starter even for saved drafts |
 | `mode` | Existing Python execution mode, listed below |
 | `skill` | A key from `catalog.json`'s `skillLabels` |
 | `layout` | Optional `compact` for short single-column opening slides |
+| `presentation` | Optional `scene` (default) or `console`; console hides the scene and shows results in Output, while scene uses speech bubbles |
 | `explanation` | Optional 1–3 `{title, code, text}` cards on a compact reading slide; use an empty starter, or combine with `quiz.only` |
 | `actor` | Optional `character`, used after customization; omit for early fox lessons |
 | `placeholder` | Hint inside the empty editor |
@@ -42,6 +46,22 @@ The lesson fields are:
 | `feedback` | Optional overrides of shared messages; live modes require `triggered`, drawing requires `drawn` |
 | `quiz` | Optional first-line prediction (`sequence.json`) or typed output prediction (`type: "output"`) |
 | `palette` | Optional sky choices for `style`; see `customize.json` |
+| `aliases` | Optional former lesson IDs; saved locations and URLs resolve to this lesson. Aliases cannot collide with active IDs or other aliases |
+| `draftMigrations` | Optional array of `{from: [lines], to: [lines]}`; replaces only an exact saved source match, leaving custom drafts alone |
+| `legacyActors` | Optional old Python actor names to migrate to `actor` at the start of a saved source line; does not replace text inside strings |
+| `practiceFeature` | Optional runtime feature required to record practice: `expression`, `assignment`, `function`, `parameter`, `condition`, or `loop`; independent of the skill’s label or ID |
+
+`lessons/index.json` is the sole source of lesson order. Reorder its entries to
+change map nodes, progress dots, the first lesson, and Back/Next within each branch.
+File names identify content; their alphabetical filesystem order has no effect.
+Presentation settings travel with each lesson, including explanation cards, console
+output, scene, examples, editor behavior and help. Next-button wording follows the
+actual next lesson, so consecutive explanation slides are supported.
+
+The catalogue’s `branches` array defines map section order and each branch’s `id`,
+short `label`, `eyebrow`, `title`, `description`, and optional `planned` cards
+(`{title, description}`). New branches need no HTML changes. Runtime modes and
+rendering primitives remain implemented capabilities; content selects them.
 
 Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, and `basics`.
 The `basics` mode supports numeric and text assignments, arithmetic including division,
@@ -60,8 +80,9 @@ experiment rather than blocking progress for a wrong answer. With `quiz.type: "o
 omit choices: the learner types a prediction, which is compared to the actual output
 after Run. Set `quiz.only: true` for a standalone quiz: the editor and scene are
 hidden, Check answer runs the fixed starter, and saved code drafts do not change
-the question. Multiple output values are joined with newlines. The `sum` and `calculator`
-slides use the compact console presentation; other compact slides keep the meadow.
+the question. Multiple output values are joined with newlines. Set `presentation: "console"`
+to show results in Output without a scene. Omit it or use `"scene"` to keep the scene
+and speech bubbles. This choice is independent of the lesson ID and layout.
 
 ## Game workshops
 

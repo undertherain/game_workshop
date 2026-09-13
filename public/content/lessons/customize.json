@@ -58,5 +58,8 @@
   },
   "feedback": {
     "empty": "You changed the scene with code. Try another choice."
-  }
+  },
+  "legacyActors": [
+    "fox"
+  ]
 }

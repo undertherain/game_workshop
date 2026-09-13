@@ -27,10 +27,7 @@
   <main id="learning-map" hidden aria-labelledby="map-title">
     <div class="intro"><div><p class="eyebrow">LITTLE MAKERS · YOUR LEARNING MAP</p><h1 id="map-title" tabindex="-1">Small discoveries. <em>Your own games.</em></h1><p>Follow the foundations, take a drawing detour, or pick a game to build.</p></div></div>
     <p id="map-progress-note" class="map-note"></p>
-    <div class="map-branches">
-      <section class="map-branch"><p class="eyebrow">RECOMMENDED START</p><h2>Make things happen</h2><p>From a first instruction to rules that stay alive.</p><div id="foundation-nodes" class="skill-nodes"></div></section>
-      <section class="map-branch"><p class="eyebrow">OPTIONAL EXPLORATION</p><h2>Draw your world</h2><p>Learn coordinates and loops by making a picture.</p><div id="drawing-nodes" class="skill-nodes"></div><div class="future-node"><strong>Grow a fractal forest</strong><span>Recursion · planned</span></div></section>
-    </div>
+    <div id="lesson-branches" class="map-branches"></div>
     <section class="game-library" aria-labelledby="library-title"><p class="eyebrow">A LITTLE ENCYCLOPEDIA OF GAMES</p><h2 id="library-title">Find your next creation</h2><p>Each game is another place to use what you know. You can revisit any foundation.</p><div id="game-library-cards"></div></section>
     <p class="map-note">Practice means you tried a concept. A passed check means a game behavior worked. Neither is a grade or a lock.</p>
   </main>
@@ -47,11 +44,13 @@
     <section class="lesson-card" aria-label="Your fox and code">
       <div class="panel-heading"><strong id="lesson-scene-title"></strong></div>
       <canvas id="lesson-game" tabindex="0" width="840" height="480" aria-label="A fox in a meadow. Run a command to make it move or jump."></canvas>
+      <div id="lesson-speech" class="sr-only" role="status"></div>
       <div id="lesson-live" class="lesson-live" hidden><span id="lesson-loop-status" aria-live="off">Run your rule to begin.</span><button id="lesson-space" type="button">Space · jump</button><button id="lesson-right" type="button">Hold Right →</button></div>
       <form id="lesson-form" class="lesson-cell">
         <div class="lesson-code-tools"><label for="lesson-code">Your program</label><div><button id="lesson-undo-reset" class="quiet" type="button" hidden>↶ Undo reset</button><button id="lesson-reset" class="quiet" type="button" disabled title="Restore this lesson’s starting code">↺ Reset code</button></div></div>
-        <div class="lesson-input-row"><span class="cell-prompt" aria-hidden="true">❯</span><textarea id="lesson-code" disabled rows="1" maxlength="1000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="lesson-input-help" placeholder="Type fox. to discover its actions"></textarea><button id="lesson-run" disabled aria-pressed="false" class="primary" type="submit">▶ Run</button></div>
+        <div class="lesson-input-row"><span class="cell-prompt" aria-hidden="true">❯</span><div id="lesson-editor" class="lesson-editor"><div id="lesson-line-highlight" aria-hidden="true" hidden></div><textarea id="lesson-code" disabled rows="1" maxlength="1000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="lesson-input-help" placeholder="Type fox. to discover its actions"></textarea></div><button id="lesson-run" disabled aria-pressed="false" class="primary" type="submit">▶ Run</button></div>
         <div id="lesson-examples" aria-label="Examples to try" hidden></div>
+        <div id="lesson-edit-hint" class="lesson-edit-hint" hidden><p id="lesson-edit-hint-text"></p><button id="lesson-edit-hint-close" type="button" aria-label="Dismiss editing hint">×</button></div>
         <div id="lesson-completions" aria-label="Suggested commands"></div>
         <p id="lesson-input-help">Type fox. for suggestions. Tab completes the first suggestion; Ctrl / ⌘ + Enter runs.</p>
       </form>

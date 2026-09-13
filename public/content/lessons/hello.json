@@ -14,7 +14,7 @@
   "placeholder": "Try a little Python",
   "scene": {
     "title": "Your fox. Your words.",
-    "label": "A fox in a meadow. Spoken values also appear below the scene."
+    "label": "A fox in a meadow. Spoken values appear in a speech bubble."
   },
   "completions": [
     {
@@ -25,5 +25,9 @@
   "feedback": {
     "initial": "Make one small change, then press Run.",
     "success": "Change it and run again. What do you think will happen?"
+  },
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
   }
 }

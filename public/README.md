@@ -26,19 +26,23 @@ for scope and the proposed browser/standalone backend boundary.
 
 `content/` holds lesson and catalogue data; see the [content authoring guide](content/README.md).
 Each introductory lesson and each game mini-exercise has its own JSON file.
+`lesson-model.js` applies content-declared aliases, exact draft migrations, editor
+help, navigation order and practice requirements without knowing lesson IDs.
+Map branches are rendered from the catalogue. The lesson manifest determines
+ordering; editor size and Enter/line-limit behavior are separate settings.
 `curriculum.js` and `templates.js` load those files through `content-loader.js`,
 shared with the Node tutor. `bootstrap.js` handles failed content loads with Retry. `lessons.js` handles navigation, saved lesson
 drafts, focused completions, drawing/animation, and interactive lesson controls.
 The logo opens the title screen; its Study map and Continue buttons use the same
-navigation and saved lesson ID. Loading the site starts at the title screen.
+navigation and saved lesson ID. The base URL opens the title screen; `/#lesson/<id>`
+opens that lesson directly and survives refresh, with browser Back/Forward navigation.
 `lesson-worker.js` runs `lesson_runtime.py` in Pyodide: a bounded, validated subset
 of real Python, with persistent event/update sessions and simulated character physics.
 The full workshop starts lazily; its stepping pauses in lessons or the map.
 `lessons.css` styles the responsive lesson layout, learning map and transfer invitation. Desktop
 later lessons keep instructions beside a scene/code stack, with scene height responsive
-to the viewport; narrow screens stack the sections. Nine short opening slides alternate readable explanations with code practice and use
-a single column, with a Python introduction, calculator, speech bubble and accessible
-transcript labelled Output beneath the code. `fox.say(value)` actions animate in order alongside movement.
+to the viewport; narrow screens stack the sections. Eight short opening slides alternate readable explanations with code practice and use
+a single column, with a Python introduction, calculator, speech bubble and screen-reader speech announcements. Only calculator slides show the Output panel beneath the code. `fox.say(value)` actions animate in order alongside movement.
 
 `progress.js` stores bounded concept evidence and constructs optional movement
 starters. `app.js` records behavior checks, tracks assistance, presents the transfer

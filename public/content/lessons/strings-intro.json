@@ -2,9 +2,9 @@
   "id": "strings-intro",
   "branch": "foundations",
   "layout": "compact",
-  "title": "Words need quotes.",
-  "heading": "Words need quotes.",
-  "description": "Python calls text a string. Put a quote at each end.",
+  "title": "Tell Python what to say",
+  "heading": "Tell Python what to say.",
+  "description": "Put quotes around the words you want the fox to say. This tells Python: use these words as text, instead of trying to follow them as instructions.",
   "mode": "basics",
   "skill": "commands",
   "rows": 1,
@@ -16,14 +16,13 @@
   "completions": [],
   "explanation": [
     {
-      "title": "A string is text",
-      "code": "\"Hi!\"",
-      "text": "The quotes mark where the text starts and ends."
-    },
-    {
-      "title": "Let the fox say it",
+      "title": "A greeting for the fox",
       "code": "fox.say(\"Hi!\")",
-      "text": "The fox says Hi! — without the quotes."
+      "text": "The fox says Hi! The quote marks stay in your code. Python calls text like this a string."
     }
-  ]
+  ],
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  }
 }

@@ -18,5 +18,9 @@
       "description": "Jump up and land"
     }
   ],
-  "layout": "compact"
+  "layout": "compact",
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  }
 }

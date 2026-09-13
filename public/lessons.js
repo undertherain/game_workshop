@@ -1,7 +1,9 @@
 import { createScene, initialState } from './scene.js';
 import { startWorkshop } from './app.js';
-import { lessons, games, skillLabels } from './curriculum.js';
+import { lessons, games, skillLabels, branches } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
+import { restoreProvidedLines, allowsLessonEdit, editableRange } from './lesson-editing.js';
+import { resolveLesson, migrateDraft, lessonPosition, editorHelp, canRecordPractice } from './lesson-model.js';
 const $ = id => document.getElementById(id);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
 let hasLastLesson = false;
@@ -11,17 +13,34 @@ let interactive = false, lastStep = 0, lastFrame = 0, keys = { right: false, spa
 let result = null, recorded = false, runningSource = '', personal = { sky: 'peach', costume: 'fox' };
 try {
   const saved = JSON.parse(localStorage.getItem('little-makers-lessons-v2') || '{}');
-  for (const lesson of lessons) if (typeof saved.drafts?.[lesson.id] === 'string' && saved.drafts[lesson.id].length <= 1000) drafts[lesson.id] = lesson.actor === 'character' ? saved.drafts[lesson.id].replace(/^([ \t]*)fox(?=\s*\.)/gm, '$1character') : saved.drafts[lesson.id];
-  const savedIndex = lessons.findIndex(l => l.id === saved.lesson); if (savedIndex >= 0) { index = savedIndex; hasLastLesson = true; }
+  for (const lesson of lessons) {
+    const draft = saved.drafts?.[lesson.id];
+    if (typeof draft === 'string' && draft.length <= 1000) drafts[lesson.id] = migrateDraft(lesson, draft);
+  }
+  const savedLesson = resolveLesson(lessons, saved.lesson);
+  if (savedLesson) { index = lessons.indexOf(savedLesson); hasLastLesson = true; }
   if (['peach', 'lavender', 'mint', 'night'].includes(saved.personal?.sky)) personal.sky = saved.personal.sky;
   if (['fox', 'cat', 'bunny'].includes(saved.personal?.costume)) personal.costume = saved.personal.costume;
 } catch { /* Lessons also work without browser storage. */ }
 let speech = '', prediction = '';
-// Update only unchanged examples from the earlier opening draft.
-if (drafts['text-numbers'] === 'fox.say(3 + 4)\nfox.say("3 + 4")') drafts['text-numbers'] = 'fox.say(3 + 4)';
-if (drafts.calculator === '2 + 3') drafts.calculator = '10 - 3';
 let resetBackup = null;
+let acceptedSource = '';
+const seenEditHints = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem('little-makers-edit-hints-v1') || '[]');
+  if (Array.isArray(saved)) for (const id of saved) if (typeof id === 'string') seenEditHints.add(id);
+} catch { /* One-time hints still work during this visit. */ }
 const current = () => lessons[index];
+function dismissEditHint() { $('lesson-edit-hint').hidden = true; }
+function showEditHint(lesson) {
+  dismissEditHint();
+  if (document.body.dataset.mode !== 'lessons' || lesson.explanation || lesson.quiz?.only || editorHelp(lesson).display !== 'once' || seenEditHints.has(lesson.id)) return;
+  $('lesson-edit-hint-text').textContent = $('lesson-input-help').textContent;
+  input.closest('.lesson-input-row').append($('lesson-edit-hint'));
+  $('lesson-edit-hint').hidden = false;
+  seenEditHints.add(lesson.id);
+  try { localStorage.setItem('little-makers-edit-hints-v1', JSON.stringify([...seenEditHints])); } catch { /* Keep in memory. */ }
+}
 function persist() {
   if (!current().quiz?.only) drafts[current().id] = input.value;
   try { localStorage.setItem('little-makers-lessons-v2', JSON.stringify({ drafts, lesson: current().id, personal })); } catch { /* Keep the current draft in memory. */ }
@@ -41,7 +60,7 @@ function stopLesson() {
   $('lesson-loop-status').textContent = 'Stopped · Run starts your rule again.';
   feedback('Stopped. Your code is still here. Press Run to start again.');
 }
-function resetScene() { speech = ''; $('lesson-transcript').replaceChildren(); $('lesson-transcript').hidden = true; $('lesson-output').hidden = true; actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
+function resetScene() { speech = ''; $('lesson-speech').textContent = ''; $('lesson-transcript').replaceChildren(); $('lesson-transcript').hidden = true; $('lesson-output').hidden = true; actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
 function suggestions() {
   const line = input.value.slice(0, input.selectionStart).split('\n').at(-1).trim();
   $('lesson-completions').replaceChildren();
@@ -62,9 +81,9 @@ function suggestions() {
 }
 function render() {
   resetBackup = null; $('lesson-undo-reset').hidden = true;
-  const lesson = current(), branch = lessons.filter(l => l.branch === lesson.branch), position = branch.indexOf(lesson);
+  const lesson = current(), { branch, position, next } = lessonPosition(lessons, lesson);
   $('lessons').dataset.layout = lesson.layout || 'split';
-  $('lessons').dataset.console = String(['sum', 'calculator'].includes(lesson.id));
+  $('lessons').dataset.console = String(lesson.presentation === 'console');
   $('lessons').dataset.explanation = String(!!lesson.explanation);
   document.querySelector('.lesson-topline .eyebrow').textContent = lesson.explanation ? 'A LITTLE PYTHON' : lesson.layout === 'compact' ? 'TRY IT IN CODE' : 'YOUR NEXT LITTLE PROGRAM';
   $('lesson-explanation').hidden = !lesson.explanation;
@@ -76,10 +95,15 @@ function render() {
     article.append(title, code, description); return article;
   }));
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
-  $('lesson-progress').textContent = `${lesson.branch === 'drawing' ? 'Drawing' : 'Foundations'} · ${position + 1} / ${branch.length}`;
+  $('lesson-progress').textContent = `${branches.find(branch => branch.id === lesson.branch).label} · ${position + 1} / ${branch.length}`;
   $('lesson-dots').replaceChildren(...branch.map((_, i) => { const dot = document.createElement('span'); dot.className = i <= position ? 'active' : ''; return dot; }));
   document.querySelector('.lesson-card').hidden = !!lesson.quiz?.only || !!lesson.explanation;
   input.value = lesson.quiz?.only ? lesson.code : (drafts[lesson.id] ?? lesson.code); input.rows = lesson.rows; input.disabled = false;
+  input.value = restoreProvidedLines(input.value, lesson); acceptedSource = input.value;
+  $('lesson-editor').classList.toggle('guided', !!lesson.editableLine);
+  $('lesson-line-highlight').hidden = !lesson.editableLine;
+  $('lesson-editor').style.setProperty('--editable-row', (lesson.editableLine || 1) - 1);
+  $('lesson-editor').style.setProperty('--code-rows', lesson.rows);
   input.placeholder = lesson.placeholder;
   $('lesson-examples').hidden = !lesson.examples?.length;
   $('lesson-examples').replaceChildren(...(lesson.examples || []).map(example => {
@@ -91,7 +115,7 @@ function render() {
     return button;
   }));
   $('lesson-back').disabled = position === 0;
-  $('lesson-next').textContent = position === branch.length - 1 ? 'Choose a game or another path →' : lesson.explanation ? 'Try it in code →' : branch[position + 1]?.explanation ? 'Next idea →' : 'Next little step →';
+  $('lesson-next').textContent = !next ? 'Choose a game or another path →' : next.explanation ? 'Next idea →' : lesson.explanation ? 'Try it in code →' : 'Next little step →';
   $('lesson-quiz').hidden = !lesson.quiz; quizAnswered = !lesson.quiz;
   $('quiz-feedback').textContent = ''; renderQuiz(lesson.quiz); renderPalette(lesson.palette); resetScene(); recorded = false; suggestions();
   const live = ['event', 'update'].includes(lesson.mode);
@@ -103,18 +127,19 @@ function render() {
   $('lesson-scene-title').parentElement.hidden = !lesson.scene.title;
   canvas.dataset.drawing = String(lesson.mode === 'drawing');
   canvas.setAttribute('aria-label', lesson.scene.label);
-  $('lesson-input-help').textContent = lesson.rows === 1 ? 'Tab completes a suggestion. Enter runs your instruction.' : 'Tab completes a suggestion or indents. Ctrl / ⌘ + Enter runs your program.';
+  const help = editorHelp(lesson);
+  $('lesson-input-help').textContent = help.text;
+  $('lesson-input-help').classList.toggle('sr-only', help.display === 'once');
+  showEditHint(lesson);
   feedback(lesson.quiz ? lesson.quiz.initial : lesson.feedback.initial);
 }
 function stopWorker() { worker?.terminate(); worker = null; ready = false; requestPending = false; interactive = false; clearTimeout(timer); clearKeys(); syncRunButton(); }
-function finish() { busy = false; input.disabled = false; $('lesson-run').disabled = false; $('lesson-back').disabled = lessons.filter(l => l.branch === current().branch).indexOf(current()) === 0; $('lesson-next').disabled = false; syncRunButton(); }
+function finish() { busy = false; input.disabled = false; $('lesson-run').disabled = false; $('lesson-back').disabled = !lessonPosition(lessons, current()).previous; $('lesson-next').disabled = false; syncRunButton(); }
 function fail(message) { stopWorker(); actions = []; finish(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback(message, true); }
 function recordPractice() {
   if (recorded) return;
   const lesson = current();
-  const meaningful = result && (lesson.mode === 'loop' ? result.features.loop && result.actions.length > 0 : lesson.mode === 'style' ? result.features.assignment : lesson.mode === 'drawing' ? result.shapes.length > 0 : result.interactive ? result.changed : result.actions.length > 0);
-  const feature = { expressions: 'expression', variables: 'assignment', functions: 'function', parameters: 'parameter', conditions: 'condition' }[lesson.skill];
-  if (!meaningful || (lesson.mode === 'basics' && feature && !result.features[feature])) return;
+  if (!canRecordPractice(lesson, result)) return;
   recorded = true; progress.record({ skill: lesson.skill, source: 'lesson:' + lesson.id, evidence: 'practice' });
 }
 function send(type) {
@@ -158,7 +183,7 @@ function run() {
   if (busy || (current().explanation && !current().quiz)) return;
   if (!quizAnswered) { feedback(current().quiz.prompt); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   if (!input.value.trim()) { feedback('Write an instruction first. Try the example above.', true); input.focus(); return; }
-  if (current().rows === 1 && input.value.trim().split('\n').length > 1) { feedback('For this step, try just one command. We’ll combine commands next.', true); return; }
+  if (current().editor?.maxLines && input.value.trim().split('\n').length > current().editor.maxLines) { feedback(`Use at most ${current().editor.maxLines} ${current().editor.maxLines === 1 ? 'line' : 'lines'} in this editor.`, true); return; }
   persist(); runningSource = input.value; recorded = false;
   if (requestPending) stopWorker();
   busy = true; input.disabled = true; $('lesson-run').disabled = true; $('lesson-back').disabled = true; $('lesson-next').disabled = true;
@@ -192,8 +217,12 @@ function frame(time) {
         actionStart = time; startX = x;
         if (actions[0].kind === 'say') {
           speech = actions[0].text;
-          const line = document.createElement('div'); line.textContent = speech || '“”';
-          $('lesson-output').hidden = false; $('lesson-transcript').hidden = false; $('lesson-transcript').append(line);
+          if (current().presentation === 'console') {
+            const line = document.createElement('div'); line.textContent = speech || '“”';
+            $('lesson-output').hidden = false; $('lesson-transcript').hidden = false; $('lesson-transcript').append(line);
+          } else {
+            $('lesson-speech').textContent = speech || 'Empty speech bubble';
+          }
         }
       }
       const t = Math.min(1, (time - actionStart) / 700);
@@ -222,13 +251,19 @@ function renderMap() {
   const records = progress.get().records;
   const count = new Set(records.map(r => r.skill)).size;
   $('map-progress-note').textContent = count ? `${count} concepts explored in this browser. Choose any path; nothing is locked.` : 'Start with one instruction. Every path stays open, and your practice is remembered in this browser.';
-  for (const [branch, target] of [['foundations', 'foundation-nodes'], ['drawing', 'drawing-nodes']]) {
-    $(target).replaceChildren();
-    const branchLessons = lessons.filter(l => l.branch === branch);
+  $('lesson-branches').replaceChildren();
+  for (const branch of branches) {
+    const section = document.createElement('section'); section.className = 'map-branch';
+    const eyebrow = document.createElement('p'); eyebrow.className = 'eyebrow'; eyebrow.textContent = branch.eyebrow;
+    const heading = document.createElement('h2'); heading.textContent = branch.title;
+    const description = document.createElement('p'); description.textContent = branch.description;
+    const target = document.createElement('div'); target.className = 'skill-nodes'; target.dataset.branch = branch.id;
+    const branchLessons = lessons.filter(l => l.branch === branch.id);
     const completed = branchLessons.filter(l => records.some(r => r.source === 'lesson:' + l.id)).length;
-    let summary = $(target).parentElement.querySelector('.branch-progress');
-    if (!summary) { summary = document.createElement('p'); summary.className = 'branch-progress'; $(target).before(summary); }
+    const summary = document.createElement('p'); summary.className = 'branch-progress';
     summary.textContent = `${completed} of ${branchLessons.length} stages completed`;
+    section.append(eyebrow, heading, description, summary, target);
+    $('lesson-branches').append(section);
     for (const lesson of branchLessons) {
       const practiced = records.some(r => r.source === 'lesson:' + lesson.id);
       const button = document.createElement('button'); button.className = 'skill-node';
@@ -236,7 +271,13 @@ function renderMap() {
       const note = document.createElement('span'); note.textContent = skillLabels[lesson.skill];
       const status = document.createElement('span'); status.className = 'stage-status';
       status.textContent = practiced ? '✓ Completed' : 'Explore →';
-      button.dataset.practiced = String(practiced); button.append(title, note, status); button.onclick = () => openLesson(lesson.id); $(target).append(button);
+      button.dataset.practiced = String(practiced); button.append(title, note, status); button.onclick = () => openLesson(lesson.id); target.append(button);
+    }
+    for (const planned of branch.planned || []) {
+      const card = document.createElement('div'); card.className = 'future-node';
+      const title = document.createElement('strong'); title.textContent = planned.title;
+      const note = document.createElement('span'); note.textContent = planned.description;
+      card.append(title, note); section.append(card);
     }
   }
   $('game-library-cards').replaceChildren();
@@ -254,6 +295,7 @@ function renderMap() {
   }
 }
 function setMode(mode) {
+  dismissEditHint();
   if (document.body.dataset.mode === 'lessons') persist();
   stopWorker(); resetScene(); finish(); window.workshop?.setKeys({});
   document.body.dataset.mode = mode;
@@ -264,21 +306,56 @@ function setMode(mode) {
   window.scrollTo(0, 0);
 }
 function openHome() {
+  updateRoute('');
   setMode('home');
-  $('resume-lesson').textContent = hasLastLesson ? `Last lesson: ${current().title}` : 'Begin by making the fox jump. No Python experience needed.';
+  $('resume-lesson').textContent = hasLastLesson ? `Last lesson: ${current().title}` : `Start with: ${lessons[0].title}. No Python experience needed.`;
   $('title-continue').textContent = hasLastLesson ? 'Continue to last lesson →' : 'Start your first lesson →';
   $('title-screen-heading').focus({ preventScroll: true });
 }
-function openMap() { setMode('map'); renderMap(); $('map-title').focus(); }
-function openLesson(id) { hasLastLesson = true; setMode('lessons'); index = lessons.findIndex(l => l.id === id); render(); persist(); $('lesson-title').focus(); }
+function openMap() { updateRoute('#map'); setMode('map'); renderMap(); $('map-title').focus(); }
+function openLesson(id) {
+  const nextIndex = lessons.findIndex(l => l.id === id);
+  if (nextIndex < 0) return;
+  updateRoute(`#lesson/${id}`);
+  hasLastLesson = true; setMode('lessons'); index = nextIndex; render(); persist(); $('lesson-title').focus();
+}
+let applyingRoute = false;
+function updateRoute(hash) {
+  if (!applyingRoute && location.hash !== hash) history.pushState(null, '', location.pathname + location.search + hash);
+}
+function applyRoute() {
+  applyingRoute = true;
+  try {
+    const hash = location.hash;
+    const requestedId = hash.startsWith('#lesson/') ? hash.slice(8) : '';
+    const id = resolveLesson(lessons, requestedId)?.id || requestedId;
+    if (requestedId !== id) history.replaceState(null, '', location.pathname + location.search + `#lesson/${id}`);
+    if (lessons.some(lesson => lesson.id === id)) openLesson(id);
+    else if (hash === '#map') openMap();
+    else if (hash === '#workshop') openWorkshop();
+    else {
+      if (hash) history.replaceState(null, '', location.pathname + location.search);
+      openHome();
+    }
+  } finally { applyingRoute = false; }
+}
 let opening = false;
 async function openWorkshop(id) {
   if (opening) return; opening = true;
+  updateRoute('#workshop');
   setMode('workshop');
   try { await startWorkshop(); if (id && window.workshop.getTemplate() !== id) await window.workshop.selectTemplate(id); }
   finally { opening = false; }
 }
 function edited() {
+  if (!allowsLessonEdit(input.value, current())) {
+    const caret = input.selectionStart;
+    input.value = acceptedSource;
+    const range = editableRange(input.value, current());
+    input.setSelectionRange(Math.max(range.start, Math.min(caret, range.end)), Math.max(range.start, Math.min(caret, range.end)));
+    return;
+  }
+  acceptedSource = input.value;
   if (interactive) { stopWorker(); finish(); $('lesson-space').disabled = $('lesson-right').disabled = true; feedback('Your rule changed. Run it to install this version.'); }
   persist(); suggestions();
 }
@@ -291,7 +368,8 @@ function restoreLessonCode(source, message) {
   stopWorker(); resetScene(); finish(); recorded = false; runningSource = '';
   $('lesson-space').disabled = $('lesson-right').disabled = true;
   $('lesson-loop-status').textContent = 'Run installs your rule. Then try the control.';
-  input.value = source; persist(); suggestions(); feedback(message); input.focus();
+  input.value = restoreProvidedLines(source, current()); acceptedSource = input.value;
+  persist(); suggestions(); feedback(message); input.focus();
 }
 $('lesson-reset').onclick = () => {
   if (input.value !== current().code) resetBackup = input.value;
@@ -305,6 +383,19 @@ $('lesson-undo-reset').onclick = () => {
 };
 $('lesson-form').onsubmit = event => { event.preventDefault(); if (interactive) stopLesson(); else run(); };
 input.oninput = edited; input.onclick = suggestions;
+input.onfocus = dismissEditHint;
+input.onpointerdown = dismissEditHint;
+$('lesson-edit-hint-close').onclick = dismissEditHint;
+$('lesson-run').addEventListener('click', dismissEditHint);
+input.onbeforeinput = event => {
+  if (!current().editableLine || event.inputType?.startsWith('history')) return;
+  const { start, end } = editableRange(input.value, current());
+  const from = input.selectionStart, to = input.selectionEnd;
+  if (from < start || to > end ||
+      (from === to && ((event.inputType === 'deleteContentBackward' && from === start) ||
+        (event.inputType === 'deleteContentForward' && to === end))) ||
+      ['insertParagraph', 'insertLineBreak'].includes(event.inputType) || /[\r\n]/.test(event.data || '')) event.preventDefault();
+};
 input.onkeydown = event => {
   if (event.key === 'Tab' && !event.shiftKey) {
     event.preventDefault();
@@ -314,12 +405,13 @@ input.onkeydown = event => {
   if (event.key === 'Escape') $('lesson-completions').replaceChildren();
   if (event.key === 'Enter') {
     event.preventDefault();
-    if (event.ctrlKey || event.metaKey || current().rows === 1) run();
+    if (event.ctrlKey || event.metaKey || current().editor?.runOnEnter) run();
     else { const line = input.value.slice(0, input.selectionStart).split('\n').at(-1); const indent = line.match(/^ */)[0] + (line.trimEnd().endsWith(':') ? '    ' : ''); input.setRangeText('\n' + indent, input.selectionStart, input.selectionEnd, 'end'); edited(); }
   }
 };
 function navigate(delta) {
-  const branch = lessons.filter(l => l.branch === current().branch), next = branch[branch.indexOf(current()) + delta];
+  const { branch, position } = lessonPosition(lessons, current());
+  const next = branch[position + delta];
   if (next) openLesson(next.id); else openMap();
 }
 $('lesson-back').onclick = () => navigate(-1); $('lesson-next').onclick = () => navigate(1);
@@ -379,4 +471,5 @@ document.addEventListener('keydown', event => {
 document.addEventListener('keyup', event => { if (event.code === 'ArrowRight') keys.right = false; if (event.code === 'Space') keys.space = false; });
 window.addEventListener('blur', clearKeys); canvas.addEventListener('blur', clearKeys); $('lesson-right').addEventListener('blur', clearKeys); document.addEventListener('visibilitychange', clearKeys);
 window.addEventListener('workshop-progress', () => { if (document.body.dataset.mode === 'map') renderMap(); });
-render(); openHome(); requestAnimationFrame(frame);
+window.addEventListener('hashchange', applyRoute);
+render(); applyRoute(); requestAnimationFrame(frame);

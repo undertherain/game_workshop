@@ -25,5 +25,10 @@
       "code": "\"Hello \" + username",
       "text": "Python uses the stored value. The + joins the text to make Hello Ola. Keep the space after Hello!"
     }
-  ]
+  ],
+  "practiceFeature": "assignment",
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  }
 }

@@ -4,7 +4,7 @@
   "layout": "compact",
   "title": "Text or a number?",
   "heading": "Try it: add the quotes.",
-  "description": "Try the suggestions below, one at a time. Press Run after each one and compare the output.",
+  "description": "Try the suggestions below, one at a time. Press Run after each one and compare what the fox says.",
   "starter": [
     "fox.say(3 + 4)"
   ],
@@ -14,7 +14,7 @@
   "placeholder": "Try a little Python",
   "scene": {
     "title": "Your fox. Your words.",
-    "label": "A fox in a meadow. Spoken values also appear below the scene."
+    "label": "A fox in a meadow. Spoken values appear in a speech bubble."
   },
   "completions": [],
   "feedback": {
@@ -30,5 +30,24 @@
       "label": "With quotes",
       "code": "fox.say(\"3 + 4\")"
     }
-  ]
+  ],
+  "aliases": [
+    "values-intro"
+  ],
+  "draftMigrations": [
+    {
+      "from": [
+        "fox.say(3 + 4)",
+        "fox.say(\"3 + 4\")"
+      ],
+      "to": [
+        "fox.say(3 + 4)"
+      ]
+    }
+  ],
+  "practiceFeature": "expression",
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  }
 }

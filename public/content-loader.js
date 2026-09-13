@@ -23,12 +23,24 @@ export function validateLesson(lesson, id, defaults, skills) {
   requireValue(lesson?.id === id, `${label}: id must match the manifest`);
   for (const key of ['title', 'heading', 'description', 'placeholder', 'skill']) requireValue(text(lesson[key]), `${label}: missing ${key}`);
   requireValue(Object.hasOwn(skills, lesson.skill), `${label}: unknown skill`);
-  requireValue(['foundations', 'drawing'].includes(lesson.branch), `${label}: unknown branch`);
+  requireValue(typeof lesson.branch === 'string' && /^[a-z][a-z0-9-]*$/.test(lesson.branch), `${label}: invalid branch`);
   requireValue(modes.includes(lesson.mode), `${label}: unknown runtime mode`);
   requireValue(!lesson.layout || lesson.layout === 'compact', `${label}: unknown layout`);
+  requireValue(lesson.presentation === undefined || ['scene', 'console'].includes(lesson.presentation), `${label}: unknown presentation`);
+  if (lesson.aliases !== undefined) validateIds(lesson.aliases, `${label}: aliases`);
+  if (lesson.draftMigrations !== undefined) {
+    const source = lines => Array.isArray(lines) && lines.every(line => typeof line === 'string' && !/[\r\n]/.test(line)) && lines.join('\n').length <= 1000;
+    requireValue(Array.isArray(lesson.draftMigrations) && lesson.draftMigrations.every(change => change && source(change.from) && source(change.to)), `${label}: invalid draft migrations`);
+    requireValue(new Set(lesson.draftMigrations.map(change => change.from.join('\n'))).size === lesson.draftMigrations.length, `${label}: duplicate draft migration source`);
+  }
+  if (lesson.legacyActors !== undefined) requireValue(lesson.actor && Array.isArray(lesson.legacyActors) && lesson.legacyActors.every(actor => typeof actor === 'string' && /^[a-z][a-z0-9_]*$/.test(actor)), `${label}: invalid legacy actors`);
+  if (lesson.editorHelp !== undefined) requireValue(text(lesson.editorHelp?.text) && ['once', 'always'].includes(lesson.editorHelp?.display), `${label}: invalid editor help`);
+  if (lesson.editor !== undefined) requireValue(lesson.editor && typeof lesson.editor === 'object' && (lesson.editor.runOnEnter === undefined || typeof lesson.editor.runOnEnter === 'boolean') && (lesson.editor.maxLines === undefined || (Number.isInteger(lesson.editor.maxLines) && lesson.editor.maxLines > 0 && lesson.editor.maxLines <= 1000)), `${label}: invalid editor options`);
+  requireValue(lesson.practiceFeature === undefined || ['expression', 'assignment', 'function', 'parameter', 'condition', 'loop'].includes(lesson.practiceFeature), `${label}: unknown practice feature`);
   requireValue(!lesson.actor || lesson.actor === 'character', `${label}: unsupported actor`);
   requireValue(Number.isInteger(lesson.rows) && lesson.rows >= 1 && lesson.rows <= 12, `${label}: rows must be 1–12`);
   requireValue(Array.isArray(lesson.starter) && lesson.starter.every(line => typeof line === 'string') && lesson.starter.join('\n').length <= 1000, `${label}: starter must be an array of Python lines (up to 1,000 characters)`);
+  requireValue(lesson.editableLine === undefined || (Number.isInteger(lesson.editableLine) && lesson.editableLine >= 1 && lesson.editableLine <= lesson.starter.length), `${label}: editableLine must identify a starter line`);
   requireValue((lesson.scene?.title === undefined || text(lesson.scene.title)) && text(lesson.scene?.label), `${label}: missing scene text`);
   requireValue(Array.isArray(lesson.completions) && lesson.completions.every(c => text(c.code) && text(c.description)), `${label}: invalid completions`);
   if (lesson.examples) requireValue(Array.isArray(lesson.examples) && lesson.examples.length <= 3 && lesson.examples.every(example => text(example.label) && text(example.code) && example.code.length <= 1000), `${label}: invalid examples`);
@@ -52,11 +64,30 @@ export function validateLesson(lesson, id, defaults, skills) {
   for (const key of ['initial','success','empty','installed', ...(['event','update'].includes(lesson.mode) ? ['triggered'] : []), ...(lesson.mode === 'drawing' ? ['drawn'] : [])]) requireValue(text(feedback[key]), `${label}: missing feedback.${key}`);
   return { ...lesson, code: lesson.starter.join('\n'), feedback };
 }
-export async function loadLessons(skills, read = readContent) {
+export function validateBranches(branches) {
+  requireValue(Array.isArray(branches), 'catalog.json: branches must be an array');
+  validateIds(branches.map(branch => branch?.id), 'catalog.json: branches');
+  for (const branch of branches) {
+    requireValue(['label', 'eyebrow', 'title', 'description'].every(key => text(branch[key])), `catalog.json: incomplete branch ${branch.id}`);
+    if (branch.planned !== undefined) requireValue(Array.isArray(branch.planned) && branch.planned.every(item => text(item.title) && text(item.description)), `catalog.json: invalid planned entries for ${branch.id}`);
+  }
+  return branches;
+}
+export async function loadLessons(skills, read = readContent, branches) {
   const [ids, defaults] = await Promise.all([read('lessons/index.json'), read('lesson-defaults.json')]);
   validateIds(ids, 'lessons/index.json');
   requireValue(defaults && typeof defaults.feedback === 'object', 'lesson-defaults.json: missing feedback');
-  return Promise.all(ids.map(async id => validateLesson(await read(`lessons/${id}.json`), id, defaults, skills)));
+  branches = validateBranches(branches ?? (await read('catalog.json')).branches);
+  const lessons = await Promise.all(ids.map(async id => validateLesson(await read(`lessons/${id}.json`), id, defaults, skills)));
+  const names = new Set(ids);
+  for (const lesson of lessons) {
+    requireValue(branches.some(branch => branch.id === lesson.branch), `lessons/${lesson.id}.json: unknown branch ${lesson.branch}`);
+    for (const alias of lesson.aliases || []) {
+      requireValue(!names.has(alias), `lessons/${lesson.id}.json: duplicate or active alias ${alias}`);
+      names.add(alias);
+    }
+  }
+  return lessons;
 }
 export async function loadTemplates(ids, read = readContent) {
   validateIds(ids, 'catalog.json: templates');

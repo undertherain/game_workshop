@@ -29,5 +29,8 @@
   ],
   "feedback": {
     "triggered": "Your movement instruction is inside the game loop now. Release Right and watch the rule keep checking."
-  }
+  },
+  "legacyActors": [
+    "fox"
+  ]
 }

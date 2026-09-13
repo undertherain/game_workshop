@@ -21,5 +21,9 @@
       "code": "fox.move()",
       "description": "Move right"
     }
-  ]
+  ],
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  }
 }

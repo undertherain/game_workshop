@@ -36,5 +36,6 @@
   ],
   "feedback": {
     "success": "Add travel(50 + 10). The expression is evaluated before its value goes into the function."
-  }
+  },
+  "practiceFeature": "parameter"
 }

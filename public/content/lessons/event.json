@@ -28,5 +28,8 @@
   ],
   "feedback": {
     "triggered": "Your function ran because you pressed Space. Run installed the rule; the event triggered it."
-  }
+  },
+  "legacyActors": [
+    "fox"
+  ]
 }

@@ -10,21 +10,22 @@
     "fox.say(\"Hello \" + username)"
   ],
   "rows": 2,
+  "editableLine": 1,
   "mode": "basics",
   "skill": "variables",
   "placeholder": "Try a little Python",
   "scene": {
     "title": "Your fox. Your words.",
-    "label": "A fox in a meadow. Spoken values also appear below the scene."
+    "label": "A fox in a meadow. Spoken values appear in a speech bubble."
   },
-  "completions": [
-    {
-      "code": "fox.say(\"Hi!\")",
-      "description": "Say some text"
-    }
-  ],
+  "completions": [],
   "feedback": {
-    "initial": "Make one small change, then press Run.",
+    "initial": "Replace Ola with your name, then press Run so the fox greets you.",
     "success": "Change it and run again. What do you think will happen?"
+  },
+  "practiceFeature": "assignment",
+  "editorHelp": {
+    "text": "Only line 1 is editable. The greeting command is provided. Ctrl / ⌘ + Enter runs your program.",
+    "display": "once"
   }
 }
