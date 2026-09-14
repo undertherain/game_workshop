@@ -26,7 +26,7 @@ function editorHarness() {
     ...guidance, templates, initialState: {}, createScene: () => ({}),
     document: { getElementById: element, querySelectorAll: () => [], addEventListener() {}, createElement: () => element(Symbol()) },
     window: { addEventListener() {} },
-    localStorage: { setItem() {} }, requestAnimationFrame() {},
+    localStorage: { setItem() {} }, requestAnimationFrame() {}, clearTimeout() {},
     getComputedStyle: () => ({ lineHeight: '20px' }),
   });
   vm.runInContext(app, context);
@@ -66,4 +66,54 @@ test('changing exercise replaces the old highlight with the current function loc
   run('save();locate(13);stepIndex=1;renderStep()');
   assert.equal(run('focusedLine'), null);
   assert.equal(run('currentGuidance().line'), element('editor').value.split('\n').findIndex(line => line.startsWith('def on_paddle(')) + 1);
+});
+
+for (const inputType of ['insertText', 'insertFromPaste', 'deleteContentBackward']) {
+  test(`${inputType} accepts a rule selection from the left edge and preserves indentation`, () => {
+    const { element, run } = editorHarness();
+    run('renderStep()');
+    const editor = element('editor');
+    const start = run('protection.prefix.length');
+    const end = run('editor.value.length-protection.suffix.length');
+    const prefix = editor.value.slice(0, start);
+    editor.setSelectionRange(prefix.lastIndexOf('\n') + 1, end);
+    let prevented = false;
+    editor.handlers.beforeinput({ inputType, preventDefault() { prevented = true; } });
+    assert.equal(prevented, false);
+    assert.equal(editor.selectionStart, start);
+    editor.setRangeText(inputType.startsWith('delete') ? '' : 'paddle.x += 4', editor.selectionStart, editor.selectionEnd);
+    editor.handlers.input();
+    assert.ok(editor.value.startsWith(prefix));
+    assert.ok(run('acceptsEdit(protection,editor.value)'));
+  });
+}
+
+test('selections crossing supplied code remain protected', () => {
+  const { element, run } = editorHarness();
+  run('renderStep()');
+  element('editor').setSelectionRange(0, run('editor.value.length-protection.suffix.length'));
+  let prevented = false;
+  element('editor').handlers.beforeinput({ inputType: 'insertText', preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+});
+
+
+test('paddle steps use independent drafts and reset the current exercise', () => {
+  const { element, run } = editorHarness();
+  run('selectStep(1)');
+  assert.equal(element('editor').value, templates.breaker.starters[1]);
+  assert.ok(element('editor').value.includes('if keyboard.right:'));
+  element('editor').value = element('editor').value.replace('    pass', '    ball.vx = (ball.x - paddle.x) / 8');
+  run('save()');
+  const draft = element('editor').value;
+  run('selectStep(2)');
+  assert.equal(element('editor').value, templates.breaker.starters[2]);
+  run('selectStep(1)');
+  assert.equal(element('editor').value, draft);
+  element('editor-guide-focus').click = () => {};
+  element('reset-code').onclick();
+  assert.equal(run('stepIndex'), 1);
+  assert.equal(element('editor').value, templates.breaker.starters[1]);
+  element('undo').onclick();
+  assert.equal(element('editor').value, draft);
 });

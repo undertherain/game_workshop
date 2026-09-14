@@ -23,10 +23,13 @@
 .number-line.rule-target{color:#5a764b;font-weight:700}
 @media(max-width:1050px){.editor-guide{align-items:start;flex-wrap:wrap;gap:8px}.editor-guide button{padding:7px 10px}}
 
-.syntax-line.provided-line{opacity:.75}
-.number-line.provided-line{opacity:.55}
-.syntax-line.editable-line{background:#fff4d8;box-shadow:inset 3px 0 #c49a41}
-.number-line.editable-line{color:#8d631b;background:#fff4d8;font-weight:700}
+.editor-wrap{background:#fffef9}
+.editor-wrap:has(.provided-line){background:#e6e9e2}
+.syntax-line.provided-line{background:#e6e9e2;color:#78827a;box-shadow:none}
+.syntax-line.provided-line .token-comment,.syntax-line.provided-line .token-string,.syntax-line.provided-line .token-number,.syntax-line.provided-line .token-keyword{color:inherit}
+.number-line.provided-line{color:#92998e;background:#e6e9e2}
+.syntax-line.editable-line{background:#fffef9;box-shadow:inset 3px 0 #9bb180}
+.number-line.editable-line{color:#5a764b;background:#fffef9;font-weight:700}
 #editor-guide-unlock{background:transparent;border-color:transparent;text-decoration:underline;color:#807053;font-size:10px}
 
 .code-edit-actions { display:flex; flex-wrap:wrap; gap:4px; }

@@ -14,7 +14,11 @@ let protection = null;
 const unlockedExercises = new Set();
 let assisted = false, suppliedControls = false;
 let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null;
-const storageKey = () => 'little-makers-exercises-v1-'+templateId;
+const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
+const hasStepStarter = () => !!templates[templateId].starters?.[stepIndex];
+const storageKey = () => hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
+const stepDrafts = new Map();
+function readDraft(){try{return localStorage.getItem(storageKey()) ?? stepDrafts.get(storageKey());}catch{return stepDrafts.get(storageKey());}}
 const escape = text => text.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
 function colorize(line) {
@@ -80,6 +84,7 @@ function save() {
     exerciseFeedback=null;$('exercise-result').textContent='';
   }
   code=editor.value;
+  stepDrafts.set(storageKey(),code);
   try { localStorage.setItem(storageKey(),code); $('save-status').textContent='Saved in this browser'; }
   catch { $('save-status').textContent='Use Save Python to keep your work'; }
   $('code-state').textContent=code===runningCode?'Running this version':'Changes to try';
@@ -206,16 +211,26 @@ async function ask(question,mode='chat') {
   finally{setAsking(false);}
 }
 
-editor.addEventListener('beforeinput',event=>{
+function prepareRuleEdit(event){
   if(protection){
     const start=protection.prefix.length,end=editor.value.length-protection.suffix.length;
+    const lineStart=protection.prefix.lastIndexOf('\n')+1;
+    // The first rule's indentation is supplied, but selecting from its left edge
+    // should still replace the rule. Keep those spaces outside the replacement.
+    if(editor.selectionStart>=lineStart&&editor.selectionStart<start&&editor.selectionEnd<=end){
+      editor.setSelectionRange(start,Math.max(start,editor.selectionEnd));
+    }
     const collapsed=editor.selectionStart===editor.selectionEnd;
     if(editor.selectionStart<start||editor.selectionEnd>end||
       (collapsed&&event.inputType==='deleteContentBackward'&&editor.selectionStart===start)||
       (collapsed&&event.inputType==='deleteContentForward'&&editor.selectionEnd===end)){
-      event.preventDefault();$('line-note').textContent='That code is provided. Choose Write here to edit your rule.';return;
+      event.preventDefault();$('line-note').textContent='That code is provided. Choose Write here to edit your rule.';return false;
     }
   }
+  return true;
+}
+editor.addEventListener('beforeinput',event=>{
+  if(!prepareRuleEdit(event))return;
   checkpoint();
 });
 editor.addEventListener('input',()=>{focusedLine=null;exerciseFeedback=null;$('exercise-result').textContent='';$('transfer-offer').hidden=true;save();});editor.addEventListener('scroll',syncScroll);
@@ -223,6 +238,7 @@ editor.addEventListener('keydown',event=>{
   if(protection&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='a'){
     event.preventDefault();editor.setSelectionRange(protection.prefix.length,editor.value.length-protection.suffix.length);return;
   }
+  if((event.key==='Tab'||(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey))&&!prepareRuleEdit(event))return;
   if(event.key==='Tab'){event.preventDefault();const start=editor.selectionStart,end=editor.selectionEnd;checkpoint();editor.setRangeText('    ',start,end,'end');save();}
   if(event.key==='Enter'&&!event.ctrlKey&&!event.metaKey){event.preventDefault();const start=editor.selectionStart;const line=editor.value.slice(0,start).split('\n').at(-1);const indent=line.match(/^ */)[0]+(line.trimEnd().endsWith(':')?'    ':'');checkpoint();editor.setRangeText('\n'+indent,start,editor.selectionEnd,'end');save();}
 });
@@ -245,7 +261,7 @@ $('undo').onclick=()=>{
 $('reset-code').onclick=()=>{
   snapshots.push({code:editor.value,step:stepIndex,unlocked:[...unlockedExercises].filter(key=>key.startsWith(templateId+':'))});
   if(snapshots.length>30)snapshots.shift();$('undo').disabled=false;
-  stopPlayback();protection=null;editor.value=starter;stepIndex=0;runningCode='';
+  stopPlayback();protection=null;editor.value=starter;if(!hasStepStarter())stepIndex=0;runningCode='';
   for(const key of [...unlockedExercises])if(key.startsWith(templateId+':'))unlockedExercises.delete(key);
   currentError=null;proposal=null;proposalSource='';focusedLine=null;exerciseFeedback=null;
   $('error-box').hidden=true;$('suggestion').hidden=true;$('transfer-offer').hidden=true;
@@ -294,7 +310,7 @@ function frame(time){
 requestAnimationFrame(frame);
 function renderTransfer(){
   const evidence=movementOffer(progress.get(),templateId);
-  const visible=!!evidence&&editor.value===starter;
+  const visible=!!evidence&&stepIndex===0&&editor.value===starter;
   $('transfer-offer').hidden=!visible;
   if(!visible)return;
   const from=games.find(game=>'game:'+game.id===evidence.source)?.title||'another game';
@@ -303,6 +319,7 @@ function renderTransfer(){
 }
 $('transfer-use').onclick=()=>{
   if(editor.value!==starter){$('transfer-offer').hidden=true;return;}
+  if(hasStepStarter()){selectStep(1);$('transfer-offer').hidden=true;return;}
   checkpoint();protection=null;editor.value=movementStarter(starter,templateId);suppliedControls=true;
   try{localStorage.setItem(storageKey()+'-controls-supplied','true');}catch{}
   progress.record({skill:'movement',source:'game:'+templateId,evidence:'supplied'});
@@ -310,24 +327,47 @@ $('transfer-use').onclick=()=>{
   $('line-note').textContent='Both controls are included. Read them, then run your code and build the next mechanic.';
 };
 $('transfer-practice').onclick=()=>{$('transfer-offer').hidden=true;stepIndex=0;renderStep();};
+function selectStep(index){
+  if(asking||index===stepIndex||!Number.isInteger(index)||index<0||index>3)return;
+  save();
+  const prepared=!!templates[templateId].starters?.[index];
+  if(prepared){
+    stopPlayback();protection=null;stepIndex=index;
+    starter=templates[templateId].starters[index];editor.value=readDraft()??starter;
+    assisted=false;suppliedControls=index>0;
+    try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';}catch{}
+    runningCode='';snapshots=[];history=[];proposal=null;proposalSource='';currentError=null;
+    $('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;
+    $('transfer-offer').hidden=true;
+    save();
+    $('run-status').textContent='Exercise ready · press Run my code';
+  }else stepIndex=index;
+  exerciseFeedback=null;renderStep();
+}
 function renderStep(){
   focusedLine=null;
   const template=templates[templateId];
   const region=unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
   protection=region?protectRegion(editor.value,region):null;
   $('build-steps').replaceChildren();
-  template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>{stepIndex=i;exerciseFeedback=null;renderStep();};$('build-steps').append(button);});
+  template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>selectStep(i);$('build-steps').append(button);});
   $('step-title').textContent=`${stepIndex===3?'Your variation':'Mini-exercise '+(stepIndex+1)} · ${template.steps[stepIndex][0]}`;
   $('step-description').textContent=template.steps[stepIndex][1];$('exercise-result').textContent='';
   $('next-step').hidden=stepIndex===3;
   paintEditor();scrollToGuidance();
-  try{localStorage.setItem(storageKey()+'-step',String(stepIndex));}catch{}
+  try{localStorage.setItem(gameStorageKey()+'-step',String(stepIndex));}catch{}
 }
 async function selectTemplate(id){
   if(asking||!templates[id])return;
+  const chooserHadFocus=$('game-chooser').contains(document.activeElement);
+  $('game-chooser').open=false;
+  $('selected-game').textContent=templates[id].genre;
+  if(chooserHadFocus)$('game-chooser').querySelector('summary').focus();
   if(editor.value)save();
   protection=null;templateId=id;const template=templates[id];starter=sourceCache[id];
-  let saved;try{saved=localStorage.getItem(storageKey());stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(storageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
+  try{stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(gameStorageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
+  starter=templates[id].starters?.[stepIndex]??sourceCache[id];
+  const saved=readDraft();
   assisted=false;suppliedControls=false;try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';suppliedControls=localStorage.getItem(storageKey()+'-controls-supplied')==='true';}catch{}
   editor.value=saved??starter;runningCode='';history=[];snapshots=[];currentError=null;proposal=null;exerciseFeedback=null;focusedLine=null;
   $('reset-code').disabled=false;$('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;$('check-step').disabled=false;
@@ -342,7 +382,7 @@ async function selectTemplate(id){
   clearKeys();save();renderStep();renderTransfer();boot(editor.value);
 }
 $('guide-step').onclick=()=>{ask(templates[templateId].steps[stepIndex][2]+' Give a hint first, without a replacement edit unless I ask for one.','hint');$('helper-title').scrollIntoView({behavior:'smooth',block:'center'});};
-$('next-step').onclick=()=>{stepIndex=Math.min(3,stepIndex+1);exerciseFeedback=null;renderStep();};
+$('next-step').onclick=()=>selectStep(Math.min(3,stepIndex+1));
 async function checkStep(){
   if(!ready){$('exercise-result').textContent='Run your code to start Python, then check this step.';return;}
   if(pending){setTimeout(checkStep,60);return;}
@@ -370,4 +410,4 @@ window.workshop={getState:()=>gameState,getError:()=>currentError,isReady:()=>re
   getCode:()=>editor.value,setCode(value){checkpoint();editor.value=value;exerciseFeedback=null;save();},run,ask,
   getRunningCode:()=>runningCode,setKeys(value){keys={left:false,right:false,jump:false,...value};},
   pause(){setPlaying(false);clearKeys();},resume(){setPlaying(true);},starter:()=>starter,
-  selectTemplate,getTemplate:()=>templateId,checkStep,setStep(index){stepIndex=index;exerciseFeedback=null;renderStep();},getExerciseFeedback:()=>exerciseFeedback};
+  selectTemplate,getTemplate:()=>templateId,checkStep,setStep:selectStep,getExerciseFeedback:()=>exerciseFeedback};

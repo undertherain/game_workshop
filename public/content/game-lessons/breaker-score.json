@@ -6,6 +6,33 @@
   "guide": {
     "function": "on_break",
     "instruction": "Add points inside on_break(), alongside brick.hide().",
-    "review": "Add points inside on_break(), alongside brick.hide()."
-  }
+    "review": "Add points inside on_break(), alongside brick.hide().",
+    "replace": "pass",
+    "editAfter": "# Your turn: award points."
+  },
+  "starter": [
+    "# A paddle, a ball, and a wall of moon bricks.",
+    "paddle.speed = 6",
+    "paddle.width = 110",
+    "ball.vx = 3",
+    "ball.vy = -4",
+    "world.sky = \"night\"",
+    "",
+    "def update():",
+    "    if keyboard.left:",
+    "        paddle.x -= paddle.speed",
+    "    if keyboard.right:",
+    "        paddle.x += paddle.speed",
+    "",
+    "# Bounce back up when you hit the paddle.",
+    "def on_paddle():",
+    "    ball.vy = -abs(ball.vy)",
+    "    ball.vx = (ball.x - paddle.x) / 12",
+    "",
+    "# What should a broken brick be worth?",
+    "def on_break(brick):",
+    "    brick.hide()",
+    "    # Your turn: award points.",
+    "    pass"
+  ]
 }

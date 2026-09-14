@@ -70,8 +70,7 @@
   </aside>
   </div>
   <main id="workshop-main" hidden>
-    <div class="intro"><div><p class="eyebrow">YOUR VERY FIRST GAME</p><h1>Pick a game. <em>Make it yours.</em></h1><p>The world is ready. You bring it to life, one little rule at a time.</p></div><div class="edition"><span>✧</span><p>SMALL STEPS<br>BIG IDEAS</p></div></div>
-    <nav id="template-picker" class="template-picker" aria-label="Choose a game to build"></nav>
+    <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><details id="game-chooser"><summary>Change game</summary><nav id="template-picker" class="template-picker" aria-label="Choose a game to build"></nav></details></div>
     <section id="transfer-offer" class="transfer-offer" hidden><strong>A familiar skill, a new game</strong><p id="transfer-message"></p><details><summary>See the controls that will be included</summary><pre id="transfer-preview"></pre></details><div><button id="transfer-use" class="primary">Include controls · try the next mechanic</button><button id="transfer-practice" class="quiet">I’ll practise controls again</button></div></section>
     <section class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
     <div class="workspace">
@@ -93,7 +92,7 @@
       <section class="code-card" aria-labelledby="code-title">
         <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><span class="language-badge">Python</span></div>
         <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
-        <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the game’s starting code and return to the first exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
+        <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the starting code for this exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
         <div id="editor-guide" class="editor-guide" hidden><div><strong>Your turn</strong><p id="editor-guide-message"></p></div><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div>
         <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-describedby="editor-guide-message" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
         <div id="line-note" class="line-note">✧ Start with a number. See what happens.</div>

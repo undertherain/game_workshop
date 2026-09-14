@@ -147,6 +147,15 @@ introductory cells only.
 
 In the game workshop:
 
+The selected game has a compact heading. **Change game** opens the game choices;
+choosing one closes them to keep the activity and editor in view.
+
+Brick breaker uses a prepared program for each exercise, with only that exercise’s
+rule missing. Aimed bounce includes both arrow controls; scoring includes controls
+and aiming; variation starts with a complete game. Each exercise saves its own
+draft. Reset code restores the current paddle exercise, and Undo recovers your edit.
+Older shared paddle drafts remain stored separately.
+
 1. Start with **Brick breaker**, or choose **Platformer** or **Paratroopers**. Each has its own
    Python draft and four-step path, saved in this browser.
 2. In the brick breaker, **Left already works**. Read its rule, then replace `pass`
@@ -164,7 +173,7 @@ In the game workshop:
    Steps are navigable; checks do not lock the learner into a curriculum.
 5. Ask Pip about an error or selected line. Suggested edits only apply through
    **Try this edit**, and require a separate **Run my code** to affect the game.
-6. **Reset code** restores the starter and stops playback. In a game it returns to
+6. **Reset code** restores the starter and stops playback. In Platformer and Paratroopers it returns to
    the first exercise; **Undo edit** recovers the previous code and exercise. Intro
    lessons reset only their own code and offer **Undo reset**. Learning progress is
    kept. Use **Save Python** to export your work. Ctrl/Cmd+Enter runs code. On touch devices,

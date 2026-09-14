@@ -59,9 +59,13 @@ require choosing Edit whole file before applying.
 Code changes clear previous helper highlights and suggestions, including edits made
 with Enter and Tab. Exercise targets are resolved again against the current draft;
 switching exercises also clears the previous line selection highlight.
+The game editor uses cream for editable code and gray for supplied code. Selections
+starting in the first editable line's indentation preserve those supplied spaces
+when typing, pasting or deleting the selected rule.
 
 Both editors offer **Reset code** without running the restored source. Game reset
-restores the template and first exercise with guided protection; its undo snapshot
+restores the current prepared exercise in Brick breaker, or the template and first
+exercise in the other games, with guided protection; its undo snapshot
 retains the previous code, exercise and explicit unlocks. Intro reset restores only
 the current lesson and offers an in-session Undo reset. Drafts are saved and
 learning evidence is preserved.

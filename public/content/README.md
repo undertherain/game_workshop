@@ -119,7 +119,10 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
   that comment through the last body line is editable; the surrounding source is
   protected. Keep this marker aligned with the `.py` starter. Missing or ambiguous
   anchors leave the draft unrestricted rather than guessing a location.
-- The existing `.py` files remain the game's editable starter programs.
+- An optional `starter` array supplies a complete prepared Python program for that
+  exercise. Brick breaker uses this for every step, with only the target rule
+  missing and a separate saved draft per exercise. Reset restores that step.
+  Games without exercise starters continue to use their shared `.py` starter.
 
 The game runtime currently expects four exercises in order: movement, a second
 mechanic, scoring, variation. Text and hints are editable here; changing that

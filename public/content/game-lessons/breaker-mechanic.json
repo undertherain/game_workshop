@@ -1,11 +1,38 @@
 {
   "id": "breaker-mechanic",
   "title": "Build an aimed bounce",
-  "description": "Make the ball turn left or right depending on where it hits.",
-  "hint": "Help me aim the ball with the paddle. Add ball.vx based on ball.x minus paddle.x in on_paddle, using one small edit.",
+  "description": "Aim the ball with the paddle: a hit left of its center should send the ball left, and a hit right of center should send it right. ball.vx is horizontal speed: negative moves left, positive moves right. The arrow controls and upward bounce already work.",
+  "hint": "Explain this one-line task without assuming I know velocity: ball.vx is horizontal speed. ball.x - paddle.x measures how far the ball is from the paddle center; left gives a negative number, right gives a positive number. Divide that distance by 12 to keep the speed manageable, and assign the result to ball.vx inside on_paddle(). If I need an example, show ball.vx = (ball.x - paddle.x) / 12 and explain the parentheses. Then ask me to run and try catching the ball on each side of the paddle.",
   "guide": {
     "function": "on_paddle",
-    "instruction": "Add the aiming rule inside on_paddle(). Keep the upward bounce.",
-    "review": "Add the aiming rule inside on_paddle(). Keep the upward bounce."
-  }
+    "instruction": "Replace pass with one line setting ball.vx to (ball.x - paddle.x) / 12. The subtraction finds which side was hit; dividing by 12 turns that distance into a gentle speed.",
+    "review": "Run your code. Use the arrow keys to catch the ball left of the paddle’s center, then right of center. Does it bounce toward that side? Choose Check my step to test both directions.",
+    "replace": "pass",
+    "editAfter": "# Your turn: aim the bounce."
+  },
+  "starter": [
+    "# A paddle, a ball, and a wall of moon bricks.",
+    "paddle.speed = 6",
+    "paddle.width = 110",
+    "ball.vx = 3",
+    "ball.vy = -4",
+    "world.sky = \"night\"",
+    "",
+    "def update():",
+    "    if keyboard.left:",
+    "        paddle.x -= paddle.speed",
+    "    if keyboard.right:",
+    "        paddle.x += paddle.speed",
+    "",
+    "# Bounce back up when you hit the paddle.",
+    "def on_paddle():",
+    "    ball.vy = -abs(ball.vy)",
+    "    # Your turn: aim the bounce.",
+    "    pass",
+    "",
+    "# What should a broken brick be worth?",
+    "def on_break(brick):",
+    "    brick.hide()",
+    "    world.score += 10"
+  ]
 }

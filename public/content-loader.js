@@ -109,12 +109,13 @@ export async function loadTemplates(ids, read = readContent) {
     const exercises = await Promise.all(template.lessons.map(async lessonId => {
       const lesson = await read(`game-lessons/${lessonId}.json`);
       requireValue(lesson?.id === lessonId && ['title','description','hint'].every(k => text(lesson[k])), `game-lessons/${lessonId}.json: expected id, title, description and hint`);
+      requireValue(lesson.starter === undefined || (Array.isArray(lesson.starter) && lesson.starter.length > 0 && lesson.starter.every(line => typeof line === 'string')), `game-lessons/${lessonId}.json: invalid starter`);
       if (lesson.guide) {
         requireValue(/^[a-z][a-z0-9_]*$/.test(lesson.guide.function) && text(lesson.guide.instruction) && text(lesson.guide.review)
           && (!lesson.guide.replace || text(lesson.guide.replace)) && (!lesson.guide.editAfter || text(lesson.guide.editAfter)), `game-lessons/${lessonId}.json: invalid editor guide`);
       }
       return lesson;
     }));
-    return [id, { ...template, steps: exercises.map(l => [l.title, l.description, l.hint]), guides: exercises.map(l => l.guide || null) }];
+    return [id, { ...template, steps: exercises.map(l => [l.title, l.description, l.hint]), guides: exercises.map(l => l.guide || null), starters: exercises.map(l => l.starter ? l.starter.join('\n')+'\n' : null) }];
   })));
 }

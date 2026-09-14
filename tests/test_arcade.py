@@ -23,6 +23,14 @@ class ArcadeTests(unittest.TestCase):
         left = "" if kind == "breaker" else f"\n    if keyboard.left:\n        {who}.x -= {who}.speed"
         return source.replace("    pass", right + left)
 
+    def test_prepared_breaker_exercises_only_omit_the_target_mechanic(self):
+        for index, name in enumerate(("controls", "mechanic", "score", "variation")):
+            lesson = json.loads((ROOT / "content" / "game-lessons" / f"breaker-{name}.json").read_text())
+            source = "\n".join(lesson["starter"])
+            for mechanic in range(3):
+                with self.subTest(exercise=name, mechanic=mechanic):
+                    self.assertEqual(self.check(source, "breaker", mechanic)["passed"], mechanic != index)
+
     def test_breaker_has_left_as_a_working_example(self):
         self.runtime["_load_selected"](self.source("breaker"), "breaker")
         game = self.runtime["_arcade"]

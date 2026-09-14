@@ -2,5 +2,29 @@
   "id": "breaker-variation",
   "title": "Invent your variation",
   "description": "A fast ball, a tiny paddle, or a whole new night sky?",
-  "hint": "Help me invent a small variation using supported brick breaker rules. Offer two ideas and let me choose."
+  "hint": "Help me invent a small variation using supported brick breaker rules. Offer two ideas and let me choose.",
+  "starter": [
+    "# A paddle, a ball, and a wall of moon bricks.",
+    "paddle.speed = 6",
+    "paddle.width = 110",
+    "ball.vx = 3",
+    "ball.vy = -4",
+    "world.sky = \"night\"",
+    "",
+    "def update():",
+    "    if keyboard.left:",
+    "        paddle.x -= paddle.speed",
+    "    if keyboard.right:",
+    "        paddle.x += paddle.speed",
+    "",
+    "# Bounce back up when you hit the paddle.",
+    "def on_paddle():",
+    "    ball.vy = -abs(ball.vy)",
+    "    ball.vx = (ball.x - paddle.x) / 12",
+    "",
+    "# What should a broken brick be worth?",
+    "def on_break(brick):",
+    "    brick.hide()",
+    "    world.score += 10"
+  ]
 }
