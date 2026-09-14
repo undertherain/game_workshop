@@ -36,6 +36,14 @@ discussion illustrated the shape of the experience; they are not existing method
 
 ## Extensibility principle
 
+Architectural analogy: our framework should bring the PyTorch Lightning approach
+to game programming. The author writes the interesting behavior; the framework
+owns the recurring execution machinery. Actor and tile hooks play a role like
+model hooks, while the world drives simulation and object lifecycle. This is a
+design principle, not a claim of equivalent maturity or features. Raylib currently
+provides the desktop backend; the simulation is independent of it, so the analogy
+does not imply a permanent dependency on raylib.
+
 Common cases should be easy, and unusual ideas should have a clear extension point.
 A learner should be able to start with an existing actor or projectile class,
 customize properties, then override behavior or write a custom implementation.
@@ -46,6 +54,64 @@ One suggested design is shallow inheritance for clear types, with independently
 replaceable behaviors for combinations such as movement, health and weapons.
 A moving curved projectile and a continuous curved beam may need different
 abstractions; avoid forcing every attack into one projectile model.
+
+### A game in about ten lines
+
+Proposed authoring target: “look — ten lines of code and you have a game.” Count
+the complete learner-authored program, including imports and startup. Useful
+defaults and reusable actors should make this possible while leaving meaningful
+game rules visible and editable. Loading a complete preset with one call would
+not by itself demonstrate this goal.
+
+The desired first step is Pygame Zero-style low ceremony: importing and
+instantiating `Game()` without custom settings should already provide fullscreen
+graphics on desktop. The first experiment now separates construction (`Game()`)
+from opening the fullscreen window (`game.run()`), keeping imports and simulation
+usable without a display. Window setup, asset plumbing and the main loop should
+not be prerequisites for the first visible result.
+
+Implemented experiment, 2026-09-14: [Alien invaders](../examples/alien_invaders/README.md)
+expresses a moving ship, shooting and a stationary row of aliens in 13 nonblank
+lines, including imports, completion feedback and guarded startup. It subclasses
+`Game`, creating actors in `setup()` and defining rules in `update(dt)`. The reusable
+`Game` wrapper supplies a default screen and held/pressed input; artwork is explicitly imported from `framework.stock`;
+the existing World handles bounds, projectile hits and cleanup. Its README walks
+from an empty screen to this first playable step. Moving aliens, enemy shots and
+a loss condition remain future tutorial steps; this is not a full Space Invaders
+implementation or a settled authoring API.
+
+A mini tutorial should grow from an empty screen to a controllable character,
+then an interaction and a small playable objective. A tiny top-down adventure
+is a candidate: move a character, collect a key, reach a door. This offers an
+RPG-like starting point that can grow room by room and rule by rule. Pong is
+another candidate for the shortest complete game, though it overlaps with the
+existing brick-breaker example. Choose the first demonstration by how clearly
+its few lines express the game, rather than by how many engine features it tests.
+
+### Classics to play, understand and rebuild
+
+A separate portal idea is an “encyclopedia of classics you have to know”: games
+learners can encounter, play and learn to build. This is a proposed collection,
+not an implemented portal feature or a fixed curriculum. Asteroids belongs here
+even if it is not the shortest first program. The ten-line demonstration, gradual
+tutorial and classics collection can share framework building blocks without
+having to use the same first game.
+
+Proposed, not implemented: a small Asteroids-style game could demonstrate this
+separation clearly. Start with one ship, turn/thrust controls, wrapping edges,
+shooting and a few drifting rocks. Leave rock splitting, levels, menus and visual
+effects out of the first version. The game defines steering, rock motion and hit
+consequences; the framework should provide timing, input actions, collision
+dispatch, spawning/removal and rendering through a host.
+
+Asteroids exercises independent actors, projectiles and lifecycle hooks without
+needing a tile map. That makes it
+a useful test of whether the abstractions extend beyond the current tank game.
+Wrapping movement and collisions across screen edges would require new support:
+the existing top-down world uses bounded movement and removes out-of-map shots.
+Keep those policies explicit rather than adding Asteroids rules to every world.
+A custom curved shot would be a later extension test: changing shot behavior
+should not require reimplementing collision or lifecycle management.
 
 ## Implications for learning
 

@@ -187,6 +187,11 @@ saved drafts and progress.
 ## Implementation
 
 Framework exploration: [north star and current slice](docs/framework-north-star.md).
+The [Alien invaders example](examples/alien_invaders/README.md) is a minimal
+standalone game: move a ship, shoot stationary aliens and clear the row. Its
+13-line program uses the experimental `Game` defaults and explicitly imported stock sprites.
+Run `python3 -m examples.alien_invaders` (requires `raylib`); add `--windowed`
+for a resizable window instead of fullscreen.
 The [brick-breaker framework example](public/examples/breaker_framework.py) adds
 explicit screen/brick context and paddle/ball methods; paste it into Brick breaker
 after choosing **Edit whole file**. Existing beginner exercises are unchanged.

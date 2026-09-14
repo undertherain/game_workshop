@@ -1,5 +1,18 @@
 # Local top-down framework
 
+For a smaller starting point, [Alien invaders](../examples/alien_invaders/README.md)
+uses the new experimental `Game` wrapper: a default screen, explicitly imported pixel sprites,
+`actor(...)`, held/pressed input and subclass `setup()` / `update(dt)` hooks. `Game()` constructs
+the simulation; `run()` opens fullscreen with no required settings. It fits a fixed
+960 × 640 playfield to the display. This screen-based wrapper reuses the World
+below; the tank examples continue using their own world and camera setup.
+
+`from framework.stock import ship, alien, bullet` selects optional retro artwork.
+Pass these `PixelSprite` objects to `self.actor(ship, x, y, projectile=bullet)`
+in `setup()`. Custom `PixelSprite` objects use the same API; `Game()` preloads no
+artwork and actor creation does not accept magic sprite names. The framework
+registers the selected sprites for the host, including projectile artwork.
+
 The framework owns movement, map boundaries, collision, tile contacts, projectiles
 and cameras. Games define tile types and actor behavior. `topdown.py` has no raylib
 imports; `raylib_host.py` translates input and draws snapshots.

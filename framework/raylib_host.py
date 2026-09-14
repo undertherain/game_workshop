@@ -1,7 +1,7 @@
 """Desktop renderer and input adapter for the top-down snapshot protocol."""
 from pathlib import Path
 from math import cos, radians, sin
-from .assets import SpriteAsset
+from .assets import PixelSprite, SpriteAsset
 
 
 def pixel_position(position, camera_position, zoom):
@@ -39,6 +39,20 @@ def run(game, assets, title='Top-down game', max_frames=None, fullscreen=True, s
             names.update(actor.asset for actor in game.world.actors)
             definitions = {name: SpriteAsset(f'{name}.png') for name in names}
         for name, definition in definitions.items():
+            if isinstance(definition, PixelSprite):
+                bitmap = rl.gen_image_color(len(definition.rows[0]), len(definition.rows), rl.BLANK)
+                try:
+                    for y, row in enumerate(definition.rows):
+                        for x, pixel in enumerate(row):
+                            if pixel != '.':
+                                rl.image_draw_pixel(bitmap, x, y, rl.Color(*definition.color, 255))
+                    texture = rl.load_texture_from_image(bitmap)
+                finally:
+                    rl.unload_image(bitmap)
+                textures[('pixel', name)] = texture
+                sprites[name] = (texture, (0, 0, texture.width, texture.height))
+                rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
+                continue
             cache_key = (definition.image, definition.color_key)
             if cache_key in textures:
                 texture = textures[cache_key]
@@ -78,7 +92,7 @@ def run(game, assets, title='Top-down game', max_frames=None, fullscreen=True, s
                               center=rl.is_key_pressed(rl.KEY_SPACE))
             camera = state['camera']
             rl.begin_drawing()
-            rl.clear_background(rl.Color(27, 34, 25, 255))
+            rl.clear_background(rl.Color(*getattr(game, 'background_color', (27, 34, 25)), 255))
             view = rl.Camera2D(rl.Vector2((window[0] - viewport[0] * scale) / 2,
                                          (window[1] - viewport[1] * scale) / 2),
                                rl.Vector2(0, 0), 0, scale)

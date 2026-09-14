@@ -47,3 +47,9 @@ viewports. The tank renderer was checked in a short automatically closing window
 
 `test_tile_variants.py` verifies seeded appearance diversity, stable redraws,
 background consistency, tile replacement and unchanged movement behavior.
+
+`test_alien_invaders.py` exercises the short example through the shared simulation:
+bounded ship movement, stationary aliens, one shot per press, missed-shot cleanup,
+clearing the row through actual hits, empty Game defaults and playfield fitting.
+A three-frame desktop smoke check also verified the built-in pixel sprites and
+captured the ship, aliens and a moving shot with the real raylib host.
