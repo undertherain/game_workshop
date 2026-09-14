@@ -20,7 +20,7 @@ snapshot serialization with the explicit object types.
 
 `test_topdown.py` exercises the standalone framework without a display: rectangular
 maps, strict edges, normalized and bounded movement, camera resizing and culling,
-repeatable complete trees, frame-time handling and JSON snapshots. The raylib host
+repeatable tank-battle terrain and artwork, frame-time handling and JSON snapshots. The raylib host
 also received a three-frame desktop smoke check with real texture loading and cleanup.
 
 Browser checks cover autocomplete, prediction, loops, appearance edits, live lesson

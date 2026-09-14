@@ -21,9 +21,9 @@
       "text": "The = stores the text Ola in a variable called username."
     },
     {
-      "title": "Use it in a greeting",
-      "code": "\"Hello \" + username",
-      "text": "Python uses the stored value. The + joins the text to make Hello Ola. Keep the space after Hello!"
+      "title": "Read the stored value",
+      "code": "print(username)",
+      "text": "Python looks up username and prints Ola. Without quotes, username refers to the variable; \"username\" would just be text."
     }
   ],
   "practiceFeature": "assignment",

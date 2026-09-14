@@ -42,15 +42,15 @@ drafts and the last visited lesson. Each lesson has a shareable URL such as
 `/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
 lesson navigation. The base URL opens the title screen.
 
-The **Learning map** connects twenty foundational lessons, three optional drawing
+The **Learning map** connects twenty-one foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations open with eight compact, single-column slides. After the first jump,
+The foundations open with nine compact, single-column slides. After the first jump,
 short explanations alternate with code practice: Python and expressions →
 calculator, strings → fox speech, add quotes and compare,
-variables → a personal greeting. In that exercise, only the variable assignment
+variables → integer addition versus string joining → a personal greeting. In that exercise, only the variable assignment
 line is editable; the supplied `fox.say(...)` line stays fixed. A one-time overlay
 explains this when the editor first appears and dismisses on focus or Run.
 Explanation slides
@@ -62,7 +62,10 @@ shows a speech bubble in the scene, with no duplicate Output panel. The second
 slide introduces Python as the language used to build things and explains 2 + 3
 as an expression. The next slide starts with 10 - 3 in an editable calculator.
 The text/number lesson runs one line at a time: calculate
-3 + 4, then add quotes and run again to see the difference. The route then builds
+3 + 4, then compare with "3" + "4" to see integer addition versus string joining.
+The variable explanation uses `print(username)` to show reading a stored value.
+The next slide compares integer addition with string joining and connects it to a
+personal greeting. The route then builds
 through sequence, numeric arguments,
 expressions, variables, bounded loops, reusable functions, parameters, comparisons,
 scene properties, a Space-key event and a live `update()` function. The new basics

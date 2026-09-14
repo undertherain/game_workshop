@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from framework import Actor, Camera, Tile, TileMap, World
-from examples.tank_world.game import TankGame
+from examples.tank_battle.game import TankBattle
 
 
 class TopDownTests(unittest.TestCase):
@@ -45,27 +45,28 @@ class TopDownTests(unittest.TestCase):
         self.assertEqual((camera.x, camera.y), (0, 0))
         self.assertEqual(len(list(world.visible(camera))), 21)
 
-    def test_generation_is_repeatable_and_trees_are_complete(self):
-        game = TankGame(width=47, height=23)
-        self.assertEqual(game.world.map.rows, TankGame(width=47, height=23).world.map.rows)
+    def test_battle_generation_is_repeatable(self):
+        game = TankBattle(seed=12)
+        other = TankBattle(seed=12)
+        self.assertEqual(game.world.map.rows, other.world.map.rows)
         terrain = game.world.map
+        self.assertEqual((terrain.width, terrain.height), (64, 40))
         for y in range(terrain.height):
             for x in range(terrain.width):
-                if terrain[x, y] == 'pine_top':
-                    self.assertEqual(terrain[x, y + 1], 'pine_bottom')
-                if terrain[x, y] == 'pine_bottom':
-                    self.assertGreater(y, 0)
-                    self.assertEqual(terrain[x, y - 1], 'pine_top')
+                self.assertEqual(terrain.asset_at((x, y)), other.world.map.asset_at((x, y)))
 
     def test_game_timing_and_snapshot(self):
-        game = TankGame()
+        game = TankBattle()
+        start_y = game.player.y
         for _ in range(60):
-            game.step({'right'}, 1 / 60)
-        self.assertAlmostEqual(game.player.x, 200)
-        game.step({'right'}, 50)
-        self.assertAlmostEqual(game.player.x, 210)
-        state = game.step(set(), 0, pan=(1000, 1000), center=True)
+            game.step({'up'}, 1 / 60)
+        self.assertAlmostEqual(game.player.y, start_y - 130)
+        game.step({'up'}, 50)
+        self.assertAlmostEqual(game.player.y, start_y - 143)
+        state = game.step(set(), 0, viewport=(480, 300))
         self.assertEqual(state['camera']['x'], 0)
+        self.assertGreater(state['camera']['y'], 0)
+        self.assertGreater(len(state['tiles']), 0)
         self.assertLess(len(state['tiles']), 200)
         json.dumps(state)
 

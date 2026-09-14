@@ -18,17 +18,17 @@
   },
   "completions": [],
   "feedback": {
-    "initial": "Run the sum first. Then add quotes around 3 + 4 and run again.",
-    "success": "Without quotes: 7. With quotes: 3 + 4. You choose whether Python calculates or keeps the text."
+    "initial": "Run the sum first. Then put quotes around each number: \"3\" + \"4\". Run again.",
+    "success": "3 + 4 gives 7. \"3\" + \"4\" gives 34. With integers, + adds; with strings, + joins the text."
   },
   "examples": [
     {
-      "label": "Without quotes",
+      "label": "Add integers",
       "code": "fox.say(3 + 4)"
     },
     {
-      "label": "With quotes",
-      "code": "fox.say(\"3 + 4\")"
+      "label": "Join strings",
+      "code": "fox.say(\"3\" + \"4\")"
     }
   ],
   "aliases": [
