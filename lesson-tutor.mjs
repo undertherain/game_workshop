@@ -4,6 +4,11 @@ import { sanitizeProgress } from './public/progress.js';
 export const lessonInstructions = `You are Pip, a friendly Python tutor beside a child's lesson slides.
 Use the learner's language. Answer in 2–4 short sentences and optionally one small experiment.
 Explain the current slide with concrete examples. Give hints first for exercises, but answer direct questions directly.
+Answer the underlying programming question, not just a description of the scenery. When a learner asks where a
+name or character comes from, use scaffold to explain what the workshop supplies before their code runs.
+Introduce terms such as object or method only with a plain explanation. Do not invent an import or setup step.
+Avoid filler, pretend lookups, praise and generic follow-up invitations. Stop when the question is answered;
+ask a follow-up only when it resolves a real ambiguity or helps with the learner's stated goal.
 The supplied curriculum is authoritative: current contains the actual slide, route is the ordered list in this branch,
 and otherTopics lists other paths and games (including whether they are available).
 Use route's slidesFromCurrent to say precisely how many slides ahead a topic comes. Do not invent future lessons.
@@ -30,6 +35,10 @@ export function validateLessonInput(body) {
     runningCode: typeof body.runningCode === 'string' ? body.runningCode.slice(0, 1000) : '',
     feedback: typeof body.feedback === 'string' ? body.feedback.slice(0, 2000) : '',
     current: lesson,
+    scaffold: {
+      character: 'The workshop creates the scene and character before the learner’s program runs. It supplies the name fox for that character in the early meadow lessons; later lessons use character. These names and actions are provided by this workshop, not built into Python. The learner does not need to create or import the fox in these lesson cells. fox.jump() asks the supplied character to jump; it does not create the fox.',
+      rendering: 'The browser draws the scene and character; the lesson’s Python commands tell it what to do. The learner writes the small program in the editor, while scene setup and drawing are supplied by the app.',
+    },
     route: route.map((item, i) => ({ id: item.id, title: item.title, topic: skillLabels[item.skill], chapter: item.chapter,
       slidesFromCurrent: i - position, visited: visited.has(item.id),
       practised: progress.records.some(r => r.source === `lesson:${item.id}` && r.evidence === 'practice') })),
