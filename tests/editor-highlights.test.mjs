@@ -23,7 +23,7 @@ function editorHarness() {
     return elements.get(id);
   }
   const context = vm.createContext({
-    ...guidance, templates, initialState: {}, createScene: () => ({}),
+    ...guidance, templates, initialState: {}, createScene: () => ({}), createPipVoice() {}, stopPipVoice() {},
     document: { getElementById: element, querySelectorAll: () => [], addEventListener() {}, createElement: () => element(Symbol()) },
     window: { addEventListener() {} },
     localStorage: { setItem() {} }, requestAnimationFrame() {}, clearTimeout() {},

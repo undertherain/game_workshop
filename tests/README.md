@@ -61,3 +61,15 @@ and guessing-game branch outputs across changing secrets and exact-match boundar
 `lesson-tutor.test.mjs` checks canonical slide context, exact upcoming-slide distances,
 visited versus practice evidence, planned topics, bounded history, offline behavior
 and explanation-only AI responses through the HTTP endpoint with a fake upstream.
+
+`voice.test.mjs` checks fixed GPT-Live configuration, canonical lesson/game context,
+server-only credentials, origin and size validation, offline behavior and recovery
+from upstream failures. It also covers overlapping speaker fragments updating shared
+chat entries and seeding a new voice session with recent chat history.
+An isolated Chromium check with simulated microphone,
+WebRTC and API responses also verified captions, mute, graceful close, cancellation
+while microphone permission is pending, failure cleanup, code-change cleanup and
+mobile width, plus spoken messages in the main chat, history sent on reconnect, and
+restoring spoken messages after navigating away and back. A real microphone conversation and live delegated tutor reply still
+need end-to-end testing in this app; the earlier Voice playground smoke test does
+not establish those behaviors here.

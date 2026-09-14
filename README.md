@@ -201,6 +201,33 @@ This uses the existing server-side AI configuration. Without an API key, the pan
 explicitly shows a built-in slide guide. Replies are explanations only; they do not
 change or run code. Restart the server after updating tutor code or lesson content.
 
+## Voice with Pip
+
+Both Pip panels offer **Talk to Pip**, **Mute mic** and **End voice**. Spoken messages
+stream into the same chat as typed messages. Voice uses `gpt-live-1` with the Marin voice; coding questions delegate to
+the existing `OPENAI_MODEL` tutor (default `gpt-5.4-mini`). The server needs
+`OPENAI_API_KEY` with access to GPT-Live. Restart the server and reload the page
+after updating. Use localhost or HTTPS and allow microphone access when prompted.
+
+Audio travels directly between the browser and OpenAI over WebRTC; the API key
+stays on the server. The UI identifies Pip as an AI voice. Sessions request
+`store: false`; the app does not record audio. Spoken messages remain in the current
+chat's in-memory history, including across voice calls, and clear on reload.
+Nearby speech fragments are grouped for display; these are not authoritative turn boundaries.
+
+Pip receives a snapshot of the current lesson or game, code, feedback, progress and
+recent typed and spoken conversation. Voice offers explanations only. Changing activity,
+changing code or run feedback, or leaving the tab ends voice; start it again to share
+the new context. Mute disables microphone transmission while keeping Pip audible.
+End voice releases the microphone immediately and waits up to five seconds for
+session-close confirmation. Sending a typed question ends voice and continues the
+same chat. Lesson conversations, including spoken messages, remain available when
+returning to that slide during the current visit. Pip is given explicit facts about
+the supplied character and lesson runtime so it can explain where `fox` comes from.
+
+Adapted from the existing [Voice playground GPT-Live trial](/home/blackbird/Projects/AI/Voice/docs/gpt-live.md).
+Protocol: [OpenAI Live WebRTC](https://developers.openai.com/api/docs/guides/voice-webrtc?api=live).
+
 ## Learning progress
 
 Progress is local to this browser. Running a meaningful lesson example records
@@ -263,7 +290,7 @@ Browser and desktop exercise separate slices; a shared cross-backend game is not
 Python owns movement rules, gravity, collisions, callbacks and score. JavaScript draws
 state snapshots at 30 fps and pauses work in hidden tabs. A stalled worker is terminated
 so an infinite loop does not lock the page. The supported API is deliberately small;
-arbitrary learner-supplied assets, scrolling levels, multiplayer, voice and a general scene editor
+arbitrary learner-supplied assets, scrolling levels, multiplayer and a general scene editor
 are outside this prototype. The platformer combines an original generated pixel-art
 forest background with Canvas grass-and-earth platforms and an animated pixel fox.
 Sky choices tint the forest; bunny and cat retain their existing drawn costumes.

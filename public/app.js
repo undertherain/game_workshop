@@ -1,4 +1,5 @@
 import { findGuidance, findEditableRegion, protectRegion, acceptsEdit } from './editor-guidance.js';
+import { createPipVoice, stopPipVoice } from './pip-voice.js';
 import { createScene, initialState } from './scene.js';
 import { templates } from './templates.js';
 import { progress, movementOffer, movementStarter } from './progress.js';
@@ -18,6 +19,21 @@ const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
 const hasStepStarter = () => !!templates[templateId].starters?.[stepIndex];
 const storageKey = () => hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
 const stepDrafts = new Map();
+createPipVoice($('ask-form').parentElement, 'game', () => ({
+  code: editor.value, runningCode, template: templateId, error: currentError,
+  selected: editor.value.slice(editor.selectionStart, editor.selectionEnd),
+  selectedLine: editor.value.slice(0, editor.selectionStart).split('\n').length,
+  exercise: { index: stepIndex, feedback: exerciseFeedback }, progress: progress.get(), history,
+  state: { player: gameState.player, paddle: gameState.paddle, ball: gameState.ball, cannon: gameState.cannon, world: gameState.world },
+}), role => {
+  const entry = { role, content: '' };
+  const node = appendMessage(role, '').querySelector('p');
+  history.push(entry); history = history.slice(-6);
+  return content => {
+    entry.content = content; node.textContent = content;
+    $('conversation').scrollTop = $('conversation').scrollHeight;
+  };
+});
 function readDraft(){try{return localStorage.getItem(storageKey()) ?? stepDrafts.get(storageKey());}catch{return stepDrafts.get(storageKey());}}
 const escape = text => text.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
@@ -185,10 +201,13 @@ function appendMessage(role,text,experiment=''){
 function setAsking(value){asking=value;$('ask').disabled=value;$('guide-step').disabled=value;document.querySelectorAll('.ideas button,.template-choice').forEach(b=>b.disabled=value);$('ask').textContent=value?'…':'↑';}
 async function ask(question,mode='chat') {
   if(asking||!question.trim())return;
+  stopPipVoice('Continuing in chat. Microphone off.');
   setAsking(true);proposal=null;$('suggestion').hidden=true;
   const requestedCode=editor.value;
   const selected=editor.value.slice(editor.selectionStart,editor.selectionEnd);
   const selectedLine=editor.value.slice(0,editor.selectionStart).split('\n').length;
+  const requestHistory = history.slice();
+  history.push({role:'user',content:question}); history=history.slice(-6);
   appendMessage('user',question);const waiting=appendMessage('assistant','Pip is looking at your code…');
   $('question').value='';
   try {
@@ -196,10 +215,10 @@ async function ask(question,mode='chat') {
       body:JSON.stringify({question,mode,code:requestedCode,runningCode,selected,selectedLine,error:currentError,template:templateId,
         exercise:{index:stepIndex,title:templates[templateId].steps[stepIndex][0],description:templates[templateId].steps[stepIndex][1],feedback:exerciseFeedback},
         progress:progress.get(),
-        state:{player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history})});
+        state:{player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history:requestHistory})});
     const reply=await response.json();if(!response.ok)throw new Error(reply.error||'Pip could not answer just now.');
     waiting.remove();appendMessage('assistant',reply.message,reply.experiment);
-    history.push({role:'user',content:question},{role:'assistant',content:reply.message});history=history.slice(-6);
+    history.push({role:'assistant',content:reply.message});history=history.slice(-6);
     if(editor.value===requestedCode){
       if(reply.line)locate(reply.line,'Pip found a place to start.',false);
       if(reply.before!==null&&typeof reply.before==='string'&&typeof reply.after==='string'){
@@ -345,6 +364,7 @@ function selectStep(index){
   exerciseFeedback=null;renderStep();
 }
 function renderStep(){
+  stopPipVoice('Activity changed. Start voice again for the updated context.');
   focusedLine=null;
   const template=templates[templateId];
   const region=unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);

@@ -1,4 +1,5 @@
 import { lessonInstructions, validateLessonInput, lessonExample } from './lesson-tutor.mjs';
+import { voiceSession } from './voice-tutor.mjs';
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -33,6 +34,28 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return json(res, 403, { error: 'Local connections only.' });
       const url = new URL(req.url, 'http://' + host);
       if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, { mode: apiKey ? 'ai' : 'examples' });
+      if (url.pathname === '/api/voice' && req.method === 'POST') {
+        if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
+        let raw = ''; let size = 0;
+        for await (const chunk of req) { size += chunk.length; if (size > 100000) return json(res, 413, { error: 'Voice context is too large.' }); raw += chunk; }
+        let payload;
+        try { payload = voiceSession(JSON.parse(raw), model); } catch (error) { return json(res, 400, { error: error.message }); }
+        if (!apiKey) return json(res, 503, { error: 'Voice needs OPENAI_API_KEY on the server. You can still use the built-in guide.' });
+        if (busy) return json(res, 429, { error: 'Pip is connecting or answering another question. Try again in a moment.' });
+        busy = true;
+        try {
+          const response = await fetchImpl('https://api.openai.com/v1/live/sessions', {
+            method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(30000), body: JSON.stringify(payload),
+          });
+          if (!response.ok) return json(res, 502, { error: `Voice connection returned ${response.status}. Check GPT-Live access and try again.` });
+          const result = await response.json();
+          if (typeof result.transport?.sdp !== 'string' || !result.transport.sdp) throw Error('Missing answer');
+          return json(res, 201, { transport: { type: 'webrtc', sdp: result.transport.sdp } });
+        } catch { return json(res, 502, { error: 'Voice could not connect. Please try again.' }); }
+        finally { busy = false; }
+      }
       if (['/api/help', '/api/lesson-help'].includes(url.pathname) && req.method === 'POST') {
         const isLesson = url.pathname === '/api/lesson-help';
         if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });

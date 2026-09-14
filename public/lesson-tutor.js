@@ -1,3 +1,4 @@
+import { createPipVoice } from './pip-voice.js';
 const $ = id => document.getElementById(id);
 
 export function createLessonTutor(getContext) {
@@ -6,6 +7,15 @@ export function createLessonTutor(getContext) {
   let visited;
   try { visited = new Set(JSON.parse(localStorage.getItem('little-makers-visited-v1') || '[]')); }
   catch { visited = new Set(); }
+  const voice = createPipVoice($('lesson-tutor'), 'lesson', () => ({ ...getContext(), history: conversations.get(activeId) || [], visited: [...visited] }), role => {
+    const entry = { role, content: '' };
+    const node = message(role, '');
+    conversations.set(activeId, [...(conversations.get(activeId) || []), entry].slice(-20));
+    return content => {
+      entry.content = content; node.textContent = content;
+      $('lesson-tutor-messages').scrollTop = $('lesson-tutor-messages').scrollHeight;
+    };
+  });
 
   function message(role, content) {
     const entry = document.createElement('p');
@@ -14,6 +24,7 @@ export function createLessonTutor(getContext) {
     $('lesson-tutor-messages').append(entry);
     const log = $('lesson-tutor-messages');
     log.scrollTop = log.scrollHeight;
+    return entry;
   }
   function setBusy(busy) {
     $('lesson-tutor-form').querySelector('button').disabled = busy;
@@ -25,6 +36,8 @@ export function createLessonTutor(getContext) {
     if (!question || controller) return;
     const context = getContext();
     const history = conversations.get(activeId) || [];
+    voice.stop('Continuing in chat. Microphone off.');
+    conversations.set(activeId, [...history, { role: 'user', content: question }].slice(-20));
     const requestGeneration = generation;
     const requestController = new AbortController();
     controller = requestController;
@@ -40,7 +53,7 @@ export function createLessonTutor(getContext) {
       if (generation !== requestGeneration) return;
       const answer = [reply.message, reply.experiment].filter(Boolean).join('\n\n');
       message('assistant', answer);
-      conversations.set(activeId, [...history, { role: 'user', content: question }, { role: 'assistant', content: answer }].slice(-20));
+      conversations.set(activeId, [...(conversations.get(activeId) || []), { role: 'assistant', content: answer }].slice(-20));
       $('lesson-tutor-mode').textContent = reply.mode === 'ai' ? 'AI tutor · here to help' : 'Built-in slide guide · AI offline';
       $('lesson-tutor-status').textContent = '';
       if ($('lesson-tutor-question').value.trim() === question) $('lesson-tutor-question').value = '';
@@ -65,6 +78,7 @@ export function createLessonTutor(getContext) {
     visited.add(lesson.id);
     try { localStorage.setItem('little-makers-visited-v1', JSON.stringify([...visited])); } catch { /* Session tracking still works. */ }
     if (activeId === lesson.id) return;
+    voice.stop();
     generation++;
     controller?.abort(); controller = null;
     activeId = lesson.id;

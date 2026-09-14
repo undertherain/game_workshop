@@ -1,4 +1,5 @@
 import { createLessonTutor } from './lesson-tutor.js';
+import { stopPipVoice } from './pip-voice.js';
 import { createScene, initialState } from './scene.js';
 import { drawRobot, robotStart, robotPose } from './robot-scene.js';
 import { startWorkshop } from './app.js';
@@ -334,6 +335,7 @@ function renderMap() {
   }
 }
 function setMode(mode) {
+  stopPipVoice();
   dismissEditHint();
   if (document.body.dataset.mode === 'lessons') persist();
   stopWorker(); resetScene(); finish(); window.workshop?.setKeys({});

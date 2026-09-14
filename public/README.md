@@ -91,6 +91,12 @@ root builds canonical curriculum context for `/api/lesson-help`; the existing se
 provides the AI transport and offline slide guide. The sidebar stacks below slides
 on narrow screens.
 
+`pip-voice.js` supplies shared opt-in WebRTC controls, mute and graceful shutdown.
+`voice-captions.js` groups independent speaker streams into the existing chat bubbles;
+each panel updates its shared in-memory history as speech arrives. `voice-tutor.mjs` builds the server-owned GPT-Live
+configuration and delegates coding questions to the existing tutor with canonical
+activity context. `/api/voice` exchanges SDP without exposing the API key.
+
 Introductory editors use a cream background for editable code, including fully
 editable early cells. Guided cells retain grey supplied lines and a cream editable
 line. A subtle green focus cue replaces the browser’s default textarea outline.
