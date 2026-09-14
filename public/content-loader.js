@@ -50,6 +50,7 @@ export function validateLesson(lesson, id, defaults, skills) {
   }
   if (lesson.quiz) {
     for (const key of ['title', 'initial', 'prompt', 'match', 'different', 'ready']) requireValue(text(lesson.quiz[key]), `${label}: missing quiz.${key}`);
+    requireValue(lesson.quiz.required === undefined || typeof lesson.quiz.required === 'boolean', `${label}: quiz.required must be a boolean`);
     requireValue(!lesson.quiz.type || lesson.quiz.type === 'output', `${label}: unknown quiz type`);
     requireValue(lesson.quiz.only === undefined || (lesson.quiz.only === true && lesson.quiz.type === 'output'), `${label}: quiz.only requires an output quiz`);
     if (lesson.quiz.type !== 'output') {

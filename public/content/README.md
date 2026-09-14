@@ -76,7 +76,10 @@ These select existing runtime behavior. A JSON edit does not introduce a new Pyt
 API or algorithm: new execution capabilities still require runtime/engine work.
 The live modes call `on_space_pressed()` or `update()`. A prediction quiz compares
 the current first code line with the chosen answer's `firstLine`; it invites an
-experiment rather than blocking progress for a wrong answer. With `quiz.type: "output"`,
+experiment. Set `quiz.required: true` to disable Run until an answer is selected or
+typed. The keyboard shortcut uses the same requirement. Set it to `false` to allow
+running without an answer. When omitted, predictions beside code are optional and
+standalone quizzes (`quiz.only`) require an answer. With `quiz.type: "output"`,
 omit choices: the learner types a prediction, which is compared to the actual output
 after Run. Set `quiz.only: true` for a standalone quiz: the editor and scene are
 hidden, Check answer runs the fixed starter, and saved code drafts do not change

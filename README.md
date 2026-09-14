@@ -1,7 +1,7 @@
 # Little Makers — browser Python game workshop
 
 Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`, meet Python and expressions, try a tiny calculator, and use `fox.say()`
-with text, numbers and a named greeting. The first jump leads straight to a move-then-jump sequence and choosing another action. Then
+with text, numbers and a named greeting. The first jump leads straight to a move-then-jump sequence and adding comments. Then
 open the split-screen workshop, choose a platformer, brick breaker or
 Paratroopers-style game, and build its controls and rules through short Python mini-exercises. Scenery,
 physics and moving game objects are provided; the child writes small behaviors.
@@ -39,7 +39,8 @@ Continue to last lesson (or Start your first lesson for a new browser). Clicking
 the Little Makers logo returns here from any activity. Returning keeps lesson
 drafts and the last visited lesson. Each lesson has a shareable URL such as
 `/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
-lesson navigation. The base URL opens the title screen.
+lesson navigation. The progress markers at the top are clickable lesson shortcuts,
+with lesson names on hover and keyboard support. The base URL opens the title screen.
 
 The **Learning map** connects twenty-two foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
@@ -48,7 +49,7 @@ are explicitly marked as planned, not playable.
 
 The foundations open with twelve compact, single-column slides. The first jump leads
 straight to a move-then-jump prediction that introduces line-by-line execution,
-then choosing an action. Short explanations and code practice follow: Python →
+then editing # comments to learn which lines Python skips. Short explanations and code practice follow: Python →
 a preview of constants (literal values), expressions, variables and keywords →
 calculator, strings → fox speech, add quotes and compare,
 variables → integer addition versus string joining → a personal greeting. In that exercise, only the variable assignment
@@ -89,6 +90,9 @@ The drawing branch offers `dot(x, y)`, `line(x1, y1, x2, y2)`, and loops with si
 coordinate expressions on a labelled grid. It uses a small workshop-specific Python
 API and Canvas renderer; pycontextfree is not integrated yet.
 
+Quiz configuration controls whether an answer is required. The sequence lesson
+asks the learner to choose an answer before Run becomes enabled. Other predictions
+can be optional; standalone quizzes require an answer by default.
 The opening slides stack short instructions, an optional prediction, a compact
 scene and code cell, then navigation. Calculator slides show output without a scene.
 On desktop, later lessons put instructions, quizzes and navigation on the left, with

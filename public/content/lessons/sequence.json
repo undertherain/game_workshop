@@ -3,7 +3,7 @@
   "branch": "foundations",
   "title": "Put actions in order",
   "heading": "Move, then jump.",
-  "description": "Python follows these instructions line by line, from top to bottom. Each line tells the fox what to do next. Predict what happens first, then press Run. Swap the two lines and run again!",
+  "description": "Python follows these instructions line by line, from top to bottom. Each line tells the fox what to do next. Choose what happens first to turn on Run, then watch. Swap the two lines and run again!",
   "rows": 2,
   "mode": "commands",
   "skill": "sequence",
@@ -26,7 +26,7 @@
     }
   ],
   "quiz": {
-    "title": "Before you run: what happens first?",
+    "title": "First, choose: what happens first?",
     "choices": [
       {
         "id": "jump",
@@ -39,11 +39,12 @@
         "firstLine": "fox.move()"
       }
     ],
-    "initial": "Make a prediction below, then try the program.",
+    "initial": "Choose an answer above to turn on Run. It’s okay to guess!",
     "prompt": "Choose what you think happens first below. It’s okay to guess.",
     "match": "That matches the first line. Run it and see!",
     "different": "Let’s test your prediction. Run the program and watch which line happens first.",
-    "ready": "Prediction made. Press Run to see what happens."
+    "ready": "Prediction made. Press Run to see what happens.",
+    "required": true
   },
   "layout": "compact"
 }

@@ -3,7 +3,7 @@ import { startWorkshop } from './app.js';
 import { lessons, games, skillLabels, branches } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
 import { restoreProvidedLines, allowsLessonEdit, editableRange } from './lesson-editing.js';
-import { resolveLesson, migrateDraft, lessonPosition, editorHelp, canRecordPractice } from './lesson-model.js';
+import { resolveLesson, migrateDraft, lessonPosition, editorHelp, canRecordPractice, requiresQuizAnswer } from './lesson-model.js';
 const $ = id => document.getElementById(id);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
 let hasLastLesson = false;
@@ -48,7 +48,10 @@ function persist() {
 function feedback(message, error = false) { if (current().quiz?.only) $('quiz-feedback').textContent = message; if ($('lesson-feedback').textContent !== message) $('lesson-feedback').textContent = message; $('lesson-feedback').dataset.error = String(error); }
 function clearKeys() { keys = { right: false, space: false }; spacePulse = false; }
 function syncRunButton() {
-  if ($('quiz-check')) $('quiz-check').disabled = busy;
+  const awaitingAnswer = requiresQuizAnswer(current()) && !quizAnswered;
+  $('lesson-run').disabled = busy || awaitingAnswer;
+  $('lesson-run').title = awaitingAnswer ? current().quiz.prompt : '';
+  if ($('quiz-check')) $('quiz-check').disabled = busy || awaitingAnswer;
   if ($('lesson-prediction')) $('lesson-prediction').disabled = busy;
   for (const button of $('lesson-examples').querySelectorAll('button')) button.disabled = busy;
   $('lesson-run').textContent = interactive ? '■ Stop' : '▶ Run';
@@ -96,7 +99,15 @@ function render() {
   }));
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
   $('lesson-progress').textContent = `${branches.find(branch => branch.id === lesson.branch).label} · ${position + 1} / ${branch.length}`;
-  $('lesson-dots').replaceChildren(...branch.map((_, i) => { const dot = document.createElement('span'); dot.className = i <= position ? 'active' : ''; return dot; }));
+  $('lesson-dots').replaceChildren(...branch.map((item, i) => {
+    const dot = document.createElement('button'); dot.type = 'button';
+    dot.className = i <= position ? 'active' : '';
+    dot.title = `${i + 1}. ${item.title}`;
+    dot.setAttribute('aria-label', `Lesson ${i + 1}: ${item.title}`);
+    if (i === position) dot.setAttribute('aria-current', 'step');
+    dot.onclick = () => openLesson(item.id);
+    return dot;
+  }));
   document.querySelector('.lesson-card').hidden = !!lesson.quiz?.only || !!lesson.explanation;
   input.value = lesson.quiz?.only ? lesson.code : (drafts[lesson.id] ?? lesson.code); input.rows = lesson.rows; input.disabled = false;
   input.value = restoreProvidedLines(input.value, lesson); acceptedSource = input.value;
@@ -156,7 +167,7 @@ function receive(data) {
   result = data;
   if (current().quiz?.type === 'output' && data.type !== 'step') {
     const output = data.actions.filter(a => a.kind === 'say').map(a => a.text).join('\n');
-    $('quiz-feedback').textContent = `${prediction.trim() === output ? current().quiz.match : current().quiz.different} Python gives ${output}.`;
+    $('quiz-feedback').textContent = `${quizAnswered ? (prediction.trim() === output ? current().quiz.match : current().quiz.different) + ' ' : ''}Python gives ${output}.`;
     if (current().quiz.only) { finish(); recordPractice(); return; }
   }
   if (data.type === 'step') {
@@ -181,7 +192,7 @@ function receive(data) {
 }
 function run() {
   if (busy || (current().explanation && !current().quiz)) return;
-  if (!quizAnswered) { feedback(current().quiz.prompt); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+  if (!quizAnswered && requiresQuizAnswer(current())) { feedback(current().quiz.prompt); $('lesson-quiz').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
   if (!input.value.trim()) { feedback('Write an instruction first. Try the example above.', true); input.focus(); return; }
   if (current().editor?.maxLines && input.value.trim().split('\n').length > current().editor.maxLines) { feedback(`Use at most ${current().editor.maxLines} ${current().editor.maxLines === 1 ? 'line' : 'lines'} in this editor.`, true); return; }
   persist(); runningSource = input.value; recorded = false;
@@ -420,7 +431,7 @@ function renderQuiz(quiz) {
   $('quiz-choices').replaceChildren();
   if (quiz?.type === 'output') {
     const answer = document.createElement('input'); answer.type = 'text'; answer.id = 'lesson-prediction'; answer.autocomplete = 'off'; answer.placeholder = 'Your prediction'; answer.setAttribute('aria-label', quiz.title);
-    answer.oninput = () => { prediction = answer.value; quizAnswered = !!prediction.trim(); $('quiz-feedback').textContent = ''; };
+    answer.oninput = () => { prediction = answer.value; quizAnswered = !!prediction.trim(); $('quiz-feedback').textContent = ''; syncRunButton(); };
     $('quiz-choices').append(answer);
     if (quiz.only) {
       const check = document.createElement('button'); check.id = 'quiz-check'; check.type = 'button'; check.className = 'primary'; check.textContent = 'Check answer'; check.onclick = run;
@@ -431,9 +442,11 @@ function renderQuiz(quiz) {
   $('quiz-title').textContent = quiz?.title || '';
   for (const choice of quiz?.choices || []) {
     const button = document.createElement('button'); button.type = 'button';
-    button.dataset.answer = choice.id; button.textContent = choice.label;
+    button.dataset.answer = choice.id; button.textContent = choice.label; button.setAttribute('aria-pressed', 'false');
     button.onclick = () => {
       quizAnswered = true;
+      for (const option of $('quiz-choices').querySelectorAll('button')) option.setAttribute('aria-pressed', String(option === button));
+      syncRunButton();
       const first = input.value.trim().split('\n')[0].trim();
       $('quiz-feedback').textContent = first === choice.firstLine ? quiz.match : quiz.different;
       feedback(quiz.ready);

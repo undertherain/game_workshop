@@ -35,3 +35,7 @@ export function canRecordPractice(lesson, result) {
     : result.interactive ? result.changed : result.actions.length > 0;
   return !!meaningful && (!lesson.practiceFeature || !!result.features[lesson.practiceFeature]);
 }
+
+export function requiresQuizAnswer(lesson) {
+  return lesson.quiz?.required ?? !!lesson.quiz?.only;
+}

@@ -1,17 +1,22 @@
 {
   "id": "choice",
   "branch": "foundations",
-  "title": "Choose an action",
-  "heading": "You decide what happens.",
-  "description": "Type fox. to discover two actions. Choose move or jump, then run your instruction.",
-  "rows": 1,
+  "title": "Leave a note with #",
+  "heading": "Leave a note for yourself.",
+  "description": "A line starting with # is a comment: a note for people reading the code. Python skips that line. Change the notes below, then press Run. Does the fox still move and jump?",
+  "rows": 4,
   "mode": "commands",
   "skill": "commands",
-  "starter": [],
+  "starter": [
+    "# First, take a walk.",
+    "fox.move()",
+    "# Then jump!",
+    "fox.jump()"
+  ],
   "scene": {
     "label": "Your character in a meadow. Run your instructions to make it act."
   },
-  "placeholder": "Type fox. to discover its actions",
+  "placeholder": "Use # to start a note",
   "completions": [
     {
       "code": "fox.jump()",
@@ -22,9 +27,20 @@
       "description": "Move right"
     }
   ],
-  "editor": {
-    "runOnEnter": true,
-    "maxLines": 1
+  "layout": "compact",
+  "feedback": {
+    "initial": "Change the words after #. Keep the action lines, then press Run.",
+    "success": "Python skipped the notes and followed the action lines. Comments help you remember what your code does."
   },
-  "layout": "compact"
+  "draftMigrations": [
+    {
+      "from": [],
+      "to": [
+        "# First, take a walk.",
+        "fox.move()",
+        "# Then jump!",
+        "fox.jump()"
+      ]
+    }
+  ]
 }
