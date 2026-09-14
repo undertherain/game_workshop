@@ -41,8 +41,8 @@ of real Python, with persistent event/update sessions and simulated character ph
 The full workshop starts lazily; its stepping pauses in lessons or the map.
 `lessons.css` styles the responsive lesson layout, learning map and transfer invitation. Desktop
 later lessons keep instructions beside a scene/code stack, with scene height responsive
-to the viewport; narrow screens stack the sections. Twelve short opening slides combine readable explanations with code practice and use
-a single column, with an early move-then-jump sequence, a Python building-block overview, calculator, speech bubble and screen-reader speech announcements. Only calculator slides show the Output panel beneath the code. `fox.say(value)` actions animate in order alongside movement.
+to the viewport; narrow screens stack the sections. Fourteen short opening slides combine readable explanations with code practice and use
+a single column, with an early bounded jump-height design and play-test activity, a move-then-jump sequence, a Python building-block overview, calculator, speech bubble and screen-reader speech announcements. Only calculator slides show the Output panel beneath the code. `fox.say(value)` actions animate in order alongside movement.
 
 `progress.js` stores bounded concept evidence and constructs optional movement
 starters. `app.js` records behavior checks, tracks assistance, presents the transfer
@@ -86,3 +86,7 @@ visited slide IDs and cancellation when navigating. `lesson-tutor.mjs` at the pr
 root builds canonical curriculum context for `/api/lesson-help`; the existing server
 provides the AI transport and offline slide guide. The sidebar stacks below slides
 on narrow screens.
+
+Introductory editors use a cream background for editable code, including fully
+editable early cells. Guided cells retain grey supplied lines and a cream editable
+line. A subtle green focus cue replaces the browser’s default textarea outline.

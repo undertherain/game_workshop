@@ -11,7 +11,7 @@ export async function readContent(path) {
     return await response.json();
   } catch (error) { throw Error(`Could not load content/${path}: ${error.message}`); }
 }
-const modes = ['commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot'];
+const modes = ['commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot', 'jump-design'];
 function requireValue(condition, message) { if (!condition) throw Error(message); }
 function text(value) { return typeof value === 'string' && value.trim().length > 0; }
 export function validateIds(ids, label) {

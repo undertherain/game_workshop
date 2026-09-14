@@ -3,7 +3,7 @@ import ast
 import json
 from types import SimpleNamespace
 
-MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot')
+MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot', 'jump-design')
 _session = None
 
 
@@ -209,7 +209,7 @@ class Lesson:
         self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
                       '_calculate': _calculate, 'str': str, 'print': self.say, 'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
         self.character.say = self.say
-        self.character.jump = lambda: self.action('jump')
+        self.character.jump = lambda height=110: self.actions.append({'kind': 'jump', 'height': height}) if mode == 'jump-design' else self.action('jump')
         self.character.move = lambda distance=80: self.action('move', distance)
         if mode == 'robot':
             self.scope['robot'] = SimpleNamespace(move=self.robot_move, turn_right=self.robot_turn)
@@ -221,6 +221,16 @@ class Lesson:
                     or fn.decorator_list or fn.returns or ast.dump(fn.args) != ast.dump(ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]))):
                 raise ValueError(f'Keep def {name}(): and write your instruction underneath it.')
             _validate(fn.body, mode)
+        elif mode == 'jump-design':
+            hint = 'Choose a whole-number jump height from 40 to 180, like fox.jump(100).'
+            node = tree.body[0] if len(tree.body) == 1 else None
+            call = node.value if isinstance(node, ast.Expr) else None
+            if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute)
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id == 'fox'
+                    and call.func.attr == 'jump' and len(call.args) == 1 and not call.keywords
+                    and isinstance(call.args[0], ast.Constant) and type(call.args[0].value) is int
+                    and 40 <= call.args[0].value <= 180):
+                raise ValueError(hint)
         else:
             if mode == 'commands' and len(tree.body) > 2:
                 raise ValueError('Try one or two commands; loops come next.')
@@ -278,7 +288,8 @@ class Lesson:
                 self.character.x = min(800, self.character.x + 4)
                 self.changed = True
             elif self.character.on_ground:
-                self.character.vy, self.character.on_ground = -10, False
+                self.character.vy = -10
+                self.character.on_ground = False
                 self.changed = True
         else:
             if len(self.actions) >= 12:

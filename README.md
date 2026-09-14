@@ -1,7 +1,7 @@
 # Little Makers — browser Python game workshop
 
 Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`, meet Python and expressions, try a tiny calculator, and use `fox.say()`
-with text, numbers and a named greeting. The first jump leads straight to a move-then-jump sequence and adding comments. Then
+with text, numbers and a named greeting. The first jump leads to a game-design experiment: choose a jump height and test it with Run, then try a move-then-jump sequence and comments. Then
 open the split-screen workshop, choose a platformer, brick breaker or
 Paratroopers-style game, and build its controls and rules through short Python mini-exercises. Scenery,
 physics and moving game objects are provided; the child writes small behaviors.
@@ -45,13 +45,15 @@ First Python, Words and names, Numbers and variables, Repetition, Decisions, Reu
 code, and Live game rules. The map groups lessons into expandable chapters; Back/Next
 continues across chapter boundaries. The base URL opens the title screen.
 
-The **Learning map** connects thirty-four foundational lessons, three optional drawing
+The **Learning map** connects thirty-six foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations open with twelve compact, single-column slides. The first jump leads
-straight to a move-then-jump prediction that introduces line-by-line execution,
+The foundations open with fourteen compact, single-column slides. The first jump leads to “Make the jump yours”: edit `fox.jump(100)` and press Run
+for an immediate jump. Whole-number heights from 40 to 180 keep the fox in view;
+invalid values receive a hint. A short transition explains that the next Python
+ideas will help learners build their game’s controls and rules. Next comes a move-then-jump prediction that introduces line-by-line execution,
 then editing # comments to learn which lines Python skips. Short explanations and code practice follow: Python →
 a preview of constants (literal values), expressions, variables and keywords →
 calculator, strings → fox speech, add quotes and compare,

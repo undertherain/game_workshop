@@ -10,6 +10,18 @@ spec.loader.exec_module(runtime)
 
 
 class LessonTests(unittest.TestCase):
+    def test_jump_design_bounds_and_recovery(self):
+        for height in (40, 100, 180):
+            data = json.loads(runtime.run_lesson(f'fox.jump({height})', 'jump-design'))
+            self.assertFalse(data['interactive'])
+            self.assertEqual(data['actions'], [{'kind': 'jump', 'height': height}])
+        for value in ('39', '181', '-40', '0', '100.5', 'True', '"100"', '1e309', '100 + 1'):
+            data = json.loads(runtime.run_lesson(f'fox.jump({value})', 'jump-design'))
+            self.assertIn('40 to 180', data['error'])
+        for source in ('fox.y = 100', 'fox.jump_height = 100', 'fox.jump(100)\nfox.jump(100)', 'pass'):
+            self.assertIn('error', json.loads(runtime.run_lesson(source, 'jump-design')))
+        self.assertEqual(json.loads(runtime.run_lesson('fox.jump(100)', 'jump-design'))['actions'][0]['height'], 100)
+
     def test_robot_square_preserves_positions_and_turns_in_order(self):
         source = 'for side in range(4):\n    robot.move(3)\n    robot.turn_right()'
         data = json.loads(runtime.run_lesson(source, 'robot'))

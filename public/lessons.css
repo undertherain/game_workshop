@@ -153,7 +153,9 @@ body[data-mode="home"] .header-actions { display:none; }
 #lesson-examples span { font-size:11px; color:#657769; }
 #lesson-examples code { font:13px/1.5 var(--mono); }
 
-.lesson-editor { display:flex; flex:1; min-width:0; position:relative; }
+.lesson-editor { display:flex; flex:1; min-width:0; position:relative; background:#fffef9; border-radius:6px; }
+#lesson-code:focus { outline:none; }
+.lesson-editor:has(#lesson-code:focus-visible) { box-shadow:0 0 0 2px #b2caa2; }
 .lesson-input-row { position:relative; }
 .lesson-edit-hint { position:absolute; z-index:3; bottom:calc(100% + 10px); left:0; width:300px; max-width:100%; display:flex; align-items:start; gap:6px; padding:12px 14px; border-radius:10px; background:#315d4c; color:#fff; box-shadow:0 4px 14px #284b4320; }
 .lesson-edit-hint::after { content:""; position:absolute; left:24px; top:100%; border:7px solid transparent; border-top-color:#315d4c; }

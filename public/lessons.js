@@ -200,7 +200,7 @@ function receive(data) {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
     if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.empty); }
-    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : action.kind === 'say' ? 'say' : action.kind === 'robot' ? action.label : `${action.kind}(${action.distance})`).join(' → ')}.`);
+    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : action.kind === 'say' ? 'say' : action.kind === 'robot' ? action.label : `${action.kind}(${action.height ?? action.distance})`).join(' → ')}.`);
   }
 }
 function run() {
@@ -251,7 +251,7 @@ function frame(time) {
       }
       const t = Math.min(1, (time - actionStart) / 700);
       if (actions[0].kind === 'robot') robot = robotPose(actions[0], t);
-      else if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
+      else if (actions[0] === 'jump' || actions[0].kind === 'jump') y = 430 - Math.sin(t * Math.PI) * (actions[0].height ?? 110);
       else if (actions[0].kind !== 'say') x = Math.max(50, Math.min(790, startX + t * (actions[0].distance ?? 80)));
       if (t === 1) { if (actions[0].kind === 'robot') { robotTrail.push({ ...robot }); $('lesson-speech').textContent = `Robot at column ${robot.x + 1}, row ${robot.y + 1}, facing ${['right', 'down', 'left', 'up'][robot.turns % 4]}.`; } actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
     }

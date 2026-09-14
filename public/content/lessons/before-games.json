@@ -1,0 +1,26 @@
+{
+  "id": "before-games",
+  "branch": "foundations",
+  "chapter": "first-python",
+  "layout": "compact",
+  "presentation": "console",
+  "title": "A little Python before we build",
+  "heading": "Before we build a game, let’s learn a little more Python.",
+  "description": "You’ve already changed how a jump feels. Next, we’ll learn a few more Python ideas so you can build your game’s controls and rules.",
+  "starter": [],
+  "rows": 1,
+  "mode": "commands",
+  "skill": "commands",
+  "placeholder": "Your next Python steps",
+  "scene": {
+    "label": "A short introduction to the Python lessons ahead."
+  },
+  "completions": [],
+  "explanation": [
+    {
+      "title": "Start small. Then make it yours.",
+      "code": "fox.move()\nfox.jump()",
+      "text": "First, let’s see how instructions work together. Later, you’ll use what you learn to make a game you can play and change."
+    }
+  ]
+}

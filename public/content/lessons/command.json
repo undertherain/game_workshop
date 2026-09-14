@@ -3,7 +3,7 @@
   "branch": "foundations",
   "title": "Your first instruction",
   "heading": "Make your fox jump.",
-  "description": "This fox is waiting for you. Type fox.jump() and press Run. That’s your first Python program!",
+  "description": "This is the start of your game. Type fox.jump() and press Run. Next, you’ll choose how high your character jumps!",
   "rows": 1,
   "mode": "commands",
   "skill": "commands",

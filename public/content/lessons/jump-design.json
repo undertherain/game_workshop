@@ -1,0 +1,54 @@
+{
+  "id": "jump-design",
+  "branch": "foundations",
+  "chapter": "first-python",
+  "title": "Make the jump yours",
+  "heading": "You’re the designer. Make the jump yours.",
+  "description": "Change the number to choose how high your fox jumps: a whole number from 40 to 180. Press Run to see your jump. Try 40, then 180. Which feels better for your game?",
+  "rows": 1,
+  "mode": "jump-design",
+  "skill": "properties",
+  "layout": "compact",
+  "editor": {
+    "runOnEnter": true,
+    "maxLines": 1
+  },
+  "starter": [
+    "fox.jump(100)"
+  ],
+  "scene": {
+    "label": "Your character in a meadow. Run your code to test the jump height."
+  },
+  "placeholder": "fox.jump(100)",
+  "completions": [],
+  "feedback": {
+    "initial": "Choose a height from 40 to 180, then press Run.",
+    "success": "That’s your jump design! Try another height. Which feels better for your game?"
+  },
+  "draftMigrations": [
+    {
+      "from": [
+        "fox.jump_height = 40"
+      ],
+      "to": [
+        "fox.jump(40)"
+      ]
+    },
+    {
+      "from": [
+        "fox.jump_height = 100"
+      ],
+      "to": [
+        "fox.jump(100)"
+      ]
+    },
+    {
+      "from": [
+        "fox.jump_height = 180"
+      ],
+      "to": [
+        "fox.jump(180)"
+      ]
+    }
+  ]
+}

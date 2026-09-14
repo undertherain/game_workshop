@@ -69,7 +69,7 @@ The map shows expandable chapters with their own completion counts. Branches wit
 chapters retain their simple lesson list. New branches need no HTML changes. Runtime modes and
 rendering primitives remain implemented capabilities; content selects them.
 
-Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, `basics`, and `robot`.
+Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, `basics`, `robot`, and `jump-design`.
 The `basics` mode supports numeric and text assignments, arithmetic including division,
 comparison values, `str(value)`, `fox.say(value)`, top-level expression output, `fox.move(distance)`,
 `fox.jump()`, bounded loops, top-level named functions with up to two parameters,
@@ -136,3 +136,7 @@ file in the browser console; the UI offers Retry instead of a half-loaded lesson
 Content is rendered as text, not HTML or executable JavaScript.
 
 Return to [browser implementation](../README.md).
+
+`jump-design` accepts one `fox.jump(N)` call, where N is a whole-number literal
+from 40 to 180. Run animates one jump at that height; invalid values receive a
+range hint. See `jump-design.json`.
