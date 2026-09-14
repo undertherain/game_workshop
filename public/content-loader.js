@@ -11,7 +11,7 @@ export async function readContent(path) {
     return await response.json();
   } catch (error) { throw Error(`Could not load content/${path}: ${error.message}`); }
 }
-const modes = ['commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics'];
+const modes = ['commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot'];
 function requireValue(condition, message) { if (!condition) throw Error(message); }
 function text(value) { return typeof value === 'string' && value.trim().length > 0; }
 export function validateIds(ids, label) {
@@ -24,6 +24,7 @@ export function validateLesson(lesson, id, defaults, skills) {
   for (const key of ['title', 'heading', 'description', 'placeholder', 'skill']) requireValue(text(lesson[key]), `${label}: missing ${key}`);
   requireValue(Object.hasOwn(skills, lesson.skill), `${label}: unknown skill`);
   requireValue(typeof lesson.branch === 'string' && /^[a-z][a-z0-9-]*$/.test(lesson.branch), `${label}: invalid branch`);
+  requireValue(lesson.chapter === undefined || (typeof lesson.chapter === 'string' && /^[a-z][a-z0-9-]*$/.test(lesson.chapter)), `${label}: invalid chapter`);
   requireValue(modes.includes(lesson.mode), `${label}: unknown runtime mode`);
   requireValue(!lesson.layout || lesson.layout === 'compact', `${label}: unknown layout`);
   requireValue(lesson.presentation === undefined || ['scene', 'console'].includes(lesson.presentation), `${label}: unknown presentation`);
@@ -36,7 +37,7 @@ export function validateLesson(lesson, id, defaults, skills) {
   if (lesson.legacyActors !== undefined) requireValue(lesson.actor && Array.isArray(lesson.legacyActors) && lesson.legacyActors.every(actor => typeof actor === 'string' && /^[a-z][a-z0-9_]*$/.test(actor)), `${label}: invalid legacy actors`);
   if (lesson.editorHelp !== undefined) requireValue(text(lesson.editorHelp?.text) && ['once', 'always'].includes(lesson.editorHelp?.display), `${label}: invalid editor help`);
   if (lesson.editor !== undefined) requireValue(lesson.editor && typeof lesson.editor === 'object' && (lesson.editor.runOnEnter === undefined || typeof lesson.editor.runOnEnter === 'boolean') && (lesson.editor.maxLines === undefined || (Number.isInteger(lesson.editor.maxLines) && lesson.editor.maxLines > 0 && lesson.editor.maxLines <= 1000)), `${label}: invalid editor options`);
-  requireValue(lesson.practiceFeature === undefined || ['expression', 'assignment', 'function', 'parameter', 'condition', 'loop'].includes(lesson.practiceFeature), `${label}: unknown practice feature`);
+  requireValue(lesson.practiceFeature === undefined || ['expression', 'assignment', 'function', 'parameter', 'condition', 'loop', 'comparison'].includes(lesson.practiceFeature), `${label}: unknown practice feature`);
   requireValue(!lesson.actor || lesson.actor === 'character', `${label}: unsupported actor`);
   requireValue(Number.isInteger(lesson.rows) && lesson.rows >= 1 && lesson.rows <= 12, `${label}: rows must be 1–12`);
   requireValue(Array.isArray(lesson.starter) && lesson.starter.every(line => typeof line === 'string') && lesson.starter.join('\n').length <= 1000, `${label}: starter must be an array of Python lines (up to 1,000 characters)`);
@@ -70,6 +71,11 @@ export function validateBranches(branches) {
   validateIds(branches.map(branch => branch?.id), 'catalog.json: branches');
   for (const branch of branches) {
     requireValue(['label', 'eyebrow', 'title', 'description'].every(key => text(branch[key])), `catalog.json: incomplete branch ${branch.id}`);
+    if (branch.chapters !== undefined) {
+      requireValue(Array.isArray(branch.chapters), `catalog.json: chapters for ${branch.id} must be an array`);
+      validateIds(branch.chapters.map(chapter => chapter?.id), `catalog.json: chapters for ${branch.id}`);
+      requireValue(branch.chapters.every(chapter => text(chapter.title) && text(chapter.description)), `catalog.json: incomplete chapter in ${branch.id}`);
+    }
     if (branch.planned !== undefined) requireValue(Array.isArray(branch.planned) && branch.planned.every(item => text(item.title) && text(item.description)), `catalog.json: invalid planned entries for ${branch.id}`);
   }
   return branches;
@@ -83,6 +89,8 @@ export async function loadLessons(skills, read = readContent, branches) {
   const names = new Set(ids);
   for (const lesson of lessons) {
     requireValue(branches.some(branch => branch.id === lesson.branch), `lessons/${lesson.id}.json: unknown branch ${lesson.branch}`);
+    const branch = branches.find(branch => branch.id === lesson.branch);
+    requireValue(branch.chapters ? branch.chapters.some(chapter => chapter.id === lesson.chapter) : lesson.chapter === undefined, `lessons/${lesson.id}.json: unknown or missing chapter`);
     for (const alias of lesson.aliases || []) {
       requireValue(!names.has(alias), `lessons/${lesson.id}.json: duplicate or active alias ${alias}`);
       names.add(alias);

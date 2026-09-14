@@ -17,7 +17,9 @@
     "variables": "Variables",
     "functions": "Functions",
     "parameters": "Parameters",
-    "conditions": "Conditions"
+    "conditions": "Conditions",
+    "comparisons": "Comparisons",
+    "booleans": "Booleans"
   },
   "gameSkills": {
     "platformer": [
@@ -92,7 +94,44 @@
       "label": "Foundations",
       "eyebrow": "RECOMMENDED START",
       "title": "Make things happen",
-      "description": "From a first instruction to rules that stay alive."
+      "description": "From a first instruction to rules that stay alive.",
+      "chapters": [
+        {
+          "id": "first-python",
+          "title": "First Python",
+          "description": "Give instructions in order and try simple calculations."
+        },
+        {
+          "id": "words-and-names",
+          "title": "Words and names",
+          "description": "Use text and named values to make a personal greeting."
+        },
+        {
+          "id": "numbers-and-variables",
+          "title": "Numbers and variables",
+          "description": "Control movement with numbers, expressions and variables."
+        },
+        {
+          "id": "repetition",
+          "title": "Repetition",
+          "description": "Patrol a square and discover which instructions repeat."
+        },
+        {
+          "id": "decisions",
+          "title": "Decisions",
+          "description": "Build guessing rules with comparisons, booleans and if statements."
+        },
+        {
+          "id": "reusable-code",
+          "title": "Reusable code",
+          "description": "Name a routine, call it again and give it parameters."
+        },
+        {
+          "id": "live-rules",
+          "title": "Live game rules",
+          "description": "Customize a character, respond to events and install an update rule."
+        }
+      ]
     },
     {
       "id": "drawing",

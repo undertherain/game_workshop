@@ -1,0 +1,37 @@
+{
+  "id": "robot-repeat",
+  "branch": "foundations",
+  "title": "Four sides, one loop",
+  "heading": "Four sides, one loop",
+  "description": "The same two instructions make every side. The loop repeats its indented lines four times. Replace pass with robot.move(3). Then try three repetitions: which side is missing?",
+  "starter": [
+    "for side in range(4):",
+    "    pass",
+    "    robot.turn_right()"
+  ],
+  "rows": 3,
+  "mode": "robot",
+  "skill": "loops",
+  "layout": "compact",
+  "presentation": "scene",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "A robot starts in the upper left corner of a dotted square, facing right. Each side is three tiles long. Its trail shows the instructions it follows."
+  },
+  "completions": [
+    {
+      "code": "robot.move(3)",
+      "description": "Move forward three tiles"
+    },
+    {
+      "code": "robot.turn_right()",
+      "description": "Turn a quarter turn to the right, without moving"
+    }
+  ],
+  "feedback": {
+    "initial": "Replace pass with the forward move. With pass, the robot only turns on the spot.",
+    "success": "Follow the trail. Both indented instructions repeat together. Can you make a smaller square by changing one number?"
+  },
+  "practiceFeature": "loop",
+  "chapter": "repetition"
+}

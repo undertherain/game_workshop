@@ -28,13 +28,14 @@
     },
     {
       "title": "Variables: give values names",
-      "code": "name = \"Ola\"\nfox.say(name)",
-      "text": "The first line remembers Ola using a variable called name. The next line uses that value, so the fox says Ola. Change \"Ola\" to your name and the greeting changes!"
+      "code": "username = \"Ola\"\nfox.say(username)",
+      "text": "The first line remembers Ola using a variable called username. The next line uses that value, so the fox says Ola. Change \"Ola\" to your name and the greeting changes!"
     },
     {
       "title": "Keywords: special Python words",
       "code": "if\nfor\ndef",
       "text": "These words have special jobs. Later, if will help us choose, for will help us repeat, and def will help us name a new trick. They are pieces of instructions, not programs on their own."
     }
-  ]
+  ],
+  "chapter": "first-python"
 }

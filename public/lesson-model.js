@@ -18,6 +18,16 @@ export function lessonPosition(lessons, lesson) {
   return { branch, position, previous: branch[position - 1], next: branch[position + 1] };
 }
 
+// Chapters group the branch's existing route; Back/Next still crosses their boundaries.
+export function lessonChapters(lessons, branch) {
+  const route = lessons.filter(lesson => lesson.branch === branch.id);
+  if (!branch.chapters) return [{ ...branch, lessons: route }];
+  return [...new Set(route.map(lesson => lesson.chapter))].map(id => ({
+    ...branch.chapters.find(chapter => chapter.id === id),
+    lessons: route.filter(lesson => lesson.chapter === id),
+  }));
+}
+
 export function editorHelp(lesson) {
   if (lesson.editorHelp) return lesson.editorHelp;
   const shortcut = lesson.editor?.runOnEnter ? 'Enter runs your program.' : 'Ctrl / ⌘ + Enter runs your program.';

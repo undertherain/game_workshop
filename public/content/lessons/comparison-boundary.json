@@ -1,0 +1,26 @@
+{
+  "id": "comparison-boundary",
+  "branch": "foundations",
+  "title": "Does the endpoint count?",
+  "heading": "Does the endpoint count?",
+  "description": "The guessing game allows 100 as well as smaller numbers. This question uses <, so what does it say about 100? Run, then change < to <= and compare 99, 100 and 101.",
+  "starter": [
+    "guess = 100",
+    "print(guess < 100)"
+  ],
+  "rows": 2,
+  "mode": "basics",
+  "skill": "comparisons",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "<= includes equality. For the lower endpoint, try guess >= 1 with 0, 1 and 2. != means “not equal”: try guess != 42. Checking the full 1–100 range will need both endpoint checks."
+  },
+  "practiceFeature": "comparison",
+  "chapter": "decisions"
+}

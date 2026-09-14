@@ -31,5 +31,6 @@
   "feedback": {
     "success": "Change > to >=. What happens at exactly 50 now? = stores a value; == compares whether two values are equal."
   },
-  "practiceFeature": "condition"
+  "practiceFeature": "condition",
+  "chapter": "decisions"
 }

@@ -1,0 +1,36 @@
+{
+  "id": "booleans-intro",
+  "branch": "foundations",
+  "title": "Meet True and False",
+  "heading": "Meet True and False",
+  "description": "Python calls these two values booleans. A comparison produces a boolean, just as a calculation produces a number.",
+  "starter": [],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "booleans",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "initial": "Predict what will happen, then press Run.",
+    "success": "Change one value and run again. Can you explain the result?",
+    "empty": "Nothing was printed. Was the condition False? Try another guess."
+  },
+  "explanation": [
+    {
+      "title": "Questions have values too",
+      "code": "30 < 42   # True\n60 < 42   # False\n42 == 42  # True",
+      "text": "Use capital T and F. True and False are values, without quotes. \"True\" is text."
+    },
+    {
+      "title": "Store a number; ask a question",
+      "code": "guess = 42\nguess == 42",
+      "text": "One = stores a value under a name. Two == compare values. The second line does not change guess."
+    }
+  ],
+  "chapter": "decisions"
+}

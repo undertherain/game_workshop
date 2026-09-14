@@ -39,10 +39,13 @@ Continue to last lesson (or Start your first lesson for a new browser). Clicking
 the Little Makers logo returns here from any activity. Returning keeps lesson
 drafts and the last visited lesson. Each lesson has a shareable URL such as
 `/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
-lesson navigation. The progress markers at the top are clickable lesson shortcuts,
-with lesson names on hover and keyboard support. The base URL opens the title screen.
+lesson navigation. The progress markers at the top are clickable shortcuts within the current chapter,
+with lesson names on hover and keyboard support. Foundations has seven chapters:
+First Python, Words and names, Numbers and variables, Repetition, Decisions, Reusable
+code, and Live game rules. The map groups lessons into expandable chapters; Back/Next
+continues across chapter boundaries. The base URL opens the title screen.
 
-The **Learning map** connects twenty-two foundational lessons, three optional drawing
+The **Learning map** connects thirty-four foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
@@ -70,8 +73,9 @@ The variable explanation uses `print(username)` to show reading a stored value.
 The next slide compares integer addition with string joining and connects it to a
 personal greeting. The route then builds
 through sequence, numeric arguments,
-expressions, variables, bounded loops, reusable functions, parameters, comparisons,
-scene properties, a Space-key event and a live `update()` function. The new basics
+expressions, variables, a grid-robot square patrol, bounded loops, comparisons,
+booleans and guessing-game decisions, reusable functions, parameters, scene
+properties, a Space-key event and a live `update()` function. The movement
 lessons use `fox.move(distance)` to make numeric results visible, then invite predictions
 and changes. Functions are called by the learner before event callbacks are introduced.
 The routine exercise reuses a dance between different walks; there is no code-space
@@ -85,6 +89,20 @@ button. Starting a live lesson or explicitly running a game focuses its canvas, 
 Space goes to the game. Stop ends execution and keeps the code and last scene; Run
 starts again from the code. One-shot commands and drawings keep their ordinary Run
 button. Editing a live lesson stops its rule until Run is pressed again.
+
+The robot sequence introduces a forward move and a right turn, an explicitly written
+square, then a four-repeat loop. A six-by-six board shows the dotted target route,
+the robot’s heading and its animated trail. `robot.move(3)` moves three tiles;
+`robot.turn_right()` turns in place. Each run resets the robot to the same start.
+Robot moves accept whole numbers from 1 to 5 and reject moves off the board.
+
+The console guessing sequence builds the referee for a 1–100 number game: compare
+an attempt with a visible secret, name True/False as booleans, store a comparison,
+use `if`, add `else`, then use `elif` for low/high/correct messages. A final exercise
+asks learners to write and test their own rules. An endpoint activity introduces
+inclusive comparisons. Input, random secrets and a repeat-until-correct loop are
+future additions; these lessons test visible assignments one run at a time.
+As with the other foundations, completion records practice, not correctness or mastery.
 
 The drawing branch offers `dot(x, y)`, `line(x1, y1, x2, y2)`, and loops with simple
 coordinate expressions on a labelled grid. It uses a small workshop-specific Python
@@ -108,9 +126,8 @@ from -300 to 300 pixels and stops at the scene edges. Arithmetic supports `+`, `
 and `str(value)` for joining text with numbers. Missing quotes, mixed text/number
 addition and division by zero receive specific hints. String repetition is excluded;
 computed text is limited to 1,000 characters and numeric results to magnitude 1,000,000. Helpers have up to two parameters and their own numeric locals;
-they may call previously defined helpers, but not recurse. Conditions support one
-numeric comparison, with optional `else`. Returns and general Python remain for
-later work.
+they may call previously defined helpers, but not recurse. Conditions support comparison expressions, boolean literals and named values,
+with `elif` and `else`. Returns and general Python remain for later work.
 
 From the customization lesson onward, the actor is named `character`, so
 `character.costume = "bunny"` and `character.jump()` still make sense after a change

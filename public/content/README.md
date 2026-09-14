@@ -26,6 +26,7 @@ The lesson fields are:
 | --- | --- |
 | `id` | Stable lowercase ID, matching the file name and manifest entry |
 | `branch` | A branch ID declared in `catalog.json` |
+| `chapter` | A chapter ID from that branch’s `chapters`; required when the branch declares chapters |
 | `title` | Label on the learning map |
 | `heading`, `description` | Lesson heading and instructions; plain text |
 | `starter` | Array of Python source lines; spaces preserve indentation |
@@ -49,10 +50,11 @@ The lesson fields are:
 | `aliases` | Optional former lesson IDs; saved locations and URLs resolve to this lesson. Aliases cannot collide with active IDs or other aliases |
 | `draftMigrations` | Optional array of `{from: [lines], to: [lines]}`; replaces only an exact saved source match, leaving custom drafts alone |
 | `legacyActors` | Optional old Python actor names to migrate to `actor` at the start of a saved source line; does not replace text inside strings |
-| `practiceFeature` | Optional runtime feature required to record practice: `expression`, `assignment`, `function`, `parameter`, `condition`, or `loop`; independent of the skill’s label or ID |
+| `practiceFeature` | Optional runtime feature required to record practice: `expression`, `assignment`, `function`, `parameter`, `condition`, `comparison`, or `loop`; independent of the skill’s label or ID |
 
 `lessons/index.json` is the sole source of lesson order. Reorder its entries to
-change map nodes, progress dots, the first lesson, and Back/Next within each branch.
+change map nodes, the first lesson, and Back/Next within each branch. Lesson markers
+show only the current chapter, and Back/Next continues across chapter boundaries.
 File names identify content; their alphabetical filesystem order has no effect.
 Presentation settings travel with each lesson, including explanation cards, console
 output, scene, examples, editor behavior and help. Next-button wording follows the
@@ -60,17 +62,33 @@ actual next lesson, so consecutive explanation slides are supported.
 
 The catalogue’s `branches` array defines map section order and each branch’s `id`,
 short `label`, `eyebrow`, `title`, `description`, and optional `planned` cards
-(`{title, description}`). New branches need no HTML changes. Runtime modes and
+(`{title, description}`). A branch can declare `chapters` as `{id, title, description}`
+entries. Each lesson then selects its chapter; chapter display order follows first
+appearance in the lesson manifest. Keep a chapter’s lessons together in the route.
+The map shows expandable chapters with their own completion counts. Branches without
+chapters retain their simple lesson list. New branches need no HTML changes. Runtime modes and
 rendering primitives remain implemented capabilities; content selects them.
 
-Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, and `basics`.
+Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, `basics`, and `robot`.
 The `basics` mode supports numeric and text assignments, arithmetic including division,
 comparison values, `str(value)`, `fox.say(value)`, top-level expression output, `fox.move(distance)`,
 `fox.jump()`, bounded loops, top-level named functions with up to two parameters,
-and numeric comparisons in `if`/`else`. Functions use parameters and local values
+and comparisons or named values in `if`/`elif`/`else`. Functions use parameters and local values
 and can call earlier helpers; recursion, defaults, and return values are not supported.
 Movement results include distances for animation. See `functions.json` and
 `parameters.json` for examples.
+
+The `robot` mode uses a six-by-six board with a dotted square target. It accepts
+`robot.move(steps)` (whole numbers 1–5), `robot.turn_right()`, and bounded `for`
+loops using `i`, `step` or `side`. The robot starts at tile (1, 1), facing right;
+coordinates here are zero-based. Each run resets the scene. Off-board moves and
+more than 12 instructions fail with feedback. `robot-scene.js` draws the action
+snapshots and interpolates movement and quarter turns. See `robot-side.json`,
+`robot-square.json` and `robot-repeat.json` for the progression.
+
+The guessing lessons use console presentation with `print(value)` and ordinary
+visible assignments. They do not yet use input, randomness or unbounded loops.
+Use `practiceFeature: "comparison"` to require a comparison in the source.
 
 These select existing runtime behavior. A JSON edit does not introduce a new Python
 API or algorithm: new execution capabilities still require runtime/engine work.

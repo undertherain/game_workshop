@@ -1,0 +1,32 @@
+{
+  "id": "guess-branches",
+  "branch": "foundations",
+  "title": "Give all three answers",
+  "heading": "Give all three answers",
+  "description": "A wrong guess can be too low or too high. elif means “otherwise, if”: Python checks it only if the first question was False. If neither question is True, the guess must equal the secret. Test all three cases.",
+  "starter": [
+    "secret = 42",
+    "guess = 60",
+    "if guess < secret:",
+    "    print(\"Too low!\")",
+    "elif guess > secret:",
+    "    print(\"Too high!\")",
+    "else:",
+    "    print(\"You found it!\")"
+  ],
+  "rows": 8,
+  "mode": "basics",
+  "skill": "conditions",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "Python chooses one branch. Change secret as well as guess. Do all three messages still make sense?"
+  },
+  "practiceFeature": "condition",
+  "chapter": "decisions"
+}

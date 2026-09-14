@@ -27,5 +27,6 @@
   "editorHelp": {
     "text": "Only line 1 is editable. The greeting command is provided. Ctrl / ⌘ + Enter runs your program.",
     "display": "once"
-  }
+  },
+  "chapter": "words-and-names"
 }

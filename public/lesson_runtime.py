@@ -3,7 +3,7 @@ import ast
 import json
 from types import SimpleNamespace
 
-MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics')
+MODES = ('commands', 'loop', 'style', 'event', 'update', 'drawing', 'basics', 'robot')
 _session = None
 
 
@@ -31,7 +31,14 @@ def _validate(body, mode, loop_names=(), depth=0):
             call = node.value
             if call.keywords:
                 raise ValueError('Use the arguments shown in this lesson.')
-            if (mode != 'drawing' and isinstance(call.func, ast.Attribute)
+            if (mode == 'robot' and isinstance(call.func, ast.Attribute)
+                    and isinstance(call.func.value, ast.Name) and call.func.value.id == 'robot'):
+                if call.func.attr == 'turn_right' and not call.args:
+                    continue
+                if call.func.attr == 'move' and len(call.args) == 1:
+                    _number(call.args[0], loop_names)
+                    continue
+            if (mode not in ('drawing', 'robot') and isinstance(call.func, ast.Attribute)
                     and isinstance(call.func.value, ast.Name) and call.func.value.id in (('fox', 'character') if mode in ('style', 'event', 'update') else ('fox',))
                     and call.func.attr in ('jump', 'move') and not call.args):
                 continue
@@ -41,9 +48,9 @@ def _validate(body, mode, loop_names=(), depth=0):
                 for arg in call.args:
                     _number(arg, loop_names)
                 continue
-        if isinstance(node, ast.For) and mode in ('loop', 'drawing'):
+        if isinstance(node, ast.For) and mode in ('loop', 'drawing', 'robot'):
             it = node.iter
-            if (isinstance(node.target, ast.Name) and node.target.id in ('i', 'step') and not node.orelse
+            if (isinstance(node.target, ast.Name) and node.target.id in ('i', 'step', 'side') and not node.orelse
                     and isinstance(it, ast.Call) and isinstance(it.func, ast.Name) and it.func.id == 'range'
                     and len(it.args) == 1 and not it.keywords and isinstance(it.args[0], ast.Constant)
                     and type(it.args[0].value) is int and 1 <= it.args[0].value <= 6):
@@ -66,7 +73,7 @@ def _validate(body, mode, loop_names=(), depth=0):
         raise ValueError('This lesson uses a small vocabulary. Follow the example above; the full game editor opens up more Python.')
 
 
-_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line', 'str'}
+_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line', 'str', 'print'}
 
 
 def _name(name, functions):
@@ -149,6 +156,9 @@ def _basics(body, names=None, functions=None, depth=0):
                 if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name) and call.func.value.id in ('fox', 'character') and call.func.attr == 'say' and len(call.args) == 1:
                     _value(call.args[0], names)
                     continue
+                if isinstance(call.func, ast.Name) and call.func.id == 'print' and len(call.args) == 1:
+                    _value(call.args[0], names)
+                    continue
                 if (isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name)
                         and call.func.value.id in ('fox', 'character')
                         and ((call.func.attr == 'jump' and not call.args)
@@ -172,10 +182,8 @@ def _basics(body, names=None, functions=None, depth=0):
                 continue
         if isinstance(node, ast.If):
             test = node.test
-            if (isinstance(test, ast.Compare) and len(test.ops) == 1
-                    and isinstance(test.ops[0], (ast.Lt, ast.LtE, ast.Gt, ast.GtE, ast.Eq, ast.NotEq))):
-                _number(test.left, names)
-                _number(test.comparators[0], names)
+            if isinstance(test, (ast.Compare, ast.Name)) or (isinstance(test, ast.Constant) and type(test.value) is bool):
+                _value(test, names)
                 _basics(node.body, names, functions, depth + 1)
                 _basics(node.orelse, names, functions, depth + 1)
                 continue
@@ -197,11 +205,14 @@ class Lesson:
         self.character = SimpleNamespace(x=250, y=430, vy=0, costume='fox', facing=1, on_ground=True)
         self.keyboard = SimpleNamespace(right=False)
         self.changed = False
+        self.robot = {'x': 1, 'y': 1, 'turns': 0}
         self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
-                      '_calculate': _calculate, 'str': str, 'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
+                      '_calculate': _calculate, 'str': str, 'print': self.say, 'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
         self.character.say = self.say
         self.character.jump = lambda: self.action('jump')
         self.character.move = lambda distance=80: self.action('move', distance)
+        if mode == 'robot':
+            self.scope['robot'] = SimpleNamespace(move=self.robot_move, turn_right=self.robot_turn)
         interactive = mode in ('event', 'update')
         if interactive:
             name = 'on_space_pressed' if mode == 'event' else 'update'
@@ -231,6 +242,7 @@ class Lesson:
                          'expression': any(isinstance(n, ast.BinOp) for n in ast.walk(tree)),
                          'function': any(isinstance(n, ast.FunctionDef) for n in ast.walk(tree)),
                          'parameter': any(isinstance(n, ast.FunctionDef) and n.args.args for n in ast.walk(tree)),
+                         'comparison': any(isinstance(n, ast.Compare) for n in ast.walk(tree)),
                          'condition': any(isinstance(n, ast.If) for n in ast.walk(tree))}
 
     def say(self, value):
@@ -239,6 +251,24 @@ class Lesson:
         if len(self.actions) >= 12:
             raise ValueError('Try at most 12 actions at a time so you can watch each one.')
         self.actions.append({'kind': 'say', 'text': str(value)[:1000]})
+
+    def robot_action(self, target, label):
+        if len(self.actions) >= 12:
+            raise ValueError('Try at most 12 robot instructions in one run.')
+        self.actions.append({'kind': 'robot', 'from': dict(self.robot), 'to': target, 'label': label})
+        self.robot = target
+
+    def robot_move(self, steps):
+        if type(steps) is not int or not 1 <= steps <= 5:
+            raise ValueError('Move a whole number of tiles from 1 to 5: robot.move(3).')
+        dx, dy = ((1, 0), (0, 1), (-1, 0), (0, -1))[self.robot['turns'] % 4]
+        target = {**self.robot, 'x': self.robot['x'] + dx * steps, 'y': self.robot['y'] + dy * steps}
+        if not (0 <= target['x'] <= 5 and 0 <= target['y'] <= 5):
+            raise ValueError('That move leaves the board. Try fewer tiles, or turn before moving. Run starts at START again.')
+        self.robot_action(target, f'move({steps})')
+
+    def robot_turn(self):
+        self.robot_action({**self.robot, 'turns': self.robot['turns'] + 1}, 'turn right')
 
     def action(self, name, distance=80):
         if name == 'move' and not -300 <= distance <= 300:
@@ -270,6 +300,7 @@ class Lesson:
 
     def snapshot(self):
         return {'actions': self.actions, 'shapes': self.shapes, 'features': self.features,
+                'robot': self.robot,
                 'interactive': self.mode in ('event', 'update'), 'ticks': self.ticks,
                 'eventCalls': self.event_calls, 'changed': self.changed,
                 'player': {k: v for k, v in vars(self.character).items() if not callable(v)}, 'world': vars(self.world)}

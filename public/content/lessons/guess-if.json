@@ -1,0 +1,29 @@
+{
+  "id": "guess-if",
+  "branch": "foundations",
+  "title": "Give a hint when the guess is low",
+  "heading": "Give a hint when the guess is low",
+  "description": "Run with guess = 30, then 60. Which message disappears? At 42, should “Too low!” appear? The final line is outside the if block.",
+  "starter": [
+    "secret = 42",
+    "guess = 30",
+    "if guess < secret:",
+    "    print(\"Too low!\")",
+    "print(\"Attempt checked.\")"
+  ],
+  "rows": 5,
+  "mode": "basics",
+  "skill": "conditions",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "Only the indented message depends on the comparison. Try replacing guess < secret with False, then True. Predict which lines run."
+  },
+  "practiceFeature": "condition",
+  "chapter": "decisions"
+}

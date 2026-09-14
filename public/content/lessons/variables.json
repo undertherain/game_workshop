@@ -31,5 +31,6 @@
   "feedback": {
     "success": "The first trip uses distance. The second uses twice that value. Try distance = 30 + 20."
   },
-  "practiceFeature": "assignment"
+  "practiceFeature": "assignment",
+  "chapter": "numbers-and-variables"
 }

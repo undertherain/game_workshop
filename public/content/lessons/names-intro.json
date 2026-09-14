@@ -21,14 +21,20 @@
       "text": "The = stores the text Ola in a variable called username."
     },
     {
-      "title": "Read the stored value",
+      "title": "Read it with print()",
       "code": "print(username)",
-      "text": "Python looks up username and prints Ola. Without quotes, username refers to the variable; \"username\" would just be text."
+      "text": "print() shows a value in the Output. Python looks up username and prints Ola. Without quotes, username means the variable; \"username\" would just be text."
+    },
+    {
+      "title": "More fun: let the fox say it",
+      "code": "fox.say(username)",
+      "text": "The fox says Ola in a speech bubble. Same stored value, shown in the scene instead of the Output."
     }
   ],
   "practiceFeature": "assignment",
   "editor": {
     "runOnEnter": true,
     "maxLines": 1
-  }
+  },
+  "chapter": "words-and-names"
 }

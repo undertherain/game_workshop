@@ -53,3 +53,7 @@ bounded ship movement, stationary aliens, one shot per press, missed-shot cleanu
 clearing the row through actual hits, empty Game defaults and playfield fitting.
 A three-frame desktop smoke check also verified the built-in pixel sprites and
 captured the ship, aliens and a moving shot with the real raylib host.
+
+The lesson runtime checks also cover robot square endpoints and heading, incomplete
+patrols, board/step/action limits and recovery; boolean variables and skipped blocks;
+and guessing-game branch outputs across changing secrets and exact-match boundaries.

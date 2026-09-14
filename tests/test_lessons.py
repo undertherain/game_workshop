@@ -10,6 +10,50 @@ spec.loader.exec_module(runtime)
 
 
 class LessonTests(unittest.TestCase):
+    def test_robot_square_preserves_positions_and_turns_in_order(self):
+        source = 'for side in range(4):\n    robot.move(3)\n    robot.turn_right()'
+        data = json.loads(runtime.run_lesson(source, 'robot'))
+        self.assertNotIn('error', data)
+        self.assertEqual(data['robot'], {'x': 1, 'y': 1, 'turns': 4})
+        self.assertEqual([(a['to']['x'], a['to']['y']) for a in data['actions'][::2]],
+                         [(4, 1), (4, 4), (1, 4), (1, 1)])
+        self.assertEqual(data['actions'][0]['from'], {'x': 1, 'y': 1, 'turns': 0})
+        self.assertTrue(data['features']['loop'])
+        short = json.loads(runtime.run_lesson(source.replace('range(4)', 'range(3)'), 'robot'))
+        self.assertEqual(short['robot'], {'x': 1, 'y': 4, 'turns': 3})
+
+    def test_robot_boundaries_limits_and_recovery(self):
+        for source in ['robot.move(5)', 'robot.move(1.5)', 'robot.move(True)', 'robot.move(-1)',
+                       'robot.move(0)', 'robot.fly()', 'robot.x = 4', 'fox.move()',
+                       'while True: robot.turn_right()',
+                       'for side in range(6):\n    for step in range(6):\n        robot.turn_right()']:
+            with self.subTest(source=source):
+                self.assertIn('error', json.loads(runtime.run_lesson(source, 'robot')))
+        recovered = json.loads(runtime.run_lesson('robot.move(1)', 'robot'))
+        self.assertEqual(recovered['robot'], {'x': 2, 'y': 1, 'turns': 0})
+        self.assertIn('error', json.loads(runtime.run_lesson('robot.move(1)', 'basics')))
+
+    def test_boolean_variables_and_skipped_blocks(self):
+        for guess, expected in [(30, ['True', 'Too low!', 'Checked']), (42, ['False', 'Checked']), (60, ['False', 'Checked'])]:
+            source = f'secret = 42\nguess = {guess}\ntoo_low = guess < secret\nprint(too_low)\nif too_low:\n    print("Too low!")\nprint("Checked")'
+            data = json.loads(runtime.run_lesson(source, 'basics'))
+            self.assertEqual([a['text'] for a in data['actions']], expected)
+            self.assertTrue(data['features']['comparison'])
+        for value, expected in [('True', ['yes']), ('False', [])]:
+            data = json.loads(runtime.run_lesson(f'if {value}:\n    print("yes")', 'basics'))
+            self.assertEqual([a['text'] for a in data['actions']], expected)
+
+    def test_guessing_branches_and_endpoint_comparisons(self):
+        lesson = json.loads((Path(__file__).parents[1] / 'public/content/lessons/guess-branches.json').read_text())
+        for secret in [1, 42, 73, 100]:
+            for guess in [1, secret - 1, secret, secret + 1, 100]:
+                source = '\n'.join(lesson['starter']).replace('secret = 42', f'secret = {secret}').replace('guess = 60', f'guess = {guess}')
+                data = json.loads(runtime.run_lesson(source, 'basics'))
+                expected = 'Too low!' if guess < secret else 'Too high!' if guess > secret else 'You found it!'
+                self.assertEqual([a['text'] for a in data['actions']], [expected])
+        data = json.loads(runtime.run_lesson('100 < 100\n100 <= 100\n1 >= 1\n42 != 42', 'basics'))
+        self.assertEqual([a['text'] for a in data['actions']], ['False', 'True', 'True', 'False'])
+
     def test_speech_and_calculator_values(self):
         source = '2 + 3\nfox.say("3 + 4")\nusername = "Ola"\nfox.say("Hello " + username)\nfox.say(7 / 2)\nfox.say(5 > 3)\nfox.say("Age: " + str(8))'
         data = json.loads(runtime.run_lesson(source, 'basics'))

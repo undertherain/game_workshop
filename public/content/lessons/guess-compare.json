@@ -1,0 +1,41 @@
+{
+  "id": "guess-compare",
+  "branch": "foundations",
+  "title": "Too low, too high, or correct?",
+  "heading": "Too low, too high, or correct?",
+  "description": "We are building a number guessing game from 1 to 100. First, help it judge one attempt. Keep the secret visible while testing. Does 30 fall below 42? Run, then try 60 and 42.",
+  "starter": [
+    "secret = 42",
+    "guess = 30",
+    "guess < secret"
+  ],
+  "rows": 3,
+  "mode": "basics",
+  "skill": "comparisons",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "< asks “is less than?”. Try > for “is greater than?”, then == for “is equal to?”. Each question gives True or False."
+  },
+  "practiceFeature": "comparison",
+  "examples": [
+    {
+      "label": "Too low?",
+      "code": "secret = 42\nguess = 30\nguess < secret"
+    },
+    {
+      "label": "Too high?",
+      "code": "secret = 42\nguess = 60\nguess > secret"
+    },
+    {
+      "label": "Equal?",
+      "code": "secret = 42\nguess = 42\nguess == secret"
+    }
+  ],
+  "chapter": "decisions"
+}

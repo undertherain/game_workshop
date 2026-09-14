@@ -1,0 +1,36 @@
+{
+  "id": "if-intro",
+  "branch": "foundations",
+  "title": "Only when the answer is True",
+  "heading": "Only when the answer is True",
+  "description": "Now use the comparison to choose whether a message appears.",
+  "starter": [],
+  "rows": 1,
+  "mode": "basics",
+  "skill": "conditions",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "initial": "Predict what will happen, then press Run.",
+    "success": "Change one value and run again. Can you explain the result?",
+    "empty": "Nothing was printed. Was the condition False? Try another guess."
+  },
+  "explanation": [
+    {
+      "title": "Give the answer a consequence",
+      "code": "if guess < secret:\n    print(\"Too low!\")\nprint(\"Attempt checked.\")",
+      "text": "if checks the question after it. When the answer is True, Python runs the indented line. When it is False, Python skips that line."
+    },
+    {
+      "title": "Which lines belong to the decision?",
+      "code": "if guess < secret:\n    print(\"Too low!\")",
+      "text": "End the if line with a colon. Indent its message by four spaces. The unindented “Attempt checked.” line in the first example runs either way."
+    }
+  ],
+  "chapter": "decisions"
+}

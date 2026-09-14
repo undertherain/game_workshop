@@ -1,0 +1,34 @@
+{
+  "id": "robot-side",
+  "branch": "foundations",
+  "title": "One side, one turn",
+  "heading": "One side, one turn",
+  "description": "Help the robot patrol the dotted square. It starts facing right. Move three tiles, then turn right. Which way will it face? Run starts it at START again.",
+  "starter": [
+    "robot.move(3)",
+    "robot.turn_right()"
+  ],
+  "rows": 2,
+  "mode": "robot",
+  "skill": "sequence",
+  "layout": "compact",
+  "presentation": "scene",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "A robot starts in the upper left corner of a dotted square, facing right. Each side is three tiles long. Its trail shows the instructions it follows."
+  },
+  "completions": [
+    {
+      "code": "robot.move(3)",
+      "description": "Move forward three tiles"
+    },
+    {
+      "code": "robot.turn_right()",
+      "description": "Turn a quarter turn to the right, without moving"
+    }
+  ],
+  "feedback": {
+    "success": "It now faces down. Turning changes its direction; it does not change its tile."
+  },
+  "chapter": "repetition"
+}

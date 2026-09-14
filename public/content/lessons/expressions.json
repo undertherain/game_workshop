@@ -28,5 +28,6 @@
   "feedback": {
     "success": "Try 30 + 20 * 2, then (30 + 20) * 2. Multiplication happens first unless parentheses change the order."
   },
-  "practiceFeature": "expression"
+  "practiceFeature": "expression",
+  "chapter": "numbers-and-variables"
 }

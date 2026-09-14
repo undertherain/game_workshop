@@ -30,5 +30,6 @@
       "code": "username = \"Ola\"\n\"Hello \" + username",
       "text": "username stores a string, so joining it to \"Hello \" makes \"Hello Ola\". Keep the space after Hello!"
     }
-  ]
+  ],
+  "chapter": "words-and-names"
 }

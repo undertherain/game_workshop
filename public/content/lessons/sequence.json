@@ -46,5 +46,6 @@
     "ready": "Prediction made. Press Run to see what happens.",
     "required": true
   },
-  "layout": "compact"
+  "layout": "compact",
+  "chapter": "first-python"
 }

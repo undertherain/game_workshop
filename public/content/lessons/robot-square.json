@@ -1,0 +1,36 @@
+{
+  "id": "robot-square",
+  "branch": "foundations",
+  "title": "Patrol the square",
+  "heading": "Patrol the square",
+  "description": "Two sides are written. Add the next two sides so the robot returns to START, facing right. Use the dotted route to work out each move.",
+  "starter": [
+    "robot.move(3)",
+    "robot.turn_right()",
+    "robot.move(3)",
+    "robot.turn_right()"
+  ],
+  "rows": 4,
+  "mode": "robot",
+  "skill": "sequence",
+  "layout": "compact",
+  "presentation": "scene",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "A robot starts in the upper left corner of a dotted square, facing right. Each side is three tiles long. Its trail shows the instructions it follows."
+  },
+  "completions": [
+    {
+      "code": "robot.move(3)",
+      "description": "Move forward three tiles"
+    },
+    {
+      "code": "robot.turn_right()",
+      "description": "Turn a quarter turn to the right, without moving"
+    }
+  ],
+  "feedback": {
+    "success": "Compare the trail with the dotted square. Did the robot return to START facing right? Which pair of instructions repeats?"
+  },
+  "chapter": "repetition"
+}

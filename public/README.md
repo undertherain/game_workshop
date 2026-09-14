@@ -70,3 +70,13 @@ The learning map marks practised introductory stages with a visible Completed
 check badge and stronger green border, plus completed-stage counts per branch.
 This uses existing successful-practice records, not a new mastery assessment;
 completed lessons remain available to revisit.
+
+`robot-scene.js` draws the introductory grid robot, its heading, dotted square route
+and animated trail. The robot lessons build from a side to a square to a counted
+loop. Console lessons then introduce comparisons, boolean values, and the low/high/
+correct branches of a guessing-game referee before named functions. Their outputs
+use the same local Python worker and saved-draft system as the existing lessons.
+
+Foundations are grouped into seven content-defined chapters. The lesson header and
+markers describe the current chapter; the map uses expandable chapter groups with
+completion counts. Back/Next still follows the complete branch route.

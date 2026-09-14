@@ -27,5 +27,6 @@
   "editor": {
     "runOnEnter": true,
     "maxLines": 1
-  }
+  },
+  "chapter": "first-python"
 }

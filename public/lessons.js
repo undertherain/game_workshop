@@ -1,9 +1,10 @@
 import { createScene, initialState } from './scene.js';
+import { drawRobot, robotStart, robotPose } from './robot-scene.js';
 import { startWorkshop } from './app.js';
 import { lessons, games, skillLabels, branches } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
 import { restoreProvidedLines, allowsLessonEdit, editableRange } from './lesson-editing.js';
-import { resolveLesson, migrateDraft, lessonPosition, editorHelp, canRecordPractice, requiresQuizAnswer } from './lesson-model.js';
+import { resolveLesson, migrateDraft, lessonPosition, lessonChapters, editorHelp, canRecordPractice, requiresQuizAnswer } from './lesson-model.js';
 const $ = id => document.getElementById(id);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
 let hasLastLesson = false;
@@ -23,6 +24,7 @@ try {
   if (['fox', 'cat', 'bunny'].includes(saved.personal?.costume)) personal.costume = saved.personal.costume;
 } catch { /* Lessons also work without browser storage. */ }
 let speech = '', prediction = '';
+let robot = robotStart(), robotTrail = [robotStart()];
 let resetBackup = null;
 let acceptedSource = '';
 const seenEditHints = new Set();
@@ -63,7 +65,7 @@ function stopLesson() {
   $('lesson-loop-status').textContent = 'Stopped · Run starts your rule again.';
   feedback('Stopped. Your code is still here. Press Run to start again.');
 }
-function resetScene() { speech = ''; $('lesson-speech').textContent = ''; $('lesson-transcript').replaceChildren(); $('lesson-transcript').hidden = true; $('lesson-output').hidden = true; actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
+function resetScene() { robot = robotStart(); robotTrail = [robotStart()]; speech = ''; $('lesson-speech').textContent = ''; $('lesson-transcript').replaceChildren(); $('lesson-transcript').hidden = true; $('lesson-output').hidden = true; actions = []; actionStart = null; x = startX = 250; y = 430; result = null; interactive = false; clearKeys(); syncRunButton(); }
 function suggestions() {
   const line = input.value.slice(0, input.selectionStart).split('\n').at(-1).trim();
   $('lesson-completions').replaceChildren();
@@ -84,7 +86,11 @@ function suggestions() {
 }
 function render() {
   resetBackup = null; $('lesson-undo-reset').hidden = true;
-  const lesson = current(), { branch, position, next } = lessonPosition(lessons, lesson);
+  const lesson = current(), { position, next } = lessonPosition(lessons, lesson);
+  const branchInfo = branches.find(branch => branch.id === lesson.branch);
+  const chapters = lessonChapters(lessons, branchInfo);
+  const chapterIndex = chapters.findIndex(chapter => chapter.lessons.includes(lesson));
+  const chapter = chapters[chapterIndex], chapterPosition = chapter.lessons.indexOf(lesson);
   $('lessons').dataset.layout = lesson.layout || 'split';
   $('lessons').dataset.console = String(lesson.presentation === 'console');
   $('lessons').dataset.explanation = String(!!lesson.explanation);
@@ -98,13 +104,14 @@ function render() {
     article.append(title, code, description); return article;
   }));
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
-  $('lesson-progress').textContent = `${branches.find(branch => branch.id === lesson.branch).label} · ${position + 1} / ${branch.length}`;
-  $('lesson-dots').replaceChildren(...branch.map((item, i) => {
+  if (branchInfo.chapters) document.querySelector('.lesson-topline .eyebrow').textContent = `CHAPTER ${chapterIndex + 1} OF ${chapters.length}`;
+  $('lesson-progress').textContent = `${branchInfo.chapters ? chapter.title : branchInfo.label} · ${chapterPosition + 1} / ${chapter.lessons.length}`;
+  $('lesson-dots').replaceChildren(...chapter.lessons.map((item, i) => {
     const dot = document.createElement('button'); dot.type = 'button';
-    dot.className = i <= position ? 'active' : '';
+    dot.className = i <= chapterPosition ? 'active' : '';
     dot.title = `${i + 1}. ${item.title}`;
     dot.setAttribute('aria-label', `Lesson ${i + 1}: ${item.title}`);
-    if (i === position) dot.setAttribute('aria-current', 'step');
+    if (i === chapterPosition) dot.setAttribute('aria-current', 'step');
     dot.onclick = () => openLesson(item.id);
     return dot;
   }));
@@ -126,7 +133,7 @@ function render() {
     return button;
   }));
   $('lesson-back').disabled = position === 0;
-  $('lesson-next').textContent = !next ? 'Choose a game or another path →' : next.explanation ? 'Next idea →' : lesson.explanation ? 'Try it in code →' : 'Next little step →';
+  $('lesson-next').textContent = next && next.chapter !== lesson.chapter ? `Next chapter: ${chapters.find(chapter => chapter.lessons.includes(next)).title} →` : !next ? 'Choose a game or another path →' : next.explanation ? 'Next idea →' : lesson.explanation ? 'Try it in code →' : 'Next little step →';
   $('lesson-quiz').hidden = !lesson.quiz; quizAnswered = !lesson.quiz;
   $('quiz-feedback').textContent = ''; renderQuiz(lesson.quiz); renderPalette(lesson.palette); resetScene(); recorded = false; suggestions();
   const live = ['event', 'update'].includes(lesson.mode);
@@ -137,6 +144,8 @@ function render() {
   $('lesson-scene-title').textContent = lesson.scene.title || '';
   $('lesson-scene-title').parentElement.hidden = !lesson.scene.title;
   canvas.dataset.drawing = String(lesson.mode === 'drawing');
+  canvas.dataset.robot = String(lesson.mode === 'robot');
+  canvas.width = lesson.mode === 'robot' ? 480 : 840;
   canvas.setAttribute('aria-label', lesson.scene.label);
   const help = editorHelp(lesson);
   $('lesson-input-help').textContent = help.text;
@@ -187,7 +196,7 @@ function receive(data) {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
     if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.empty); }
-    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : action.kind === 'say' ? 'say' : `${action.kind}(${action.distance})`).join(' → ')}.`);
+    else feedback(`Your instructions: ${data.actions.map(action => typeof action === 'string' ? action : action.kind === 'say' ? 'say' : action.kind === 'robot' ? action.label : `${action.kind}(${action.distance})`).join(' → ')}.`);
   }
 }
 function run() {
@@ -237,11 +246,13 @@ function frame(time) {
         }
       }
       const t = Math.min(1, (time - actionStart) / 700);
-      if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
+      if (actions[0].kind === 'robot') robot = robotPose(actions[0], t);
+      else if (actions[0] === 'jump') y = 430 - Math.sin(t * Math.PI) * 110;
       else if (actions[0].kind !== 'say') x = Math.max(50, Math.min(790, startX + t * (actions[0].distance ?? 80)));
-      if (t === 1) { actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
+      if (t === 1) { if (actions[0].kind === 'robot') { robotTrail.push({ ...robot }); $('lesson-speech').textContent = `Robot at column ${robot.x + 1}, row ${robot.y + 1}, facing ${['right', 'down', 'left', 'up'][robot.turns % 4]}.`; } actions.shift(); actionStart = null; y = 430; if (!actions.length) { finish(); recordPractice(); feedback(current().feedback.success); } }
     }
-    if (current().mode === 'drawing') drawGrid();
+    if (current().mode === 'robot') drawRobot(ctx, robot, robotTrail);
+    else if (current().mode === 'drawing') drawGrid();
     else {
       scene.update({ ...initialState, stars: [], platforms: [[0, 430, 840]], world: { ...initialState.world, sky: personal.sky }, player: result?.interactive ? { ...result.player, costume: current().actor ? personal.costume : 'fox' } : { x, y, facing: 1, costume: current().actor ? personal.costume : 'fox', on_ground: y === 430 } });
       scene.draw(time);
@@ -268,21 +279,34 @@ function renderMap() {
     const eyebrow = document.createElement('p'); eyebrow.className = 'eyebrow'; eyebrow.textContent = branch.eyebrow;
     const heading = document.createElement('h2'); heading.textContent = branch.title;
     const description = document.createElement('p'); description.textContent = branch.description;
-    const target = document.createElement('div'); target.className = 'skill-nodes'; target.dataset.branch = branch.id;
     const branchLessons = lessons.filter(l => l.branch === branch.id);
     const completed = branchLessons.filter(l => records.some(r => r.source === 'lesson:' + l.id)).length;
     const summary = document.createElement('p'); summary.className = 'branch-progress';
     summary.textContent = `${completed} of ${branchLessons.length} stages completed`;
-    section.append(eyebrow, heading, description, summary, target);
+    section.append(eyebrow, heading, description, summary);
     $('lesson-branches').append(section);
-    for (const lesson of branchLessons) {
-      const practiced = records.some(r => r.source === 'lesson:' + lesson.id);
-      const button = document.createElement('button'); button.className = 'skill-node';
-      const title = document.createElement('strong'); title.textContent = lesson.title;
-      const note = document.createElement('span'); note.textContent = skillLabels[lesson.skill];
-      const status = document.createElement('span'); status.className = 'stage-status';
-      status.textContent = practiced ? '✓ Completed' : 'Explore →';
-      button.dataset.practiced = String(practiced); button.append(title, note, status); button.onclick = () => openLesson(lesson.id); target.append(button);
+    const chapters = lessonChapters(lessons, branch);
+    for (const [chapterIndex, chapter] of chapters.entries()) {
+      const target = document.createElement('div'); target.className = 'skill-nodes'; target.dataset.branch = branch.id;
+      if (branch.chapters) {
+        const group = document.createElement('details'); group.className = 'curriculum-chapter'; group.dataset.chapter = chapter.id;
+        group.open = chapter.lessons.includes(current());
+        const toggle = document.createElement('summary');
+        const title = document.createElement('strong'); title.textContent = `${chapterIndex + 1}. ${chapter.title}`;
+        const count = document.createElement('span'); count.className = 'chapter-count';
+        count.textContent = `${chapter.lessons.filter(l => records.some(r => r.source === 'lesson:' + l.id)).length} / ${chapter.lessons.length} completed`;
+        const description = document.createElement('p'); description.textContent = chapter.description;
+        toggle.append(title, count); group.append(toggle, description, target); section.append(group);
+      } else section.append(target);
+      for (const lesson of chapter.lessons) {
+        const practiced = records.some(r => r.source === 'lesson:' + lesson.id);
+        const button = document.createElement('button'); button.className = 'skill-node';
+        const title = document.createElement('strong'); title.textContent = lesson.title;
+        const note = document.createElement('span'); note.textContent = skillLabels[lesson.skill];
+        const status = document.createElement('span'); status.className = 'stage-status';
+        status.textContent = practiced ? '✓ Completed' : 'Explore →';
+        button.dataset.practiced = String(practiced); button.append(title, note, status); button.onclick = () => openLesson(lesson.id); target.append(button);
+      }
     }
     for (const planned of branch.planned || []) {
       const card = document.createElement('div'); card.className = 'future-node';

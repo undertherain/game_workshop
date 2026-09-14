@@ -27,5 +27,6 @@
   ],
   "feedback": {
     "success": "Compare 50 and 100. Try -50: which direction does the fox go?"
-  }
+  },
+  "chapter": "numbers-and-variables"
 }

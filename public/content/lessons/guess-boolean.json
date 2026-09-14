@@ -1,0 +1,28 @@
+{
+  "id": "guess-boolean",
+  "branch": "foundations",
+  "title": "Keep the answer in a variable",
+  "heading": "Keep the answer in a variable",
+  "description": "The variable too_low stores the answer to our comparison. print(too_low) displays it in Output. Change guess to 60, then 42. Predict the answer each time.",
+  "starter": [
+    "secret = 42",
+    "guess = 30",
+    "too_low = guess < secret",
+    "print(too_low)"
+  ],
+  "rows": 4,
+  "mode": "basics",
+  "skill": "booleans",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "At 42 the answer is False: equal is not less. too_low holds a boolean, just as guess holds a number."
+  },
+  "practiceFeature": "comparison",
+  "chapter": "decisions"
+}

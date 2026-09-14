@@ -1,0 +1,29 @@
+{
+  "id": "guess-challenge",
+  "branch": "foundations",
+  "title": "Write the guessing rules",
+  "heading": "Write the guessing rules",
+  "description": "Your turn: replace pass with rules that print “Too low!”, “Too high!”, or “You found it!”. Start with secret = 73. Test guesses 1, 72, 73, 74 and 100. Then change the secret and test again.",
+  "starter": [
+    "secret = 73",
+    "guess = 50",
+    "pass"
+  ],
+  "rows": 3,
+  "mode": "basics",
+  "skill": "conditions",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "initial": "Write the rules using if, elif and else. Revisit the previous lesson if you need an example.",
+    "empty": "Replace pass with your comparisons and messages.",
+    "success": "Check a lower guess, an exact match, and a higher guess. This records practice; it does not grade your answers. Later we can add player input and a hidden random secret."
+  },
+  "practiceFeature": "condition",
+  "chapter": "decisions"
+}

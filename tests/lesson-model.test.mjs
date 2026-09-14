@@ -1,8 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lessons, skillLabels } from '../public/curriculum.js';
+import { lessons, skillLabels, branches } from '../public/curriculum.js';
 import { readContent, loadLessons, validateLesson } from '../public/content-loader.js';
-import { resolveLesson, migrateDraft, lessonPosition, editorHelp, canRecordPractice } from '../public/lesson-model.js';
+import { resolveLesson, migrateDraft, lessonPosition, lessonChapters, editorHelp, canRecordPractice } from '../public/lesson-model.js';
+
+test('chapters group the route without breaking navigation across boundaries', () => {
+  const branch = branches.find(branch => branch.id === 'foundations');
+  const chapters = lessonChapters(lessons, branch);
+  assert.equal(chapters.length, 7);
+  assert.deepEqual(chapters.flatMap(chapter => chapter.lessons), lessons.filter(lesson => lesson.branch === branch.id));
+  for (const [index, chapter] of chapters.entries()) {
+    assert.ok(chapter.lessons.length <= 10);
+    if (index) {
+      const first = chapter.lessons[0], previous = chapters[index - 1].lessons.at(-1);
+      assert.equal(lessonPosition(lessons, first).previous, previous);
+      assert.equal(lessonPosition(lessons, previous).next, first);
+    }
+  }
+  const drawing = lessonChapters(lessons, branches.find(branch => branch.id === 'drawing'));
+  assert.equal(drawing.length, 1);
+  assert.equal(drawing[0].lessons.length, 3);
+});
+
+test('chapter content rejects missing and unknown chapter references', async () => {
+  for (const chapter of [undefined, 'missing']) {
+    await assert.rejects(loadLessons(skillLabels, async path => {
+      const content = await readContent(path);
+      return path === 'lessons/calculator.json' ? { ...content, chapter } : content;
+    }), /chapter/);
+  }
+});
 
 test('manifest order drives navigation even with renamed and reordered lessons', async () => {
   const ids = await readContent('lessons/index.json');

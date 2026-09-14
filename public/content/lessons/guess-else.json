@@ -1,0 +1,30 @@
+{
+  "id": "guess-else",
+  "branch": "foundations",
+  "title": "Correct—or try again",
+  "heading": "Correct—or try again",
+  "description": "== asks whether the attempt equals the secret. else runs when that answer is False. Test 30, 42 and 60: there should be one message each time.",
+  "starter": [
+    "secret = 42",
+    "guess = 30",
+    "if guess == secret:",
+    "    print(\"You found it!\")",
+    "else:",
+    "    print(\"Try again!\")"
+  ],
+  "rows": 6,
+  "mode": "basics",
+  "skill": "conditions",
+  "layout": "compact",
+  "presentation": "console",
+  "placeholder": "Write your Python here",
+  "scene": {
+    "label": "Python output for the number guessing game."
+  },
+  "completions": [],
+  "feedback": {
+    "success": "Only one branch runs. else has a colon too, and its message is indented. Both 30 and 60 need another try."
+  },
+  "practiceFeature": "condition",
+  "chapter": "decisions"
+}
