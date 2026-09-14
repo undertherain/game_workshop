@@ -182,3 +182,34 @@ body[data-mode="home"] .header-actions { display:none; }
 .curriculum-chapter > p { margin:0 16px 14px; color:var(--muted); line-height:1.5; }
 .curriculum-chapter .skill-nodes { margin:0 16px 16px; }
 @media(max-width:540px) { .chapter-count { float:none; display:block; margin:6px 0 0 22px; } }
+
+/* The slide keeps its own layout; Pip sits alongside the whole activity. */
+body:not([data-mode="lessons"]) #lesson-with-tutor { display:none; }
+#lesson-with-tutor { max-width:1500px; margin:auto; display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; padding:24px 28px; align-items:start; }
+#lesson-with-tutor #lessons { width:100%; min-width:0; margin:0 auto; padding:0; }
+#lesson-tutor { position:sticky; top:20px; min-width:0; border:1px solid var(--border); border-radius:16px; background:#fffef9; overflow:hidden; }
+#lesson-tutor .helper-heading { padding:20px 18px 10px; }
+#lesson-tutor h2 { margin:0; font-size:19px; }
+#lesson-tutor-mode,#lesson-tutor-context,#lesson-tutor-status { font-size:12px; line-height:1.5; color:var(--muted); }
+#lesson-tutor-context { margin:0; padding:0 18px 14px; border-bottom:1px solid var(--border); }
+#lesson-tutor-messages { height:clamp(180px,38dvh,380px); overflow-y:auto; padding:14px; overscroll-behavior:contain; }
+.lesson-tutor-message { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.6; margin:0 0 12px; padding:12px; background:#f0f4e8; border-radius:12px; }
+.lesson-tutor-message.user { background:#e5eeeb; margin-left:24px; }
+.lesson-tutor-prompts { display:flex; gap:6px; padding:8px 14px; flex-wrap:wrap; }
+.lesson-tutor-prompts button { font-size:12px; border:1px solid var(--border); background:transparent; padding:8px; }
+#lesson-tutor-form { padding:8px 14px; display:flex; flex-direction:column; align-items:end; gap:8px; }
+#lesson-tutor-question { width:100%; resize:vertical; min-height:64px; max-height:180px; border:1px solid var(--border); border-radius:9px; padding:10px; font-family:inherit; font-size:14px; line-height:1.5; background:#fafbf5; color:var(--ink); }
+#lesson-tutor-form button { padding:9px 16px; }
+#lesson-tutor-status { margin:0; padding:0 14px 12px; }
+@media (min-width:900px) and (max-width:1250px) {
+  #lesson-with-tutor #lessons { display:flex; flex-direction:column; gap:0; }
+  #lesson-with-tutor .lesson-instructions { display:contents; }
+  #lesson-with-tutor .lesson-card { order:1; width:100%; }
+  #lesson-with-tutor .lesson-navigation { order:3; }
+  #lesson-with-tutor .lesson-footnote { order:4; }
+}
+@media (max-width:899px) {
+  #lesson-with-tutor { grid-template-columns:minmax(0,1fr); max-width:760px; padding:20px 16px; }
+  #lesson-tutor { position:static; }
+  #lesson-tutor-messages { height:240px; }
+}

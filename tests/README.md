@@ -57,3 +57,7 @@ captured the ship, aliens and a moving shot with the real raylib host.
 The lesson runtime checks also cover robot square endpoints and heading, incomplete
 patrols, board/step/action limits and recovery; boolean variables and skipped blocks;
 and guessing-game branch outputs across changing secrets and exact-match boundaries.
+
+`lesson-tutor.test.mjs` checks canonical slide context, exact upcoming-slide distances,
+visited versus practice evidence, planned topics, bounded history, offline behavior
+and explanation-only AI responses through the HTTP endpoint with a fake upstream.

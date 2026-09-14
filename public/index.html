@@ -31,6 +31,7 @@
     <section class="game-library" aria-labelledby="library-title"><p class="eyebrow">A LITTLE ENCYCLOPEDIA OF GAMES</p><h2 id="library-title">Find your next creation</h2><p>Each game is another place to use what you know. You can revisit any foundation.</p><div id="game-library-cards"></div></section>
     <p class="map-note">Practice means you tried a concept. A passed check means a game behavior worked. Neither is a grade or a lock.</p>
   </main>
+  <div id="lesson-with-tutor">
   <main id="lessons" hidden aria-labelledby="lesson-title">
     <aside class="lesson-instructions" aria-label="Lesson instructions">
     <div class="lesson-topline"><span class="eyebrow">YOUR FIRST LITTLE PROGRAM</span><span id="lesson-progress"></span></div>
@@ -59,6 +60,15 @@
       <p id="lesson-feedback" role="status" aria-live="polite"></p>
     </section>
   </main>
+  <aside id="lesson-tutor" aria-labelledby="lesson-tutor-title">
+    <div class="helper-heading"><div class="pip-avatar" aria-hidden="true">✳</div><div><h2 id="lesson-tutor-title">Ask Pip</h2><p id="lesson-tutor-mode">Your slide companion</p></div></div>
+    <p id="lesson-tutor-context"></p>
+    <div id="lesson-tutor-messages" role="log" aria-live="polite" aria-label="Conversation with Pip"></div>
+    <div class="lesson-tutor-prompts"><button type="button" data-lesson-question="Explain this slide more simply.">Explain this</button><button type="button" data-lesson-question="What will we study next?">What’s next?</button></div>
+    <form id="lesson-tutor-form"><label class="sr-only" for="lesson-tutor-question">Ask about this lesson</label><textarea id="lesson-tutor-question" rows="2" maxlength="2000" placeholder="What are you wondering about?" required></textarea><button class="primary" type="submit">Send ↑</button></form>
+    <p id="lesson-tutor-status" role="status"></p>
+  </aside>
+  </div>
   <main id="workshop-main" hidden>
     <div class="intro"><div><p class="eyebrow">YOUR VERY FIRST GAME</p><h1>Pick a game. <em>Make it yours.</em></h1><p>The world is ready. You bring it to life, one little rule at a time.</p></div><div class="edition"><span>✧</span><p>SMALL STEPS<br>BIG IDEAS</p></div></div>
     <nav id="template-picker" class="template-picker" aria-label="Choose a game to build"></nav>

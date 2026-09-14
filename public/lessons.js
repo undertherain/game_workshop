@@ -1,3 +1,4 @@
+import { createLessonTutor } from './lesson-tutor.js';
 import { createScene, initialState } from './scene.js';
 import { drawRobot, robotStart, robotPose } from './robot-scene.js';
 import { startWorkshop } from './app.js';
@@ -33,6 +34,8 @@ try {
   if (Array.isArray(saved)) for (const id of saved) if (typeof id === 'string') seenEditHints.add(id);
 } catch { /* One-time hints still work during this visit. */ }
 const current = () => lessons[index];
+const slideTutor = createLessonTutor(() => ({ lessonId: current().id, code: input.value,
+  runningCode: result ? runningSource : '', feedback: $('lesson-feedback').textContent, progress: progress.get() }));
 function dismissEditHint() { $('lesson-edit-hint').hidden = true; }
 function showEditHint(lesson) {
   dismissEditHint();
@@ -152,6 +155,7 @@ function render() {
   $('lesson-input-help').classList.toggle('sr-only', help.display === 'once');
   showEditHint(lesson);
   feedback(lesson.quiz ? lesson.quiz.initial : lesson.feedback.initial);
+  slideTutor.show(lesson);
 }
 function stopWorker() { worker?.terminate(); worker = null; ready = false; requestPending = false; interactive = false; clearTimeout(timer); clearKeys(); syncRunButton(); }
 function finish() { busy = false; input.disabled = false; $('lesson-run').disabled = false; $('lesson-back').disabled = !lessonPosition(lessons, current()).previous; $('lesson-next').disabled = false; syncRunButton(); }

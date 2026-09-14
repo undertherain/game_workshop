@@ -174,6 +174,22 @@ They are small scaffolds, not fully authored games. `public/starter.py` retains 
 original complete platformer sample. Exported Python uses this workshop's game API;
 it is not a standalone desktop game.
 
+## Slide tutor
+
+**Ask Pip** sits beside each lesson on desktop and below it on narrow screens.
+Ask a question or choose **Explain this** / **What’s next?**. Pip receives the current
+slide’s instructions and examples, editor code and last-run feedback, the ordered
+lesson route with exact slide distances, visited/practised lesson evidence, and a
+high-level outline of other chapters, drawing and games, including planned activities.
+It can explain that a topic is two slides ahead without assuming skipped slides were studied.
+Visited slides are stored locally from this version onward; opening a slide does not
+record practice or mastery. Each slide’s recent chat stays in memory during this visit;
+reloading clears conversations. Navigating to another slide cancels its pending reply.
+
+This uses the existing server-side AI configuration. Without an API key, the panel
+explicitly shows a built-in slide guide. Replies are explanations only; they do not
+change or run code. Restart the server after updating tutor code or lesson content.
+
 ## Learning progress
 
 Progress is local to this browser. Running a meaningful lesson example records

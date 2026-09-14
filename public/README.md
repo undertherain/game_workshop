@@ -80,3 +80,9 @@ use the same local Python worker and saved-draft system as the existing lessons.
 Foundations are grouped into seven content-defined chapters. The lesson header and
 markers describe the current chapter; the map uses expandable chapter groups with
 completion counts. Back/Next still follows the complete branch route.
+
+`lesson-tutor.js` manages the slide sidebar, per-slide session chats, locally saved
+visited slide IDs and cancellation when navigating. `lesson-tutor.mjs` at the project
+root builds canonical curriculum context for `/api/lesson-help`; the existing server
+provides the AI transport and offline slide guide. The sidebar stacks below slides
+on narrow screens.

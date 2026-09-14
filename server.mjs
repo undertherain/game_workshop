@@ -1,3 +1,4 @@
+import { lessonInstructions, validateLessonInput, lessonExample } from './lesson-tutor.mjs';
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -32,21 +33,22 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return json(res, 403, { error: 'Local connections only.' });
       const url = new URL(req.url, 'http://' + host);
       if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, { mode: apiKey ? 'ai' : 'examples' });
-      if (url.pathname === '/api/help' && req.method === 'POST') {
+      if (['/api/help', '/api/lesson-help'].includes(url.pathname) && req.method === 'POST') {
+        const isLesson = url.pathname === '/api/lesson-help';
         if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         let raw = ''; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 60000) return json(res, 413, { error: 'That question is too large.' }); raw += chunk; }
         let input;
-        try { input = validateInput(JSON.parse(raw)); } catch (e) { return json(res, 400, { error: e.message }); }
-        if (!apiKey) return json(res, 200, { mode: 'examples', ...guidedExample(input) });
+        try { input = (isLesson ? validateLessonInput : validateInput)(JSON.parse(raw)); } catch (e) { return json(res, 400, { error: e.message }); }
+        if (!apiKey) return json(res, 200, { mode: 'examples', ...(isLesson ? lessonExample(input) : guidedExample(input)) });
         if (busy) return json(res, 429, { error: 'The helper is answering another question. Try again in a moment.' });
         busy = true;
         try {
           const response = await fetchImpl('https://api.openai.com/v1/responses', {
             method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
             signal: AbortSignal.timeout(30000),
-            body: JSON.stringify({ model, instructions: instructions + '\n' + arcadeInstructions[input.template], input: JSON.stringify(input), store: false,
+            body: JSON.stringify({ model, instructions: isLesson ? lessonInstructions : instructions + '\n' + arcadeInstructions[input.template], input: JSON.stringify(input), store: false,
               max_output_tokens: 1800, text: { format: { type: 'json_schema', name: 'game_tutor', strict: true, schema } } }),
           });
           if (!response.ok) {
@@ -59,7 +61,8 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
           if (refusal) return json(res, 200, { mode: 'ai', message: refusal.refusal, line: null, before: null, after: null, experiment: '' });
           const text = content.filter(item => item.type === 'output_text').map(item => item.text).join('');
           const reply = validateReply(JSON.parse(text), input.code);
-          if (input.mode === 'hint' || input.mode === 'explain') { reply.before = null; reply.after = null; }
+          if (isLesson) reply.line = null;
+          if (isLesson || input.mode === 'hint' || input.mode === 'explain') { reply.before = null; reply.after = null; }
           return json(res, 200, { mode: 'ai', ...reply });
         } catch (error) {
           return json(res, 502, { error: error.name === 'TimeoutError' ? 'The helper took too long. Try asking again.' : 'The helper could not answer just now. Your code is safe; please try again.' });
