@@ -1,8 +1,7 @@
 # Little Makers — browser Python game workshop
 
 Start with short, slide-by-slide Python lessons in a meadow: type `fox.jump()`, meet Python and expressions, try a tiny calculator, and use `fox.say()`
-with text, numbers and a named greeting. Then choose another action and predict a
-two-command sequence. Then
+with text, numbers and a named greeting. The first jump leads straight to a move-then-jump sequence and choosing another action. Then
 open the split-screen workshop, choose a platformer, brick breaker or
 Paratroopers-style game, and build its controls and rules through short Python mini-exercises. Scenery,
 physics and moving game objects are provided; the child writes small behaviors.
@@ -42,13 +41,15 @@ drafts and the last visited lesson. Each lesson has a shareable URL such as
 `/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
 lesson navigation. The base URL opens the title screen.
 
-The **Learning map** connects twenty-one foundational lessons, three optional drawing
+The **Learning map** connects twenty-two foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations open with nine compact, single-column slides. After the first jump,
-short explanations alternate with code practice: Python and expressions →
+The foundations open with twelve compact, single-column slides. The first jump leads
+straight to a move-then-jump prediction that introduces line-by-line execution,
+then choosing an action. Short explanations and code practice follow: Python →
+a preview of constants (literal values), expressions, variables and keywords →
 calculator, strings → fox speech, add quotes and compare,
 variables → integer addition versus string joining → a personal greeting. In that exercise, only the variable assignment
 line is editable; the supplied `fox.say(...)` line stays fixed. A one-time overlay
@@ -58,9 +59,10 @@ use large examples and short, separate text blocks with no editor or scene;
 “Try it in code” opens the next activity.
 Reading an explanation does not record code practice.
 The calculator echoes a top-level expression in the Output panel; `fox.say(value)`
-shows a speech bubble in the scene, with no duplicate Output panel. The second
+shows a speech bubble in the scene, with no duplicate Output panel. The Meet Python
 slide introduces Python as the language used to build things and explains 2 + 3
-as an expression. The next slide starts with 10 - 3 in an editable calculator.
+as an expression. After the building-block overview, the calculator starts with
+10 - 3.
 The text/number lesson runs one line at a time: calculate
 3 + 4, then compare with "3" + "4" to see integer addition versus string joining.
 The variable explanation uses `print(username)` to show reading a stored value.

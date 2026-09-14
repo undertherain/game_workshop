@@ -37,7 +37,7 @@ The lesson fields are:
 | `skill` | A key from `catalog.json`'s `skillLabels` |
 | `layout` | Optional `compact` for short single-column opening slides |
 | `presentation` | Optional `scene` (default) or `console`; console hides the scene and shows results in Output, while scene uses speech bubbles |
-| `explanation` | Optional 1–3 `{title, code, text}` cards on a compact reading slide; use an empty starter, or combine with `quiz.only` |
+| `explanation` | Optional 1–4 `{title, code, text}` cards on a compact reading slide; use an empty starter, or combine with `quiz.only` |
 | `actor` | Optional `character`, used after customization; omit for early fox lessons |
 | `placeholder` | Hint inside the empty editor |
 | `scene` | Optional `title` (omit to hide the caption) and required accessible `label` |

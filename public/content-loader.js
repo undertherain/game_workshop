@@ -45,7 +45,7 @@ export function validateLesson(lesson, id, defaults, skills) {
   requireValue(Array.isArray(lesson.completions) && lesson.completions.every(c => text(c.code) && text(c.description)), `${label}: invalid completions`);
   if (lesson.examples) requireValue(Array.isArray(lesson.examples) && lesson.examples.length <= 3 && lesson.examples.every(example => text(example.label) && text(example.code) && example.code.length <= 1000), `${label}: invalid examples`);
   if (lesson.explanation) {
-    requireValue(lesson.layout === 'compact' && Array.isArray(lesson.explanation) && lesson.explanation.length >= 1 && lesson.explanation.length <= 3 && lesson.explanation.every(card => text(card.title) && text(card.code) && text(card.text)), `${label}: explanation needs 1–3 cards with title, code and text`);
+    requireValue(lesson.layout === 'compact' && Array.isArray(lesson.explanation) && lesson.explanation.length >= 1 && lesson.explanation.length <= 4 && lesson.explanation.every(card => text(card.title) && text(card.code) && text(card.text)), `${label}: explanation needs 1–4 cards with title, code and text`);
     requireValue(lesson.starter.length === 0 || lesson.quiz?.only === true, `${label}: explanations use an empty starter or a standalone quiz`);
   }
   if (lesson.quiz) {

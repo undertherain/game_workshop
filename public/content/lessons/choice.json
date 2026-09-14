@@ -25,5 +25,6 @@
   "editor": {
     "runOnEnter": true,
     "maxLines": 1
-  }
+  },
+  "layout": "compact"
 }

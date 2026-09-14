@@ -1,6 +1,9 @@
 [
   "command",
+  "sequence",
+  "choice",
   "sum",
+  "python-pieces",
   "calculator",
   "strings-intro",
   "hello",
@@ -8,8 +11,6 @@
   "names-intro",
   "addition-intro",
   "greeting",
-  "choice",
-  "sequence",
   "numbers",
   "expressions",
   "variables",

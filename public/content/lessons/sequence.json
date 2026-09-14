@@ -2,14 +2,14 @@
   "id": "sequence",
   "branch": "foundations",
   "title": "Put actions in order",
-  "heading": "One instruction, then another.",
-  "description": "Python reads from top to bottom. Predict what happens first, then run this program. Swap the lines and compare.",
+  "heading": "Move, then jump.",
+  "description": "Python follows these instructions line by line, from top to bottom. Each line tells the fox what to do next. Predict what happens first, then press Run. Swap the two lines and run again!",
   "rows": 2,
   "mode": "commands",
   "skill": "sequence",
   "starter": [
-    "fox.jump()",
-    "fox.move()"
+    "fox.move()",
+    "fox.jump()"
   ],
   "scene": {
     "label": "Your character in a meadow. Run your instructions to make it act."
@@ -44,5 +44,6 @@
     "match": "That matches the first line. Run it and see!",
     "different": "Let’s test your prediction. Run the program and watch which line happens first.",
     "ready": "Prediction made. Press Run to see what happens."
-  }
+  },
+  "layout": "compact"
 }
