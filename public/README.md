@@ -218,8 +218,9 @@ focus leaving the menu; navigation closes it. The editor has no separate export 
 
 
 Space Invaders and Asteroids use `framework/space_workshop.py` through the shared
-worker. The Invaders adapter reuses `framework/invaders.py` (also imported by the
-desktop example) and its existing Game/World collision engine and stock pixel sprites.
+worker. The Invaders adapter uses `framework/invaders.py` and the existing
+Game/World collision engine and stock pixel sprites. The desktop tutorial keeps
+its complete game rules in `examples/alien_invaders/game.py` for learners to edit.
 Asteroids owns rotation, acceleration, wrapped movement, swept shot hits, splitting,
 shields and respawn. `space-scene.js` draws both snapshots; all three modules plus
 `stock.py` are included in the framework/renderer export lists. No remote assets or

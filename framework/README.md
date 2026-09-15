@@ -90,8 +90,9 @@ Both expose `ship`, `world`, `keyboard`, `update()` and `on_hit(target)`. The su
 starter helpers are ordinary Python functions called by `update()`. Numeric settings
 are validated before simulation, and callbacks retain `my_game.py` error locations.
 
-Invaders wraps the existing `Invaders` class from `invaders.py`, which the desktop
-example also imports. It reuses `Game`, `World`, original actor construction, stock
+Invaders wraps the workshop's `Invaders` class from `invaders.py`. The desktop
+example keeps its complete authored class in `examples/alien_invaders/game.py`.
+Both use `Game`, `World`, original actor construction, stock
 sprite definitions and projectile collision handling. The adapter adds two rows,
 formation movement/descent, enemy shots, shields, and learner control/hit hooks.
 `ship.x` and `ship.speed` control horizontal movement in the 960×640 playfield.

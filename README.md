@@ -434,9 +434,10 @@ saved drafts and progress.
 Framework exploration: [north star and current slice](docs/framework-north-star.md).
 The [Alien invaders example](examples/alien_invaders/README.md) is a minimal
 standalone game: move a ship, shoot stationary aliens and clear the row. Its
-shared program in `framework/invaders.py` uses the experimental `Game` defaults
-and explicitly imported stock sprites. The desktop example imports that class; the
-browser workshop reuses it with a larger moving formation and learner callbacks.
+complete program in `examples/alien_invaders/game.py` uses the experimental `Game`
+defaults and explicitly imported stock sprites, with setup and game rules visible
+in the example. The browser workshop uses its own copy in `framework/invaders.py`
+with a larger moving formation and learner callbacks.
 Run `python3 -m examples.alien_invaders` (requires `raylib`); add `--windowed`
 for a resizable window instead of fullscreen.
 The [brick-breaker framework example](public/examples/breaker_framework.py) adds

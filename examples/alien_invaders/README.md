@@ -11,10 +11,11 @@ python3 -m examples.alien_invaders
 python3 -m examples.alien_invaders --windowed
 ```
 
-The authored game class now lives in [framework/invaders.py](../../framework/invaders.py),
-shared with the browser workshop. [game.py](game.py) imports it and retains the
-guarded desktop entry point. Movement, shooting and the completion message are
-visible there. The CLI wrapper only adds `--windowed`; it contains no game rules.
+The complete authored game lives in [game.py](game.py): imports, actor setup,
+movement, shooting, the completion message and guarded startup in 13 nonblank lines.
+Edit this file to change the demo. Keep these rules here so the example demonstrates
+writing a game with framework building blocks. The CLI wrapper only adds
+`--windowed`; it contains no game rules.
 `Invaders` inherits `Game`: `setup()` creates its actors once during construction,
 and `update(dt)` defines its rules. Each instance owns its ship and aliens.
 
@@ -61,8 +62,10 @@ next tutorial steps, not implemented features of this example. This is an initia
 API experiment toward the [short-game authoring target](../../docs/framework-north-star.md).
 
 
-The museum’s Space Invaders version adapts this class with three moving alien rows,
+The museum’s Space Invaders version uses a separate copy of the initial game in
+[framework/invaders.py](../../framework/invaders.py), with three moving alien rows,
 edge descent, enemy shots, shields and workshop exercise callbacks. These additions
 belong to `framework/space_workshop.py`; this desktop example keeps its original
 stationary row and short controls. Both share actor creation, stock sprites and the
-Game/World projectile engine.
+Game/World projectile engine. Editing this example changes the desktop demo;
+the browser workshop keeps its own supplied game and learner callbacks.

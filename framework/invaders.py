@@ -1,4 +1,9 @@
-"""Shared original Invaders example; desktop and workshop use the same actors and sprites."""
+"""Invaders seed for the browser workshop.
+
+The editable desktop tutorial owns its complete rules in
+examples/alien_invaders/game.py; keep that example self-contained.
+Both use the same Game/World primitives and stock sprites.
+"""
 from .game import Game
 from .stock import ship, alien, bullet
 
@@ -12,4 +17,3 @@ class Invaders(Game):
         if 'fire' in self.pressed:
             self.ship.fire(0, -1, render_size=(4, 12))
         self.message = 'Left/Right: move   Space: shoot   Esc: quit' if any(alien.alive for alien in self.aliens) else 'All clear!'
-
