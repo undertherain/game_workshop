@@ -30,3 +30,22 @@ test('Sokoban tutor and voice receive current building exercise and its API', ()
     assert.ok(voice.session.delegation.responses.instructions.includes(input.exercise.title));
   }
 });
+
+test('Asteroids separates thrust from firing and uses separate rotation evidence', () => {
+  for (const code of ['ArrowUp','KeyW']) assert.equal(gameKey('asteroids',{code}),'thrust');
+  assert.equal(gameKey('asteroids',{code:'Space'}),'jump');
+  assert.equal(gameKey('invaders',{code:'Space'}),'jump');
+  assert.equal(movementOffer({records:[{skill:'movement',evidence:'checked',source:'game:breaker'}]},'asteroids'),null);
+});
+
+test('space game tutors and voice know each exercise and the selected ship API', () => {
+  for (const template of ['invaders', 'asteroids']) for (let index=0; index<4; index++) {
+    const input=validateInput({template,question:'Help with this rule',code:templates[template].starters[index],exercise:{index}});
+    const hint=guidedExample(input);
+    assert.equal(hint.message,templates[template].steps[index][2]);
+    const voice=voiceSession({kind:'game',sdp:'v=0\r\n',context:input},'test-model');
+    assert.match(voice.session.delegation.responses.instructions,/ship.fire/);
+    assert.ok(voice.session.delegation.responses.instructions.includes(input.exercise.title));
+    if(template==='asteroids')assert.match(voice.session.delegation.responses.instructions,/keyboard.thrust/);
+  }
+});

@@ -64,12 +64,12 @@
       </div>
       <div class="path-heading"><h2>Where will you begin?</h2><p>Follow your curiosity. You can switch paths anytime.</p></div>
       <div class="museum-paths">
-        <button id="museum-story" class="museum-path" aria-expanded="false" aria-controls="museum-story-panel"><span class="path-icon" aria-hidden="true">✧</span><span class="path-kicker">DISCOVER</span><strong>Learn the story</strong><span>Meet the game, its goal, and the little rules behind the fun.</span><span class="path-link">Explore the idea <b aria-hidden="true">↗</b></span></button>
+        <button id="museum-story" class="museum-path" aria-expanded="false" aria-controls="museum-story-panel"><span class="path-icon" aria-hidden="true">✧</span><span class="path-kicker">DISCOVER</span><strong>Learn the story</strong><span>Find out when games like this appeared and who made them.</span><span class="path-link">Explore the history <b aria-hidden="true">↗</b></span></button>
         <button id="museum-learn" class="museum-path"><span class="path-icon" aria-hidden="true">⌘</span><span class="path-kicker">BUILD, STEP BY STEP</span><strong>Try exercises</strong><span>Add controls and bring the rules to life, one small Python step at a time.</span><span class="path-link">Start building <b aria-hidden="true">↗</b></span></button>
         <button id="museum-complete" class="museum-path"><span class="path-icon" aria-hidden="true">✳</span><span class="path-kicker">PLAY & EXPERIMENT</span><strong>Try customizing</strong><span>Start with a working game. Change a rule and see what happens.</span><span class="path-link">Make it yours <b aria-hidden="true">↗</b></span></button>
       </div>
       <section id="museum-story-panel" class="museum-story-panel" hidden aria-labelledby="museum-story-title">
-        <div class="museum-story-copy"><p class="eyebrow">BEHIND THE GAME</p><h2 id="museum-story-title" tabindex="-1"></h2><p id="museum-story-text"></p><h3>Your first “what if?”</h3><p id="museum-story-prompt"></p></div>
+        <div class="museum-story-copy"><p class="eyebrow">BEHIND THE GAME</p><h2 id="museum-story-title" tabindex="-1"></h2><p id="museum-story-text"></p><div id="museum-story-sources" class="museum-story-sources" hidden><h3>Sources &amp; further reading</h3><ul id="museum-source-links"></ul></div><h3>Your first “what if?”</h3><p id="museum-story-prompt"></p></div>
       <aside id="museum-pip" class="helper-card" aria-labelledby="museum-pip-title">
         <div class="helper-heading"><div class="pip-avatar" aria-hidden="true">✳</div><div><h2 id="museum-pip-title">Explore with Pip</h2><p id="museum-pip-mode">Your museum guide</p></div></div>
         <div id="museum-messages" class="conversation" role="log" aria-live="polite"></div>
@@ -125,11 +125,11 @@
     <section id="build-path" class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
     <div class="workspace">
       <section class="play-column" aria-label="Your game and helper">
-        <div class="game-card">
-          <div class="panel-heading"><div><span class="status-dot"></span><strong id="game-title">Star Meadow</strong><span class="subtle">your game</span></div><button id="restart" class="quiet" title="Restart the last working code">↻ Play again</button></div>
+        <div id="game-card" class="game-card">
+          <div class="panel-heading"><div><span class="status-dot"></span><strong id="game-title">Star Meadow</strong><span class="subtle">your game</span></div><div class="game-view-actions"><button id="restart" class="quiet" title="Restart the last working code">↻ Play again</button><button id="expand-game" class="quiet" aria-expanded="false" aria-controls="expanded-game" aria-haspopup="dialog">⛶ Expand game</button></div></div>
           <div class="stage-wrap"><canvas id="game" width="840" height="480" tabindex="0" aria-label="Star Meadow. Click to play. Arrow keys move; Space jumps."></canvas><div id="boot-overlay" class="boot-overlay">Waking up your world…<small>Loading Python for the first time</small></div><div id="win-banner" class="win-banner" hidden>All seven stars!<small>Now change a rule and make it yours.</small></div></div>
           <div class="game-footer"><span id="game-controls">← → move · Space: jump</span><span id="action-label" hidden>jump</span><span id="score">✦ 0 / 7 stars</span></div>
-          <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="up" data-grid-control hidden aria-label="Move up">↑</button><button data-key="down" data-grid-control hidden aria-label="Move down">↓</button><button data-key="jump">Jump ↑</button><button data-key="next" data-grid-control hidden>Next puzzle →</button></div>
+          <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="up" data-grid-control hidden aria-label="Move up">↑</button><button data-key="down" data-grid-control hidden aria-label="Move down">↓</button><button data-key="thrust" data-flight-control hidden aria-label="Thrust">Thrust ↑</button><button data-key="jump">Jump ↑</button><button data-key="next" data-grid-control hidden>Next puzzle →</button></div>
         </div>
         <section class="helper-card" aria-labelledby="helper-title">
           <div class="helper-heading"><div class="pip-avatar">✳</div><div><h2 id="helper-title">A little help from Pip</h2><p id="helper-mode">Connecting your coding companion…</p></div><span class="helper-badge" id="helper-badge">…</span></div>
@@ -154,5 +154,6 @@
     <footer class="page-footer"><span>Made for the “can I make a game?” kind of curious.</span><span>Play → wonder → change → play</span></footer>
   </main>
   <script type="module" src="/bootstrap.js"></script>
+<dialog id="expanded-game" aria-labelledby="game-title"></dialog>
 </body>
 </html>

@@ -1,0 +1,97 @@
+{
+  "title": "Space Invaders",
+  "genre": "Space Invaders",
+  "icon": "♜",
+  "description": "Steer your ship, shoot the advancing alien formation, and clear the screen.",
+  "controls": "fire",
+  "action": "Fire",
+  "placeholder": "How can I change my space game?",
+  "intro": "Left already works in move_ship(). Add Right, then steer your ship under an alien and press Space to fire.",
+  "museumIntro": "Move with Left/Right or A/D and press Space to fire one shot. Clear three rows of aliens before they reach your ship. The formation reverses and descends at the edges; aliens fire back. You have three shields, with brief protection after a hit. Play again restarts the game.",
+  "museumStory": {
+    "title": "1978: Space Invaders reaches the arcades",
+    "text": "Taito released Space Invaders in 1978, created by Tomohiro Nishikado. Its rows of marching aliens became a familiar sight far beyond amusement arcades: table-shaped cabinets appeared in Japanese coffee shops, and venues filled with the game became known as “Invader Houses”.\n\nOur Python version keeps the descending formation and the ship below it. You can explore how movement, firing and a few collision rules create that kind of game.",
+    "prompt": "Try a slower formation or a faster ship. How does that change the time you have to aim?",
+    "sources": [
+      {
+        "title": "Taito · The evolution of Space Invaders",
+        "url": "https://artsandculture.google.com/story/the-evolution-of-space-invaders-taito-corporation/wAVxCu_0BaX0aw?hl=en-US"
+      },
+      {
+        "title": "Taito · Space Invaders, the game changer",
+        "url": "https://artsandculture.google.com/story/space-invaders-the-game-changer-taito-corporation/SwVBsVEMarKRfA?hl=en"
+      }
+    ]
+  },
+  "ideas": [
+    [
+      "Slower aliens",
+      "Help me change world.alien_speed."
+    ],
+    [
+      "Faster ship",
+      "Help me change ship.speed without changing the alien formation."
+    ],
+    [
+      "Scoring",
+      "Help me change how many points an alien is worth."
+    ]
+  ],
+  "guide": [
+    [
+      "ship.x / ship.speed",
+      "Horizontal position and pixels moved per 60 Hz tick."
+    ],
+    [
+      "keyboard.left / right",
+      "Held arrow keys or A/D."
+    ],
+    [
+      "keyboard.fire",
+      "True on a new Space press; holding does not repeat."
+    ],
+    [
+      "ship.fire()",
+      "Shoot upward; the engine handles travel and collisions."
+    ],
+    [
+      "on_hit(alien)",
+      "Hide the alien and choose the points it awards."
+    ],
+    [
+      "world.alien_speed",
+      "Formation speed from 0 to 4; 0 keeps it still."
+    ]
+  ],
+  "file": "invaders.py",
+  "complete": [
+    "# Move the ship, fire at the formation, and clear all 21 aliens.",
+    "ship.speed = 5",
+    "world.alien_speed = 0.65",
+    "world.sky = \"night\"",
+    "",
+    "def move_ship():",
+    "    if keyboard.left:",
+    "        ship.x -= ship.speed",
+    "    if keyboard.right:",
+    "        ship.x += ship.speed",
+    "",
+    "def fire_laser():",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def update():",
+    "    move_ship()",
+    "    fire_laser()",
+    "",
+    "def on_hit(alien):",
+    "    alien.hide()",
+    "    world.score += 10"
+  ],
+  "lessons": [
+    "invaders-controls",
+    "invaders-fire",
+    "invaders-score",
+    "invaders-variation"
+  ]
+}

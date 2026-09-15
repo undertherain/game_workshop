@@ -5,7 +5,7 @@ Prototype UI and original Canvas 2D artwork. `platformer.py`, `breaker.py` and
 short build paths and game-specific UI from JSON content. `starter.py` retains the initial complete
 platformer sample.
 
-`../framework/workshop.py` supplies all four game simulations through `WorkshopGame`;
+`../framework/workshop.py` supplies all six game simulations through `WorkshopGame`;
 `../framework/workshop_checks.py` supplies isolated mini-exercise checks.
 `runtime.py` and `arcade_runtime.py` retain compatibility entries for older local
 scripts. `python-worker.js` installs the shared framework package listed in
@@ -157,8 +157,11 @@ line. A subtle green focus cue replaces the browser’s default textarea outline
 `museum.js` renders the Game workshop gallery, selected-game path chooser and
 expandable story/Pip panel; `museum.css` owns this responsive layout. It shares the
 existing game tutor and opt-in voice transport with an explicit `museum` activity;
-the backend receives the complete program as context, while museum guidance explains
-play and rules without code line references. Navigation cancels pending chat and voice.
+the backend receives the complete program and canonical `museumStory` as context.
+Museum guidance covers history, play and rules without code line references; the
+voice activity also includes the history. Story source links are rendered as text
+labels with validated HTTPS URLs. The offline guide answers history questions from
+the same content. Navigation cancels pending chat and voice.
 Game content supplies `museumIntro` and `complete`; `app.js` saves complete programs
 under separate `-complete` keys and identifies them as `complete` activity. Workshop
 exercise greetings and conversation resets follow the current template and exercise.
@@ -194,3 +197,28 @@ The game heading has one **Download** menu, with the complete playable ZIP first
 and **Python code only** as a secondary option. Download feedback appears below the
 heading when needed. The menu supports keyboard use, Escape, outside clicks and
 focus leaving the menu; navigation closes it. The editor has no separate export row.
+
+
+Space Invaders and Asteroids use `framework/space_workshop.py` through the shared
+worker. The Invaders adapter reuses `framework/invaders.py` (also imported by the
+desktop example) and its existing Game/World collision engine and stock pixel sprites.
+Asteroids owns rotation, acceleration, wrapped movement, swept shot hits, splitting,
+shields and respawn. `space-scene.js` draws both snapshots; all three modules plus
+`stock.py` are included in the framework/renderer export lists. No remote assets or
+separate Python environment are needed.
+
+Space controls are shared with the exported player: Asteroids uses a separate
+`thrust` action (Up/W and touch), and Space fires. Invaders retains one shot per
+press; Asteroids allows held fire with a cooldown. `game-controls.js` also updates
+touch visibility and rotation labels when switching games. Win/loss overlays and
+shield counts use Python state. Each space exercise has its own prepared starter,
+and both text and voice tutors receive the selected ship API and current exercise.
+
+
+Expanded play moves the existing `#game-card` into the full-page `#expanded-game`
+native dialog, preserving the canvas, simulation, controls and draft. `app.js`
+restores the card on the return button, Escape, hash navigation or Python errors,
+clears held inputs on transitions, ends voice on entry and keeps Tab focus within
+the dialog. `style.css` fits the canvas proportionally inside the remaining viewport
+height, with controls and score outside the scene. This fills the browser page;
+it does not request browser/OS fullscreen.

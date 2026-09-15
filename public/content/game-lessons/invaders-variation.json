@@ -1,0 +1,30 @@
+{
+  "id": "invaders-variation",
+  "title": "Customize the invasion",
+  "description": "Change ship speed, formation speed, or points. Run the complete game to compare.",
+  "hint": "Try changing ship.speed or world.alien_speed, then play again.",
+  "starter": [
+    "# Move the ship, fire at the formation, and clear all 21 aliens.",
+    "ship.speed = 5",
+    "world.alien_speed = 0.65",
+    "world.sky = \"night\"",
+    "",
+    "def move_ship():",
+    "    if keyboard.left:",
+    "        ship.x -= ship.speed",
+    "    if keyboard.right:",
+    "        ship.x += ship.speed",
+    "",
+    "def fire_laser():",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def update():",
+    "    move_ship()",
+    "    fire_laser()",
+    "",
+    "def on_hit(alien):",
+    "    alien.hide()",
+    "    world.score += 10"
+  ]
+}

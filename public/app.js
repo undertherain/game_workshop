@@ -1,4 +1,4 @@
-import { gameKey, gameControls } from './game-controls.js';
+import { gameKey, gameControls, configureGameControls } from './game-controls.js';
 import { findGuidance, findEditableRegion, protectRegion, acceptsEdit } from './editor-guidance.js';
 import { createPipVoice, stopPipVoice } from './pip-voice.js';
 import { createScene, initialState } from './scene.js';
@@ -25,7 +25,7 @@ createPipVoice($('ask-form').parentElement, 'game', () => ({
   selected: editor.value.slice(editor.selectionStart, editor.selectionEnd),
   selectedLine: editor.value.slice(0, editor.selectionStart).split('\n').length,
   activity: completeMode ? 'complete' : 'lesson', exercise: { index: stepIndex, feedback: exerciseFeedback }, progress: progress.get(), history,
-  state: { board: gameState.board, items: gameState.items, moves: gameState.moves, player: gameState.player, paddle: gameState.paddle, ball: gameState.ball, cannon: gameState.cannon, world: gameState.world },
+  state: { ship: gameState.ship, lives: gameState.lives, lost: gameState.lost, board: gameState.board, items: gameState.items, moves: gameState.moves, player: gameState.player, paddle: gameState.paddle, ball: gameState.ball, cannon: gameState.cannon, world: gameState.world },
 }), role => {
   const entry = { role, content: '' };
   const node = appendMessage(role, '').querySelector('p');
@@ -119,6 +119,47 @@ function locate(line, message='This is the line Pip is talking about.', focus=tr
   $('line-note').textContent=`Line ${line} · ${message}`;
 }
 function clearKeys(){keys={left:false,right:false,jump:false};}
+let gameHome, gameNext;
+function closeExpandedGame({ restoreFocus = true } = {}) {
+  const dialog = $('expanded-game');
+  if (!dialog.open) return;
+  clearKeys();
+  gameHome.insertBefore($('game-card'), gameNext);
+  dialog.close();
+  document.body.classList.remove('game-expanded');
+  $('expand-game').textContent = '⛶ Expand game';
+  $('expand-game').setAttribute('aria-expanded', 'false');
+  if (restoreFocus) $('expand-game').focus({ preventScroll: true });
+}
+$('expand-game').onclick = () => {
+  const dialog = $('expanded-game');
+  if (dialog.open) return closeExpandedGame();
+  const card = $('game-card');
+  gameHome = card.parentElement; gameNext = card.nextSibling;
+  clearKeys(); stopPipVoice('Voice ended for expanded play.');
+  $('game-downloads').open = false;
+  dialog.append(card);
+  document.body.classList.add('game-expanded');
+  $('expand-game').textContent = '↙ Back to workshop';
+  $('expand-game').setAttribute('aria-expanded', 'true');
+  dialog.showModal();
+  canvas.focus({ preventScroll: true });
+};
+$('expanded-game').addEventListener('cancel', event => {
+  event.preventDefault(); closeExpandedGame();
+});
+$('expanded-game').addEventListener('keydown', event => {
+  if (event.key !== 'Tab') return;
+  const controls = [...$('expanded-game').querySelectorAll('button:not(:disabled), [tabindex="0"]')]
+    .filter(node => node.getClientRects().length);
+  const first = controls[0], last = controls.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault(); last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault(); first.focus();
+  }
+});
+window.addEventListener('hashchange', () => closeExpandedGame({ restoreFocus: false }));
 function setPlaying(value){
   playing=value;
   $('run').textContent=value?'■ Stop':'▶ Run my code';
@@ -132,6 +173,7 @@ function stopPlayback(){
   $('code-state').textContent=editor.value===runningCode?'Stopped':'Changes to try';
 }
 function showError(error) {
+  closeExpandedGame();
   currentError=error;setPlaying(false);clearKeys();
   $('error-box').hidden=false;$('error-title').textContent=error.line?`Let’s look at line ${error.line}`:'Something needs a little attention';
   const friendly={SyntaxError:'Python could not read this rule yet. Check its punctuation.',IndentationError:'The spaces at the start of a line show which rule it belongs to.',NameError:'Python found a name it does not know. Check its spelling.',TypeError:'These pieces do not fit together yet. Check the values on this line.'};
@@ -142,11 +184,13 @@ function showError(error) {
 function displayState(state){
   gameState=state;scene.update(state);
   const total=state.stars?.length??state.items?.length??0;
-  const noun=state.kind==='breaker'?'bricks':state.kind==='paratroopers'?'robots':state.kind==='sokoban'?'crates on goals':'stars';
+  const noun=state.kind==='invaders'?'aliens':state.kind==='asteroids'?'rocks':state.kind==='breaker'?'bricks':state.kind==='paratroopers'?'robots':state.kind==='sokoban'?'crates on goals':'stars';
   $('score').textContent=`${state.collected}/${total} ${noun} · ${state.kind==='sokoban'?state.moves+' moves':state.world.score+' pts'}`;
-  $('win-banner').hidden=!state.won;$('win-banner').replaceChildren();
-  const win=document.createTextNode(state.kind==='sokoban'?'Puzzle solved!':'You got them all!');
-  const small=document.createElement('small');small.textContent=state.kind==='sokoban'?(state.can_next?'Press N or Next puzzle to continue.':'Try building a puzzle of your own.'):'Now give your game a new twist.';
+  if (state.kind === 'asteroids') $('score').textContent = `${total-state.collected} rocks left · ${state.world.score} pts`;
+  if (state.lives !== undefined) $('score').textContent += ` · ${state.lives} shields`;
+  $('win-banner').hidden=!(state.won || state.lost);$('win-banner').replaceChildren();
+  const win=document.createTextNode(state.lost?'Game over':state.kind==='sokoban'?'Puzzle solved!':'You got them all!');
+  const small=document.createElement('small');small.textContent=state.lost?'Choose Play again to restart.':state.kind==='sokoban'?(state.can_next?'Press N or Next puzzle to continue.':'Try building a puzzle of your own.'):'Now give your game a new twist.';
   $('win-banner').append(win,small);
   for(const button of document.querySelectorAll('[data-key="next"]'))button.disabled=!state.can_next;
 }
@@ -229,7 +273,7 @@ async function ask(question,mode='chat') {
       body:JSON.stringify({question,mode,code:requestedCode,runningCode,selected,selectedLine,error:currentError,template:templateId,
         activity:completeMode?'complete':'lesson',exercise:{index:stepIndex,title:templates[templateId].steps[stepIndex][0],description:templates[templateId].steps[stepIndex][1],feedback:exerciseFeedback},
         progress:progress.get(),
-        state:{board:gameState.board,items:gameState.items,moves:gameState.moves,player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history:requestHistory})});
+        state:{ship:gameState.ship,lives:gameState.lives,lost:gameState.lost,board:gameState.board,items:gameState.items,moves:gameState.moves,player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history:requestHistory})});
     const reply=await response.json();if(questionController!==requestController)return;if(!response.ok)throw new Error(reply.error||'Pip could not answer just now.');
     waiting.remove();appendMessage('assistant',reply.message,reply.experiment);
     history.push({role:'assistant',content:reply.message});history=history.slice(-6);
@@ -379,7 +423,8 @@ function renderTransfer(){
   if(!visible)return;
   const from=games.find(game=>'game:'+game.id===evidence.source)?.title||'another game';
   $('transfer-message').textContent=`Your movement rules passed a check in ${from}. Try this game's controls yourself, or include both arrow-key rules and start with ${templates[templateId].steps[1][0].toLowerCase()}.`;
-  $('transfer-preview').textContent=movementStarter(starter,templateId).split('def update():')[1].split('\n#')[0].trimEnd();
+  const controlsFunction=templates[templateId].guides?.[0]?.function||'update';
+  $('transfer-preview').textContent=movementStarter(starter,templateId).split(`def ${controlsFunction}():`)[1].split(/\n(?:def |#)/)[0].trimEnd();
 }
 $('transfer-use').onclick=()=>{
   if(editor.value!==starter){$('transfer-offer').hidden=true;return;}
@@ -432,6 +477,7 @@ function renderStep(){
 async function selectTemplate(id,complete=false){
   if(!templates[id])return;
   cancelQuestion();
+  $('export-status').textContent='';
   $('selected-game').textContent=templates[id].genre+(complete?' · Complete game':'');
   if(editor.value)save();
   protection=null;completeMode=complete;conversationActivity=null;templateId=id;const template=templates[id];starter=sourceCache[id];
@@ -446,7 +492,7 @@ async function selectTemplate(id,complete=false){
   $('workshop-main').dataset.game=id;
   $('game-controls').textContent=gameControls(id);
   canvas.setAttribute('aria-label',template.title+'. '+gameControls(id));
-  for(const button of document.querySelectorAll('[data-grid-control]'))button.hidden=id!=='sokoban';
+  configureGameControls(id);
   $('action-label').textContent=template.controls;document.querySelector('[data-key="jump"]').textContent=template.action;
   $('question').placeholder=template.placeholder;
   $('template-ideas').replaceChildren();

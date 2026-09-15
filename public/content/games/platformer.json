@@ -75,8 +75,18 @@
   ],
   "museumIntro": "Use the arrow keys to run and Space to jump. Collect all seven stars by reaching the platforms. Jump strength and gravity work together: change one and see which paths you can reach.",
   "museumStory": {
-    "title": "A little jump becomes an adventure.",
-    "text": "A star is just out of reach. A platform gives you a way up. Suddenly, moving and jumping become a puzzle about where to go next. Gravity brings the fox back down; a well-timed jump turns the next ledge into a stepping stone.",
-    "prompt": "What if your fox could jump higher? Which stars could you reach in a different way?"
+    "title": "Early 1980s: running and jumping become a genre",
+    "text": "Platformer is a name for a type of game. Early examples include Nintendo’s Donkey Kong (1981), where players climbed and jumped past obstacles. Super Mario Bros. (1985) took running and jumping through scrolling levels to home consoles. Platforms, gaps and carefully timed jumps became the basis for many different adventures.\n\nStar Meadow is our small take on this genre. Its fox, platforms and collectible stars let you experiment with movement, gravity and jump height.",
+    "prompt": "What if your fox could jump higher? Which stars could you reach in a different way?",
+    "sources": [
+      {
+        "title": "Nintendo · Donkey Kong (1981)",
+        "url": "https://www.nintendo.com/en-gb/Games/Nintendo-Switch-download-software/Arcade-Archives-DONKEY-KONG-1389973.html"
+      },
+      {
+        "title": "Nintendo · Super Mario history",
+        "url": "https://mario.nintendo.com/history/"
+      }
+    ]
   }
 }

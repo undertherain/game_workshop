@@ -1,0 +1,40 @@
+{
+  "id": "asteroids-controls",
+  "title": "Turn both ways",
+  "description": "Left already turns your ship. Add the matching Right-key rule in steer_ship().",
+  "hint": "Check keyboard.right, then call ship.turn(ship.turn_speed).",
+  "starter": [
+    "# Turn, thrust, and clear the rocks. Momentum carries you forward.",
+    "ship.turn_speed = 4",
+    "ship.thrust_power = 0.09",
+    "world.rock_speed = 1",
+    "world.sky = \"night\"",
+    "",
+    "def steer_ship():",
+    "    if keyboard.left:",
+    "        ship.turn(-ship.turn_speed)",
+    "    # Your turn: make the Right arrow work.",
+    "    pass",
+    "",
+    "def apply_thrust():",
+    "    if keyboard.thrust:",
+    "        ship.thrust()",
+    "",
+    "def update():",
+    "    steer_ship()",
+    "    apply_thrust()",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def on_hit(rock):",
+    "    rock.split()",
+    "    world.score += 10"
+  ],
+  "guide": {
+    "function": "steer_ship",
+    "replace": "pass",
+    "instruction": "Check keyboard.right, then call ship.turn(ship.turn_speed).",
+    "review": "Run your rule, then use Check my step.",
+    "editAfter": "# Your turn: make the Right arrow work."
+  }
+}

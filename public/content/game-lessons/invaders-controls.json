@@ -1,0 +1,37 @@
+{
+  "id": "invaders-controls",
+  "title": "Add the Right key",
+  "description": "Left already moves the ship. Add the matching Right-key rule in move_ship().",
+  "hint": "Compare keyboard.right, then increase ship.x by ship.speed.",
+  "starter": [
+    "# Move the ship, fire at the formation, and clear all 21 aliens.",
+    "ship.speed = 5",
+    "world.alien_speed = 0.65",
+    "world.sky = \"night\"",
+    "",
+    "def move_ship():",
+    "    if keyboard.left:",
+    "        ship.x -= ship.speed",
+    "    # Your turn: make the Right arrow work.",
+    "    pass",
+    "",
+    "def fire_laser():",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def update():",
+    "    move_ship()",
+    "    fire_laser()",
+    "",
+    "def on_hit(alien):",
+    "    alien.hide()",
+    "    world.score += 10"
+  ],
+  "guide": {
+    "function": "move_ship",
+    "replace": "pass",
+    "instruction": "Compare keyboard.right, then increase ship.x by ship.speed.",
+    "review": "Run your rule, then use Check my step.",
+    "editAfter": "# Your turn: make the Right arrow work."
+  }
+}

@@ -108,6 +108,10 @@ test('Pip receives museum, complete game and variation activity in both voice la
     assert.ok(payload.session.instructions.includes('"activity":"'+activity+'"'));
     assert.match(payload.session.delegation.responses.instructions, /Invent your variation/);
     assert.ok(payload.session.delegation.responses.instructions.includes('"activity":"'+activity+'"'));
-    if(activity==='museum')assert.match(payload.session.instructions,/There is no editor in the museum/);
+    if(activity==='museum') {
+      assert.match(payload.session.instructions,/There is no editor in the museum/);
+      assert.match(payload.session.instructions,/Atari’s Breakout, released in 1976/);
+      assert.match(payload.session.delegation.responses.instructions,/Atari’s Breakout, released in 1976/);
+    }
   }
 });

@@ -110,8 +110,12 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
 - `games/<game>.json` holds the game's display metadata, introduction, idea prompts,
   pocket guide and ordered `lessons` IDs. `museumIntro` introduces its goal, controls
   and rules; `complete` is an array of Python lines for its finished playable version.
-  Optional `museumStory: {title, text, prompt}` supplies the selected game’s short
-  mechanics story and a customization question; omitted stories use `museumIntro`.
+  Optional `museumStory: {title, text, prompt, sources}` supplies a short historical
+  introduction and a customization question; omitted stories use `museumIntro`.
+  Explain when the original game or game type appeared, name sourced examples, and
+  distinguish workshop versions from historical titles. Use `\n\n` between paragraphs.
+  `sources` is an optional array of `{title, url}` links with HTTPS URLs, displayed
+  beneath the history. Pip receives the canonical story and sources in text and voice.
   Complete versions must pass all three game behavior checks.
 - `game-lessons/<id>.json` holds **one** exercise: `id`, `title`, `description`, `hint`.
 - An optional `guide` object provides editor guidance: `function` names the Python
@@ -128,8 +132,10 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
   missing and a separate saved draft per exercise. Reset restores that step.
   Games without exercise starters continue to use their shared `.py` starter.
 
-The game runtime currently expects four exercises in order: movement, a second
-mechanic, scoring or completion, variation. Text and hints are editable here; changing that
+The game runtime currently expects four exercises in order: movement (or rotation),
+a second mechanic, scoring or completion, variation. Space Invaders uses firing as
+its second mechanic; Asteroids uses thrust, with rotation evidence separate from
+horizontal movement. Text and hints are editable here; changing that
 structure requires corresponding behavior checks and progress mappings. Listing a
 new game in the catalogue does not implement it; use `available: false` for planned
 entries.

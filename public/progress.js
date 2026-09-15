@@ -32,6 +32,12 @@ try { storage = globalThis.localStorage; } catch { /* Private browsing can deny 
 export const progress = createProgressStore(storage);
 
 export function movementStarter(source, template) {
+  if (template === 'invaders') {
+    const start = source.indexOf('def move_ship():');
+    const end = source.indexOf('\ndef ', start + 1);
+    if (start < 0 || end < 0) throw Error('Could not locate ship controls.');
+    return source.slice(0, start) + 'def move_ship():\n    if keyboard.left:\n        ship.x -= ship.speed\n    if keyboard.right:\n        ship.x += ship.speed\n' + source.slice(end);
+  }
   const who = { platformer: 'player', breaker: 'paddle', paratroopers: 'cannon' }[template];
   if (!who) throw Error('Unknown game');
   const start = source.indexOf('def update():');

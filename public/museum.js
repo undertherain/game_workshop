@@ -35,6 +35,14 @@ export function createMuseum(openGame, navigate) {
     }));
     $('museum-story-title').textContent = templates[id].museumStory?.title || 'The idea behind ' + game.title;
     $('museum-story-text').textContent = templates[id].museumStory?.text || intro;
+    const sources = templates[id].museumStory?.sources || [];
+    $('museum-story-sources').hidden = sources.length === 0;
+    $('museum-source-links').replaceChildren(...sources.map(source => {
+      const item = document.createElement('li'), link = document.createElement('a');
+      link.textContent = source.title; link.href = source.url;
+      link.target = '_blank'; link.rel = 'noopener noreferrer';
+      item.append(link); return item;
+    }));
     $('museum-story-prompt').textContent = templates[id].museumStory?.prompt || 'What small rule would you change first?';
     $('museum-preview').setAttribute('aria-label', game.title + '. ' + game.description);
     previews.select($('museum-preview'), id);

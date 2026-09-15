@@ -48,8 +48,8 @@ code, and Live game rules. The map groups lessons into expandable chapters; Back
 continues across chapter boundaries. The base URL opens the title screen.
 
 The **Learning map** connects thirty-three foundational lessons, three optional drawing
-lessons, and the four game workshops. All paths are open; the map recommends a
-starting route without locking later activities. Xonix, Asteroids and a fractal lesson
+lessons, and the six game workshops. All paths are open; the map recommends a
+starting route without locking later activities. Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
 The foundations open with eleven compact, single-column slides. The first jump leads to “Make the jump yours”: edit `fox.jump(100)` and press Run
@@ -151,13 +151,15 @@ introductory cells only.
 
 In the game workshop:
 
-**Game workshop** opens a gallery of four playable games: Brick breaker, Platformer,
-Sky Patrol and Sokoban. Each card previews the actual game artwork. Xonix and
-Asteroids appear in a small coming-later note. Selecting a card zooms into its game
+**Game workshop** opens a gallery of six playable games: Space Invaders, Brick breaker,
+Platformer, Sky Patrol, Sokoban and Asteroids. Each card previews the actual
+game artwork. Xonix appears in a small coming-later note. Selecting a card zooms into its game
 and offers three paths:
 
-- **Learn the story** reveals a short introduction to the game’s central idea and
-  Pip’s typed and optional voice guide. These are mechanics stories, not historical articles.
+- **Learn the story** reveals a short history of the game or game type, with dates,
+  named originals and source links, alongside Pip’s typed and optional voice guide.
+  Platformer covers early examples of the genre; workshop versions are distinguished
+  from their historical references.
 - **Try exercises** opens the existing four-step Python build path.
 - **Try customizing** opens the complete game, ready to play and edit.
 
@@ -171,6 +173,12 @@ program and Undo recovers edits. Download → Playable game includes the current
 **Back to game** returns to the selected game’s three paths; **All games** returns to
 the gallery. Routes retain `/#museum`, `/#museum/breaker` and
 `/#workshop/breaker/complete`, including refresh and browser Back/Forward support.
+
+**Expand game**, beside Play again, fills the browser page with the live game,
+score and controls. **Back to workshop** or Escape restores the editor view without
+restarting play or changing the draft. Keyboard focus stays within the expanded
+view; touch controls remain available on touch devices. Opening it ends any active
+Pip voice call. A Python error returns to the editor with the error visible.
 
 Pip's workshop greeting follows the selected exercise, including a restored fourth
 exercise. Changing exercise clears the previous conversation and edit suggestion.
@@ -225,14 +233,37 @@ Custom rooms validate dimensions and tile counts; they are not automatically che
 for solvability. Complete versions and custom puzzle drafts export with the same
 renderer, controls and runtime as the workshop.
 
+### Space Invaders and Asteroids
+
+**Space Invaders** adapts the existing Alien invaders example: the same `Game`,
+ship/alien sprites and projectile collision engine, with three moving rows of seven
+aliens. The formation reverses and descends at the edges, and aliens fire back.
+Left/Right or A/D moves; Space (also Up/W) fires once per press. Clear all 21 aliens
+to win. Three shields and brief protection after a hit give room to recover; losing
+all shields or letting the formation reach the ship ends the game.
+
+**Asteroids** separates turning from movement: Left/Right or A/D turns, Up/W thrusts,
+and held Space fires. Releasing thrust preserves velocity. The ship, rocks and
+shots wrap across screen edges. Four large rocks split into medium and then small
+fragments; clear all 28 targets to finish. A collision costs a shield and resets the
+ship with two seconds of protection. Losing all three shields ends the game.
+
+Each game has four prepared exercises with independent drafts. Invaders teaches
+horizontal movement, firing, scoring and variation. Asteroids teaches rotation,
+thrust, scoring and variation; horizontal movement evidence does not count as
+rotation practice. Invaders can offer previously checked horizontal controls.
+Complete versions, keyboard/touch controls, Pip guidance and downloaded ZIPs are
+available through the same museum paths. **Play again** restarts from the last-run
+program; **Run my code** applies edits.
+
 The brick breaker starts with only Left implemented; the other starters have no arrow
 controls until the exercise is written.
-They are small scaffolds, not fully authored games. `public/starter.py` retains the
+The exercise starters are small scaffolds; the customization path supplies complete games. `public/starter.py` retains the
 original complete platformer sample.
 
 ## Export and play independently
 
-In any of the four game workshops, choose **Download → Playable game** beside
+In any of the six game workshops, choose **Download → Playable game** beside
 the game title. The menu also offers **Python code only** for a source-only file.
 Extract the ZIP, then run `python3 play.py` from that folder (Windows: `py play.py`).
 The launcher opens the game in your browser. Keep its terminal open while playing;
@@ -362,7 +393,9 @@ saved drafts and progress.
 Framework exploration: [north star and current slice](docs/framework-north-star.md).
 The [Alien invaders example](examples/alien_invaders/README.md) is a minimal
 standalone game: move a ship, shoot stationary aliens and clear the row. Its
-13-line program uses the experimental `Game` defaults and explicitly imported stock sprites.
+shared program in `framework/invaders.py` uses the experimental `Game` defaults
+and explicitly imported stock sprites. The desktop example imports that class; the
+browser workshop reuses it with a larger moving formation and learner callbacks.
 Run `python3 -m examples.alien_invaders` (requires `raylib`); add `--windowed`
 for a resizable window instead of fullscreen.
 The [brick-breaker framework example](public/examples/breaker_framework.py) adds
@@ -373,7 +406,7 @@ using new top-down Python primitives and a standalone raylib host. Run it with
 `python3 -m examples.tank_world` (requires `raylib`). The separate [tank battle](examples/tank_battle/README.md) runs with
 `python3 -m examples.tank_battle` and demonstrates framework-owned tile interactions,
 projectiles and a smooth following camera. See the [local framework API](framework/README.md).
-The four workshop games use `framework.WorkshopGame` in both the workshop and
+The six workshop games use `framework.WorkshopGame` in both the workshop and
 exported browser player. The same simulation also runs under ordinary Python for
 headless testing. The separate `Game`/top-down raylib examples retain their own
 renderer; workshop exports do not yet target that native desktop host.

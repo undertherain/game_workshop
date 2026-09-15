@@ -3,8 +3,18 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { validateReply, validateInput, guidedExample } from '../tutor.mjs';
 import { createServer } from '../server.mjs';
+import { templates } from '../public/templates.js';
 
 const code=await readFile(new URL('../public/starter.py',import.meta.url),'utf8');
+test('museum history is canonical for every game and offline replies distinguish history from controls', () => {
+  for (const [template, game] of Object.entries(templates)) {
+    const input = validateInput({ template, activity: 'museum', question: 'When did games like this appear?', code: game.completeCode, museumStory: {text: 'Made up history'} });
+    assert.deepEqual(input.museumStory, game.museumStory);
+    assert.equal(guidedExample(input).message, game.museumStory.text);
+    assert.equal(guidedExample(input).before, null);
+    assert.ok(guidedExample({...input, question: 'How do I play?'}).message.includes(game.museumIntro));
+  }
+});
 test('proposed changes must match exactly one place in current code',()=>{
   assert.equal(validateReply({message:'Try this',before:'absent',after:'x'},code).before,null);
   assert.equal(validateReply({message:'Try this',before:'player',after:'cat'},code).before,null);

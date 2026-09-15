@@ -20,7 +20,7 @@ Keep responses to 2-4 short sentences, plus a short optional experiment. No mark
 This is a mini-exercise workshop. Scenery, physics, collisions and moving objects are provided;
 the learner implements a small behavior inside a Python function. A pass statement is a valid placeholder.
 Use the supplied activity and current exercise as the source of what the learner is doing.
-In museum activity, introduce the game's goal, controls and interesting rules. Explain the choice between learning through exercises and playing a complete version. Do not assign the first exercise or propose code edits.
+In museum activity, use museumStory for the game's history, origins and named examples. Distinguish original titles, game genres and our workshop versions; do not invent dates or credit our versions with the originals' history. Answer questions about goals, controls and rules when asked. Explain the choice between learning through exercises and playing a complete version. Do not assign the first exercise or propose code edits.
 In complete activity, controls and rules are supplied; help the learner play, understand or vary the current code.
 In lesson activity, stay on the selected exercise unless the learner asks to explore a variation or another topic.
 For a hint request, point to the place to write and explain one next action.
@@ -58,6 +58,27 @@ of the supplied current code, including indentation. after replaces it with vali
 Use null for both if no edit is appropriate. line is a 1-based line of current code, or null.`;
 
 export const arcadeInstructions = {
+  invaders: `Selected game: Space Invaders. Supplied ship, keyboard and world; no paddle, cannon, gravity or jumping.
+ship.x is horizontal position in a 960 by 640 playfield; ship.speed is pixels per 60 Hz tick (0..15).
+move_ship() and fire_laser() are learner helpers called by update(), which the engine calls at 60 Hz.
+keyboard.left/right are held keys. keyboard.fire is true once per Space/Up/W press, not while held.
+ship.fire() shoots upward with a 10-tick cooldown. The shared Game/World engine moves projectiles and detects collisions.
+on_hit(alien) must call alien.hide() and add positive points to world.score. Every alien must be hidden to win.
+world.alien_speed (0..4, default .65) controls the three-row formation. It reverses and descends at edges.
+Aliens fire back. Three shields; after a hit, brief protection prevents repeated damage. Losing all shields or allowing aliens to reach the ship ends the game.
+Play again restarts from the current program. world.sky is night/mint/peach/lavender.
+Exercises: Right movement in move_ship(), firing in fire_laser(), scoring in on_hit(), then variation.`,
+  asteroids: `Selected game: Asteroids. Supplied ship, keyboard and world; no paddle, cannon, gravity or jumping.
+ship.angle is degrees: 0 points right, 90 down, 180 left, 270 up. ship.turn(degrees) rotates without moving.
+ship.turn_speed is degrees per 60 Hz tick, 0..15. Negative turns left; positive right. keyboard.left/right are held.
+keyboard.thrust is held Up/W. ship.thrust() accelerates along its heading by ship.thrust_power (0..0.5, default .09).
+ship.vx/vy are velocity in pixels per tick. Releasing thrust preserves velocity; rotation alone does not redirect drift. Speed is capped at 6.
+keyboard.fire is held Space. ship.fire() creates forward shots, limited to one per 12 ticks. Ship, rocks and shots wrap across an 840 by 480 playfield.
+steer_ship() and apply_thrust() are learner helpers called by update() at 60 Hz. Firing is already included in update().
+on_hit(rock) must call rock.split() and add positive points to world.score. Large rocks split into two medium, then two small; small rocks disappear.
+Four large starting rocks produce 28 targets altogether. Clear all fragments to win. world.rock_speed (0..3) scales drifting rock velocity.
+Three shields; crashes reset ship position/velocity with two seconds of protection. Play again starts a new game.
+world.sky is night/mint/peach/lavender. Exercises: Right rotation in steer_ship(), thrust in apply_thrust(), scoring in on_hit(), then variation.`,
   sokoban: `Selected game: Crate Cottage, a Sokoban-style grid puzzle.
 The learner builds a game through code; playing tests their rules. Supplied objects: board, player, world.
 No paddle, ball, cannon, keyboard object, update(), gravity, or jumping API.
@@ -104,6 +125,7 @@ export function validateInput(body) {
   const template = Object.hasOwn(templates, body.template) ? body.template : 'platformer';
   const index = Number.isInteger(body.exercise?.index) ? Math.max(0, Math.min(3, body.exercise.index)) : 0;
   return { activity: ['museum', 'complete'].includes(body.activity) ? body.activity : 'lesson', progress: sanitizeProgress(body.progress), question: body.question, code: body.code, template, mode: ['hint','explain'].includes(body.mode) ? body.mode : 'chat',
+    museumStory: templates[template].museumStory,
     exercise: { index, title: templates[template].steps[index][0], description: templates[template].steps[index][1], hint: templates[template].steps[index][2], feedback: body.exercise?.feedback ?? null },
     runningCode: typeof body.runningCode === 'string' ? body.runningCode.slice(0, 20000) : '',
     selected: typeof body.selected === 'string' ? body.selected.slice(0, 3000) : '',
@@ -129,8 +151,20 @@ export function validateReply(reply, code) {
 
 export function guidedExample({ question, code, template='platformer', exercise, activity='lesson', mode='chat' }) {
   const q = question.toLowerCase();
-  if(activity==='museum')return {message:templates[template].description+' '+templates[template].museumIntro,line:null,before:null,after:null,experiment:'Choose Learn to build it for lessons, or Take the complete game to play and change a finished version.'};
+  if (activity === 'museum') {
+    const game = templates[template];
+    const historyQuestion = /\b(history|historical|origin|origins|when|who|story|first|appeared|invented|created|released)\b/.test(q);
+    return { message: historyQuestion && game.museumStory ? game.museumStory.text : game.description + ' ' + game.museumIntro,
+      line: null, before: null, after: null, experiment: 'Choose Try exercises to learn, or Try customizing to play and change a complete game.' };
+  }
   if(activity==='complete')exercise={index:3};
+  if (template === 'invaders' || template === 'asteroids') {
+    const step = exercise?.index ?? 0;
+    const message = templates[template].steps[step][2];
+    const token = templates[template].guides[step]?.function;
+    const line = token ? code.split('\n').findIndex(row => row.startsWith('def ' + token + '(')) + 1 : 0;
+    return { message, line: line || null, before: null, after: null, experiment: 'Run your code and try the controls. Use Check my step for exercises.' };
+  }
   if(template==='sokoban'){
     const step=exercise?.index??0;
     const hints=[

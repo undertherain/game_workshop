@@ -1,4 +1,4 @@
-import { gameKey, gameControls } from './game-controls.js';
+import { gameKey, gameControls, configureGameControls } from './game-controls.js';
 import { createScene } from './scene.js';
 
 const $ = id => document.getElementById(id);
@@ -34,8 +34,9 @@ function boot() {
       scene.update(data.state);
       $('score').textContent = data.state.kind === 'sokoban' ? `${data.state.collected}/${data.state.items.length} goals · ${data.state.moves} moves` : 'Score: ' + data.state.world.score;
       for(const button of document.querySelectorAll('[data-key=next]'))button.disabled=!data.state.can_next;
-      $('win').textContent=data.state.can_next?'Puzzle solved! Press N for the next room.':'You did it!';
-      $('win').hidden = !data.state.won;
+      if (data.state.lives !== undefined) $('score').textContent += ` · ${data.state.lives} shields`;
+      $('win').textContent=data.state.lost?'Game over · Restart to try again':data.state.can_next?'Puzzle solved! Press N for the next room.':'You did it!';
+      $('win').hidden = !(data.state.won || data.state.lost);
     }
     if (data.type === 'load') {
       playing = true;
@@ -75,12 +76,12 @@ try {
   const responses = await Promise.all([fetch('./game.json'), fetch('./my_game.py')]);
   if (responses.some(response => !response.ok)) throw new Error('Could not load the exported game files.');
   project = await responses[0].json(); source = await responses[1].text();
-  if (project.format !== 'little-makers-game' || project.version !== 1 || !['platformer', 'breaker', 'paratroopers', 'sokoban'].includes(project.template)) throw new Error('Unsupported game export.');
+  if (project.format !== 'little-makers-game' || project.version !== 1 || !['platformer', 'breaker', 'paratroopers', 'sokoban', 'invaders', 'asteroids'].includes(project.template)) throw new Error('Unsupported game export.');
   document.title = project.title; $('title').textContent = project.title;
-  const action = { platformer: 'Jump', breaker: 'Reset ball', paratroopers: 'Fire', sokoban: 'Undo ↶' }[project.template];
+  const action = { platformer: 'Jump', breaker: 'Reset ball', paratroopers: 'Fire', sokoban: 'Undo ↶', invaders: 'Fire', asteroids: 'Fire' }[project.template];
   $('controls').textContent = gameControls(project.template);
   canvas.setAttribute('aria-label',project.title+'. '+gameControls(project.template));
-  for(const button of document.querySelectorAll('[data-grid-control]'))button.hidden=project.template!=='sokoban';
+  configureGameControls(project.template);
   $('action').textContent = action;
   boot();
 } catch (error) { fail(error.message); }

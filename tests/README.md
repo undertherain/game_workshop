@@ -134,4 +134,33 @@ undo after winning, next-room reset, held-key timing, custom maps, invalid retur
 values and exercise checks against incorrect rules. Complete-program and export
 checks include Sokoban. Browser checks exercise actual Pyodide, keyboard movement,
 undo/next, guided edits, custom boards, ZIP download and the exported player with
-workshop and external requests blocked. Asteroids remains a planned exhibit.
+workshop and external requests blocked. Space Invaders and Asteroids are also playable exhibits.
+
+
+`test_space_workshop.py` checks the reused Invaders model, movement bounds, formation
+reversal/descent, real projectile hits, return fire, shield protection, loss/restart,
+and clearing every alien. Asteroids checks cover thrust/drift, rotation, speed caps,
+wrapped ship/rock/shot movement, hits across the seam, idempotent splitting, fragment
+clearing, shield loss, and numeric/error-line validation. Each prepared exercise is
+checked for its missing rule and the supplied rules around it. Export tests include
+both complete programs and replay with only bundled files; controls/tutor tests cover
+thrust versus fire, separate rotation evidence, text/voice context, and Invaders
+movement transfer preserving firing and scoring.
+
+An isolated Chromium smoke check also exercises both new museum cards and recorded
+previews, built-in story guidance, actual Pyodide movement/fire/thrust, exercise
+checks, separate complete/exercise drafts, downloads and narrow layouts. Both ZIPs
+were extracted and played from a plain HTTP server with workshop and external
+requests blocked, including firing, thrust, and restart. No live AI calls were made.
+
+Museum history checks cover canonical story context for every game, offline history
+versus controls replies, text/voice context, and rejection of malformed or executable
+source URLs. A Chromium smoke check verified all six stories and source lists while
+switching exhibits, expanding/collapsing the panel, and using desktop/mobile widths.
+
+Expanded-play Chromium checks cover all six games: the same canvas and game state
+survive opening/closing, drafts remain unchanged, keyboard focus stays in the dialog,
+Restart works, Escape and the return button restore the workshop, and hash navigation
+cleans up the view. Desktop, portrait and touch-landscape layouts keep controls visible.
+Checks also cover movement, clearing held keys on exit, thrust through visible controls,
+and returning to the editor with the draft intact after a Python error.

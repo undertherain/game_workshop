@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-import { readContent, loadLessons, validateIds, validateLesson } from '../public/content-loader.js';
+import { readContent, loadLessons, loadTemplates, validateIds, validateLesson } from '../public/content-loader.js';
 import { lessons, skillLabels } from '../public/curriculum.js';
 import { templates } from '../public/templates.js';
 
@@ -47,6 +47,15 @@ test('a missing lesson fails clearly instead of silently dropping an entry', asy
     if (path === 'lessons/event.json') throw Error('Missing lessons/event.json');
     return readContent(path);
   }), /lessons\/event.json/);
+});
+test('museum sources reject malformed links and executable URL schemes', async () => {
+  for (const source of [null, {title: 'Source', url: 'javascript:alert(1)'}, {title: 'Source', url: 'not a URL'}, {url: 'https://example.com'}]) {
+    await assert.rejects(loadTemplates(['breaker'], async path => {
+      const data = await readContent(path);
+      if (path === 'games/breaker.json') data.museumStory.sources = [source];
+      return data;
+    }), /games\/breaker.json: invalid museum sources/);
+  }
 });
 test('presentation is configurable for any lesson and rejects invalid values', async () => {
   const base = await readContent('lessons/hello.json');

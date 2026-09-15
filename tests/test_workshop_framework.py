@@ -10,8 +10,8 @@ PUBLIC = Path(__file__).resolve().parents[1] / 'public'
 
 class WorkshopFrameworkTests(unittest.TestCase):
     def source(self, kind):
-        if kind == 'sokoban':
-            return '\n'.join(json.loads((PUBLIC / 'content/games/sokoban.json').read_text())['complete'])
+        if kind in ('sokoban', 'invaders', 'asteroids'):
+            return '\n'.join(json.loads((PUBLIC / f'content/games/{kind}.json').read_text())['complete'])
         if kind == 'platformer':
             return (PUBLIC / 'starter.py').read_text()
         if kind == 'breaker':

@@ -1,0 +1,33 @@
+{
+  "id": "asteroids-variation",
+  "title": "Customize the flight",
+  "description": "Experiment with turning speed, thrust power, rock speed, or points.",
+  "hint": "Try changing ship.thrust_power or ship.turn_speed, then compare your flight.",
+  "starter": [
+    "# Turn, thrust, and clear the rocks. Momentum carries you forward.",
+    "ship.turn_speed = 4",
+    "ship.thrust_power = 0.09",
+    "world.rock_speed = 1",
+    "world.sky = \"night\"",
+    "",
+    "def steer_ship():",
+    "    if keyboard.left:",
+    "        ship.turn(-ship.turn_speed)",
+    "    if keyboard.right:",
+    "        ship.turn(ship.turn_speed)",
+    "",
+    "def apply_thrust():",
+    "    if keyboard.thrust:",
+    "        ship.thrust()",
+    "",
+    "def update():",
+    "    steer_ship()",
+    "    apply_thrust()",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def on_hit(rock):",
+    "    rock.split()",
+    "    world.score += 10"
+  ]
+}

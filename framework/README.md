@@ -3,7 +3,7 @@
 ## Workshop games and standalone browser exports
 
 `WorkshopGame` is the shared simulation for the platformer, brick breaker and
-Paratroopers-style and Sokoban workshop games. It owns the supplied objects, physics, input
+Paratroopers-style, Sokoban, Space Invaders and Asteroids workshop games. It owns the supplied objects, physics, input
 edges and callback lifecycle. Each instance has independent state. It imports no
 browser or raylib APIs, so ordinary Python and browser Pyodide run the same rules:
 
@@ -17,9 +17,10 @@ next_frame = game.step({'right': True, 'jump': True})
 ```
 
 The host calls `step(keys)` at 30 Hz; each call advances two fixed 60 Hz ticks.
-Inputs are `left`, `right` and `jump` (Space); the template maps Space to jumping,
-ball reset or firing. The return value is a detached JSON-compatible snapshot of
-the 840 × 480 scene. Construct a new instance to restart. Invalid source or callback
+Basic inputs are `left`, `right` and `jump` (Space); the template maps Space to
+jumping, ball reset or firing. Asteroids adds `thrust` (Up/W) separately; Sokoban
+adds up/down, undo and next. The return value is a detached JSON-compatible snapshot of
+the playfield: 840 × 480, or 960 × 640 for Invaders. Construct a new instance to restart. Invalid source or callback
 values raise Python exceptions; hosts report the original `my_game.py` line.
 The host owns rendering, timing, pausing and execution isolation. Direct Python
 execution is for trusted code; browser hosts run learner code in a terminable worker.
@@ -64,6 +65,35 @@ Snapshots include the board, player, crates, goal count, move/push counts and
 undo/next availability. `world.sky` selects the same four palettes as other games;
 the renderer is Canvas code shared with offline exports. This workshop grid API
 is separate from the experimental top-down `TileMap` below.
+
+## Space games
+
+`space_workshop.py` supplies two additional simulations behind `WorkshopGame`.
+Both expose `ship`, `world`, `keyboard`, `update()` and `on_hit(target)`. The supplied
+starter helpers are ordinary Python functions called by `update()`. Numeric settings
+are validated before simulation, and callbacks retain `my_game.py` error locations.
+
+Invaders wraps the existing `Invaders` class from `invaders.py`, which the desktop
+example also imports. It reuses `Game`, `World`, original actor construction, stock
+sprite definitions and projectile collision handling. The adapter adds two rows,
+formation movement/descent, enemy shots, shields, and learner control/hit hooks.
+`ship.x` and `ship.speed` control horizontal movement in the 960×640 playfield.
+`keyboard.fire` is a press edge; `ship.fire()` shoots upward with a ten-tick cooldown.
+`on_hit(alien)` calls `alien.hide()` and awards points. `world.alien_speed` is 0–4.
+Invaders snapshots include sprite patterns for the shared browser renderer.
+
+Asteroids uses an 840×480 wrapping field. `ship.turn(degrees)` changes heading;
+`ship.thrust()` adds velocity using `ship.thrust_power` (0–0.5). `ship.turn_speed`
+is 0–15 degrees per tick, and velocity is capped at six pixels per tick without drag.
+`keyboard.thrust` is held Up/W, `keyboard.fire` held Space; shooting has a twelve-tick
+cooldown. `on_hit(rock)` calls idempotent `rock.split()` and awards points. Rock sizes
+3→2→1 produce two fragments per split; small rocks disappear. Swept shot collision
+uses wrapped distances. `world.rock_speed` scales movement from 0–3. Collisions cost
+a shield, reset ship position/velocity, and grant 120 ticks of protection.
+
+Both games have three shields, explicit won/lost snapshots, and deterministic
+initial worlds. Simulation freezes after a win/loss; reconstruct to restart.
+`workshop_checks.py` runs isolated checks for ship controls, firing/thrust and scoring.
 
 ## Local top-down games
 

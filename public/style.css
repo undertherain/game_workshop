@@ -29,3 +29,27 @@
 #export-status:empty { display:none; }
 #export-status { font-size:12px; line-height:1.6; padding:10px 14px; margin:0 0 16px; border-radius:8px; background:#edf1e3; }
 @media(max-width:650px) { .workshop-heading { flex-wrap:wrap; }.workshop-actions { width:100%; justify-content:space-between; } }
+
+#workshop-main[data-game="asteroids"] .touch-controls { display:flex; flex-wrap:wrap; gap:8px; }
+#workshop-main[data-game="asteroids"] .game-footer,#workshop-main[data-game="invaders"] .game-footer { flex-wrap:wrap; gap:6px; }
+
+/* Expanded play reuses the live canvas and controls inside a modal page. */
+.game-view-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.game-view-actions #expand-game { background: #edf0e3; }
+.game-expanded { overflow: hidden; }
+#expanded-game { width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--paper); color: var(--ink); }
+#expanded-game[open] { display: flex; }
+#expanded-game .game-card { display: flex; flex-direction: column; width: 100%; height: 100%; border: 0; border-radius: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+#expanded-game .panel-heading, #expanded-game .game-footer, #expanded-game .touch-controls { flex-shrink: 0; }
+#expanded-game .stage-wrap { flex: 1; min-height: 0; margin: 0; border-radius: 0; background: #13271f; }
+#expanded-game canvas { width: 100%; height: 100%; object-fit: contain; }
+#expanded-game .game-footer { gap: 16px; height: auto; min-height: 45px; padding-top: 8px; padding-bottom: 8px; }
+#expanded-game #score { flex-shrink: 0; }
+@media (pointer: coarse) { #expanded-game .touch-controls { display: flex; } }
+@media (max-width: 600px) {
+  #game-card .panel-heading { height: auto; min-height: 54px; padding: 10px 12px; flex-wrap: wrap; }
+  #game-card .game-view-actions { margin-left: auto; }
+  #expanded-game .game-footer { flex-wrap: wrap; gap: 6px 12px; }
+  #expanded-game .touch-controls { flex-wrap: wrap; gap: 8px; }
+  #expanded-game .touch-controls button { padding: 10px 16px; }
+}

@@ -1,1 +1,1 @@
-["__init__.py", "topdown.py", "assets.py", "game.py", "workshop.py", "workshop_checks.py", "sokoban.py"]
+["__init__.py", "topdown.py", "assets.py", "game.py", "workshop.py", "workshop_checks.py", "sokoban.py", "stock.py", "invaders.py", "space_workshop.py"]

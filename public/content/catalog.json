@@ -22,7 +22,9 @@
     "booleans": "Booleans",
     "grid-movement": "Grid movement",
     "pushing": "Pushing rules",
-    "completion": "Completion conditions"
+    "completion": "Completion conditions",
+    "rotation": "Rotation",
+    "thrust": "Thrust and momentum"
   },
   "gameSkills": {
     "platformer": [
@@ -44,9 +46,28 @@
       "grid-movement",
       "pushing",
       "completion"
+    ],
+    "invaders": [
+      "movement",
+      "fire",
+      "scoring"
+    ],
+    "asteroids": [
+      "rotation",
+      "thrust",
+      "scoring"
     ]
   },
   "games": [
+    {
+      "id": "invaders",
+      "title": "Space Invaders",
+      "mark": "♜",
+      "description": "Steer your ship, shoot the advancing alien formation, and clear the screen.",
+      "concepts": "Keyboard movement · firing · scoring",
+      "recommendation": "Build controls, a game mechanic, scoring, and your own variation.",
+      "available": true
+    },
     {
       "id": "breaker",
       "title": "Brick breaker",
@@ -84,19 +105,20 @@
       "recommendation": "Build controls, a pushing rule, a finish condition and your own puzzle."
     },
     {
+      "id": "asteroids",
+      "title": "Asteroids",
+      "mark": "△",
+      "description": "Turn, thrust, and drift through a field of rocks. Shoot them into smaller pieces.",
+      "concepts": "Rotation · thrust · momentum · wrapping",
+      "recommendation": "Build controls, a game mechanic, scoring, and your own variation.",
+      "available": true
+    },
+    {
       "id": "xonix",
       "title": "Xonix",
       "mark": "⌗",
       "description": "Draw paths to claim territory while avoiding enemies.",
       "concepts": "Grids · regions · flood fill",
-      "available": false
-    },
-    {
-      "id": "asteroids",
-      "title": "Asteroids",
-      "mark": "△",
-      "description": "Steer a drifting ship, thrust through space and break up rocks.",
-      "concepts": "Rotation · momentum · wrapping · projectiles",
       "available": false
     }
   ],
@@ -104,7 +126,9 @@
     "platformer",
     "breaker",
     "paratroopers",
-    "sokoban"
+    "sokoban",
+    "invaders",
+    "asteroids"
   ],
   "branches": [
     {

@@ -8,7 +8,8 @@ sys.path.insert(0, str(ROOT))
 from framework import WorkshopGame
 
 previews = {}
-for kind in ('breaker', 'platformer', 'paratroopers', 'sokoban'):
+catalog = json.loads((ROOT / 'public/content/catalog.json').read_text())
+for kind in catalog['templates']:
     content = json.loads((ROOT / f'public/content/games/{kind}.json').read_text())
     game = WorkshopGame('\n'.join(content['complete']), kind)
     if kind == 'paratroopers':
@@ -24,6 +25,10 @@ for kind in ('breaker', 'platformer', 'paratroopers', 'sokoban'):
             keys = {'right': tick < 80, 'jump': 12 < tick < 65 or tick > 90}
         elif kind == 'paratroopers':
             keys = {'right': tick < 35, 'left': 35 <= tick < 95, 'fire': tick % 8 == 0}
+        elif kind == 'invaders':
+            keys = {'right': tick < 25, 'left': 25 <= tick < 75, 'jump': tick % 12 == 0}
+        elif kind == 'asteroids':
+            keys = {'right': tick < 45, 'thrust': tick < 80, 'jump': True}
         else:
             keys = {('right', 'up', 'left', 'down')[(tick // 30) % 4]: tick % 30 < 3}
         game.step(keys)

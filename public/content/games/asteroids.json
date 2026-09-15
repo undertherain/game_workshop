@@ -1,0 +1,104 @@
+{
+  "title": "Asteroids",
+  "genre": "Asteroids",
+  "icon": "△",
+  "description": "Turn, thrust, and drift through a field of rocks. Shoot them into smaller pieces.",
+  "controls": "fire",
+  "action": "Fire",
+  "placeholder": "How do I change my ship’s flight?",
+  "intro": "Left already turns your ship in steer_ship(). Add the matching Right rule. Up thrusts and Space fires; release Up to feel momentum.",
+  "museumIntro": "Left/Right or A/D turns the ship. Up or W applies thrust; releasing it leaves you drifting. Hold Space to fire. Ships, shots, and rocks wrap around screen edges. Large rocks split into two medium rocks, then small ones. Clear every fragment to finish. You have three shields and brief protection after a collision.",
+  "museumStory": {
+    "title": "1979: Asteroids opens up the whole screen",
+    "text": "Atari released Asteroids in 1979, designed by Ed Logg and Lyle Rains. Its arcade display drew bright outlines on a dark background. A ship could turn and thrust in any direction, and shooting large rocks broke them into smaller hazards.\n\nOur Python version explores those ideas: drifting after you release thrust, crossing one screen edge to reappear at the other, and splitting rocks. Changing the movement rules can make the same scene feel very different to pilot.",
+    "prompt": "Change thrust power or turning speed. Can you make a ship that is easier to steer without losing the feeling of drift?",
+    "sources": [
+      {
+        "title": "MoMA · Asteroids, Ed Logg and Lyle Rains",
+        "url": "https://www.moma.org/collection/works/169921"
+      },
+      {
+        "title": "Museum of the Game · Asteroids",
+        "url": "https://www.arcade-museum.com/Videogame/asteroids"
+      }
+    ]
+  },
+  "ideas": [
+    [
+      "Gentler thrust",
+      "Help me change ship.thrust_power and understand momentum."
+    ],
+    [
+      "Turning speed",
+      "Help me change ship.turn_speed."
+    ],
+    [
+      "Slower rocks",
+      "Help me change world.rock_speed while keeping splitting and wrapping."
+    ]
+  ],
+  "guide": [
+    [
+      "ship.turn(degrees)",
+      "Rotate: negative turns left, positive turns right."
+    ],
+    [
+      "ship.turn_speed",
+      "Degrees per 60 Hz tick, from 0 to 15."
+    ],
+    [
+      "ship.thrust()",
+      "Accelerate in the direction the ship faces."
+    ],
+    [
+      "ship.thrust_power",
+      "Acceleration per tick, from 0 to 0.5."
+    ],
+    [
+      "keyboard.thrust / fire",
+      "Up/W for thrust; Space for continuous fire."
+    ],
+    [
+      "on_hit(rock) / rock.split()",
+      "Split the hit rock and choose its points."
+    ],
+    [
+      "world.rock_speed",
+      "Rock movement multiplier from 0 to 3."
+    ]
+  ],
+  "file": "asteroids.py",
+  "complete": [
+    "# Turn, thrust, and clear the rocks. Momentum carries you forward.",
+    "ship.turn_speed = 4",
+    "ship.thrust_power = 0.09",
+    "world.rock_speed = 1",
+    "world.sky = \"night\"",
+    "",
+    "def steer_ship():",
+    "    if keyboard.left:",
+    "        ship.turn(-ship.turn_speed)",
+    "    if keyboard.right:",
+    "        ship.turn(ship.turn_speed)",
+    "",
+    "def apply_thrust():",
+    "    if keyboard.thrust:",
+    "        ship.thrust()",
+    "",
+    "def update():",
+    "    steer_ship()",
+    "    apply_thrust()",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def on_hit(rock):",
+    "    rock.split()",
+    "    world.score += 10"
+  ],
+  "lessons": [
+    "asteroids-controls",
+    "asteroids-thrust",
+    "asteroids-score",
+    "asteroids-variation"
+  ]
+}

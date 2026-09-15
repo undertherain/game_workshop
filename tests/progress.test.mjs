@@ -50,3 +50,11 @@ for kind,source in json.load(sys.stdin).items():
 `], { input: JSON.stringify(sources), encoding: 'utf8' });
   assert.equal(py.status, 0, py.stderr);
 });
+
+test('Invaders movement transfer preserves supplied firing and scoring', async () => {
+  const source = await readFile(new URL('../public/invaders.py', import.meta.url), 'utf8');
+  const draft = movementStarter(source, 'invaders');
+  assert.equal(draft.slice(draft.indexOf('def fire_laser')), source.slice(source.indexOf('def fire_laser')));
+  const py = spawnSync('python3', ['-B', '-c', 'import sys,json;from framework.workshop_checks import check_exercise;assert json.loads(check_exercise(sys.stdin.read(),"invaders",0))["passed"]'], {input:draft,encoding:'utf8'});
+  assert.equal(py.status,0,py.stderr);
+});

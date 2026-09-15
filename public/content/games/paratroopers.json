@@ -70,8 +70,14 @@
   ],
   "museumIntro": "Move your launcher with the arrow keys and press Space to fire at the falling robots. Intercept all eight to finish. The interesting choice is when to move and when to shoot; slower falling robots give you more time.",
   "museumStory": {
-    "title": "Look up. Find your moment.",
-    "text": "Robots drift down from the sky while your launcher moves along the ground. A spark takes time to travel, so aiming means thinking about where a robot will be next. Movement, timing and one fire button turn a simple scene into a game of anticipation.",
-    "prompt": "What if your launcher moved faster? Could you catch a robot on the other side in time?"
+    "title": "Early 1980s: defending one patch of sky",
+    "text": "Games of this type appeared on early home computers. Sabotage, made by Mark Allen for the Apple II in 1981, was followed by Greg Kuperberg’s Paratrooper for the IBM PC in 1982. The player aimed from a fixed position while aircraft and parachutes crossed the screen.\n\nSky Patrol adapts that setup with parachuting robots. It gives you a compact way to explore aiming, the path of a shot and what happens when two moving objects meet.",
+    "prompt": "What if your launcher moved faster? Could you catch a robot on the other side in time?",
+    "sources": [
+      {
+        "title": "Thomer Gil · Paratrooper and its origins",
+        "url": "https://thomer.com/games/paratrooper/"
+      }
+    ]
   }
 }

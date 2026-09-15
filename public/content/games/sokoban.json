@@ -77,8 +77,18 @@
     "sokoban-variation"
   ],
   "museumStory": {
-    "title": "A tiny room with a big puzzle inside.",
-    "text": "Every crate has a place to go. You can push a crate, but you cannot pull it back, so the space around it matters as much as the goal. A tempting move can block your next one. Pause, picture a few moves ahead, and use Undo to try another idea.",
-    "prompt": "What if you moved one wall or one goal? Could a small change make a completely different puzzle?"
+    "title": "1982: a puzzle about moving boxes",
+    "text": "Sokoban was created by Hiroyuki Imabayashi. Thinking Rabbit released it for Japanese home computers in December 1982, on cassette tape. It built a puzzle around an everyday task: moving boxes into the right places. The order of your moves matters because you can push a box into a position you cannot recover from.\n\nCrate Cottage uses that box-pushing idea with original rooms. You can explore the rules, learn to implement them, or design a room of your own.",
+    "prompt": "What if you moved one wall or one goal? Could a small change make a completely different puzzle?",
+    "sources": [
+      {
+        "title": "Sokoban official site · Creator credit",
+        "url": "https://sokoban.jp/"
+      },
+      {
+        "title": "Sokoban official site · Release history (Japanese)",
+        "url": "https://sokoban.jp/history.html"
+      }
+    ]
   }
 }

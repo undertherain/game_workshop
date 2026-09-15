@@ -9,6 +9,8 @@ def check_exercise(source, kind, step):
         game = WorkshopGame(source, kind)
     except Exception as exc:
         return json.dumps({"passed": False, "message": "Fix the Python error first, then check this step again.", "error": _error(exc)})
+    if kind in ("invaders", "asteroids"):
+        return check_space(game, kind, step)
     if kind == "sokoban":
         return check_sokoban(game, step)
     _arcade = game.simulation
@@ -132,3 +134,62 @@ def check_sokoban(game, step):
         return json.dumps({'passed':passed,'message':message})
     except Exception as exc:
         return json.dumps({'passed':False,'message':'Your rule raised an error: '+str(exc),'error':_error(exc)})
+
+
+def check_space(game, kind, step):
+    sim = game.simulation
+    try:
+        if step == 0 and kind == 'invaders':
+            sim.ship.x = 420
+            game.step({})
+            still = sim.ship.x == 420
+            game.step({'right': True})
+            right = sim.ship.x > 420
+            before = sim.ship.x
+            game.step({'left': True})
+            passed = still and right and sim.ship.x < before
+            message = 'Both arrow keys move your ship, and it stops when released.' if passed else 'Inside move_ship(), use keyboard.left/right to decrease/increase ship.x by ship.speed.'
+        elif step == 0:
+            sim.ship.angle = 180
+            game.step({})
+            still = sim.ship.angle == 180
+            game.step({'right': True})
+            right = sim.ship.angle > 180
+            sim.ship.angle = 180
+            game.step({'left': True})
+            passed = still and right and sim.ship.angle < 180
+            message = 'Both keys turn the ship, and releasing them stops rotation.' if passed else 'Inside steer_ship(), turn by negative ship.turn_speed for Left and positive ship.turn_speed for Right.'
+        elif step == 1 and kind == 'invaders':
+            game.step({})
+            quiet = not sim.model.world.projectiles
+            game.step({'jump': True})
+            shots = len(sim.model.world.projectiles)
+            game.step({'jump': True})
+            passed = quiet and shots == 1 and len(sim.model.world.projectiles) == 1
+            message = 'Space fires once per press. Release and press again for another shot.' if passed else 'Inside fire_laser(), check keyboard.fire before calling ship.fire().'
+        elif step == 1:
+            sim.ship.angle, sim.ship.vx, sim.ship.vy = 270, 0, 0
+            game.step({})
+            quiet = sim.ship.vx == 0 and sim.ship.vy == 0
+            game.step({'thrust': True})
+            accelerated = sim.ship.vy < 0
+            velocity = sim.ship.vy
+            y = sim.ship.y
+            game.step({})
+            passed = quiet and accelerated and sim.ship.vy == velocity and sim.ship.y < y
+            message = 'Up adds thrust; releasing it leaves your ship drifting at the same velocity.' if passed else 'Inside apply_thrust(), check keyboard.thrust before ship.thrust(). Let the engine keep the velocity when you release Up.'
+        elif step == 2:
+            item = sim.items[0]
+            before = sim.world.score
+            count = len(sim.items)
+            sim.scope['on_hit'](item)
+            sim.validate()
+            passed = sim.world.score > before and not item.visible
+            if kind == 'asteroids':
+                passed = passed and len(sim.items) == count + 2
+            message = 'Your hit rule awards points and clears the target' + (' into two smaller rocks.' if kind == 'asteroids' else '.') if passed else 'Keep ' + ('rock.split()' if kind == 'asteroids' else 'alien.hide()') + ' and add a positive number to world.score in on_hit().'
+        else:
+            return json.dumps({'passed': None, 'message': 'Your Python starts. Play your variation and compare how the controls feel.'})
+        return json.dumps({'passed': passed, 'message': message})
+    except Exception as exc:
+        return json.dumps({'passed': False, 'message': 'Your rule raised an error during the check: ' + str(exc), 'error': _error(exc)})

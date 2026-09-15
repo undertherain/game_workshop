@@ -18,7 +18,8 @@ Point only to existing nonblank editor lines, never proposed code or reading-sli
     title: input.current.title, focus: input.current.description,
     capabilities: input.capabilities,
     suppliedCharacter: 'The workshop supplies fox (later called character) and draws the scene. These names/actions are not built into Python; no import or creation step is needed.',
-  } : { game: input.template, activity: input.activity, title: input.exercise.title, focus: input.activity === 'museum' ? 'Introduce the game, its goal and controls, and the choice of lessons or a complete version.' : input.activity === 'complete' ? 'Play and customize the complete game; controls are already supplied.' : input.exercise.description, editor: { commentToggleShortcut: false },
+  } : { game: input.template, activity: input.activity, title: input.exercise.title, focus: input.activity === 'museum' ? 'Introduce the game or game type using the supplied history, then explain goals, controls or workshop paths when asked.' : input.activity === 'complete' ? 'Play and customize the complete game; controls are already supplied.' : input.exercise.description, editor: { commentToggleShortcut: false },
+    museumStory: input.museumStory,
     runtime: 'The workshop supplies scenery, physics and moving objects; the backend has the selected game API and current code.' };
   const outline = {
     foundations: branches.find(branch => branch.id === 'foundations').chapters.map(chapter => chapter.title),

@@ -4,6 +4,7 @@ import math
 import traceback
 from types import SimpleNamespace
 from .sokoban import SokobanGame
+from .space_workshop import InvadersWorkshop, AsteroidsWorkshop
 
 
 class Actor:
@@ -274,14 +275,16 @@ class WorkshopGame:
     Rules are ordinary Python with the template's supplied objects and callbacks.
     Rendering and worker/process isolation belong to the host.
     """
-    kinds = ("platformer", "breaker", "paratroopers", "sokoban")
+    kinds = ("platformer", "breaker", "paratroopers", "sokoban", "invaders", "asteroids")
     frame_seconds = 1 / 30
 
     def __init__(self, source, kind="platformer"):
         if kind not in self.kinds:
             raise ValueError("Choose a supported game template")
         self.kind = kind
-        self.simulation = SokobanGame(source) if kind == "sokoban" else PlatformGame(source) if kind == "platformer" else ArcadeGame(source, kind)
+        simulations = {"platformer": PlatformGame, "sokoban": SokobanGame,
+                       "invaders": InvadersWorkshop, "asteroids": AsteroidsWorkshop}
+        self.simulation = simulations[kind](source) if kind in simulations else ArcadeGame(source, kind)
         self.snapshot()  # Validate initial learner values before returning a session.
 
     def snapshot(self):

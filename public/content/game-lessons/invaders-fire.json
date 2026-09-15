@@ -1,0 +1,35 @@
+{
+  "id": "invaders-fire",
+  "title": "Connect the fire button",
+  "description": "Write the rule that fires a laser on a new Space press. Movement is supplied.",
+  "hint": "Check keyboard.fire before calling ship.fire().",
+  "starter": [
+    "# Move the ship, fire at the formation, and clear all 21 aliens.",
+    "ship.speed = 5",
+    "world.alien_speed = 0.65",
+    "world.sky = \"night\"",
+    "",
+    "def move_ship():",
+    "    if keyboard.left:",
+    "        ship.x -= ship.speed",
+    "    if keyboard.right:",
+    "        ship.x += ship.speed",
+    "",
+    "def fire_laser():",
+    "    pass",
+    "",
+    "def update():",
+    "    move_ship()",
+    "    fire_laser()",
+    "",
+    "def on_hit(alien):",
+    "    alien.hide()",
+    "    world.score += 10"
+  ],
+  "guide": {
+    "function": "fire_laser",
+    "replace": "pass",
+    "instruction": "Check keyboard.fire before calling ship.fire().",
+    "review": "Run your rule, then use Check my step."
+  }
+}

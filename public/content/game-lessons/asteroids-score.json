@@ -1,0 +1,39 @@
+{
+  "id": "asteroids-score",
+  "title": "Score each fragment",
+  "description": "Rocks already split when hit. Award points inside on_hit().",
+  "hint": "Add a positive number to world.score after rock.split().",
+  "starter": [
+    "# Turn, thrust, and clear the rocks. Momentum carries you forward.",
+    "ship.turn_speed = 4",
+    "ship.thrust_power = 0.09",
+    "world.rock_speed = 1",
+    "world.sky = \"night\"",
+    "",
+    "def steer_ship():",
+    "    if keyboard.left:",
+    "        ship.turn(-ship.turn_speed)",
+    "    if keyboard.right:",
+    "        ship.turn(ship.turn_speed)",
+    "",
+    "def apply_thrust():",
+    "    if keyboard.thrust:",
+    "        ship.thrust()",
+    "",
+    "def update():",
+    "    steer_ship()",
+    "    apply_thrust()",
+    "    if keyboard.fire:",
+    "        ship.fire()",
+    "",
+    "def on_hit(rock):",
+    "    rock.split()",
+    "    pass"
+  ],
+  "guide": {
+    "function": "on_hit",
+    "replace": "pass",
+    "instruction": "Add a positive number to world.score after rock.split().",
+    "review": "Run your rule, then use Check my step."
+  }
+}
