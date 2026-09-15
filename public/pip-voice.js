@@ -3,6 +3,7 @@ import { createVoiceCaptions } from './voice-captions.js';
 import { createCodePointer, createSpokenPointer } from './pip-pointer.js';
 import { createPipAvatar } from './pip-avatar.js';
 let activeCall;
+let aiAccessState;
 export function stopPipVoice(reason = 'Voice ended. Microphone off.') { activeCall?.stop(reason); }
 
 export function createPipVoice(container, kind, getContext, createMessage) {
@@ -24,6 +25,9 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   function finish(current, message) {
     if (current.finished) return;
     current.finished = true;
+    clearTimeout(current.limitTimer);
+    if (current.limitId) fetch('/api/voice-stop', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: current.limitId }), keepalive: true }).catch(() => {});
     current.closing = true;
     current.stopAvatarAudio?.();
     current.spokenPointer?.clear(); current.pointer?.destroy();
@@ -80,6 +84,13 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   async function start() {
     stopPipVoice();
     if (document.hidden) return;
+    if (aiAccessState?.mode === 'examples') {
+      status.textContent = 'Use an invite or enter your own key to talk to Pip.';
+      document.dispatchEvent(new CustomEvent('open-ai-access')); return;
+    }
+    if (aiAccessState && !aiAccessState.voiceAvailable) {
+      status.textContent = 'Voice is unavailable for this connection. You can still type to Pip.'; return;
+    }
     if (!navigator.mediaDevices?.getUserMedia || !globalThis.RTCPeerConnection) {
       status.textContent = 'Voice needs a microphone-capable browser on localhost or HTTPS.'; return;
     }
@@ -151,8 +162,13 @@ export function createPipVoice(container, kind, getContext, createMessage) {
       const response = await fetch('/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         signal: current.controller.signal, body: JSON.stringify({ kind, context, sdp: peer.localDescription.sdp }) });
       const result = await response.json();
-      if (!alive()) return;
+      if (!alive()) {
+        if (result.limit?.id) fetch('/api/voice-stop', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: result.limit.id }), keepalive: true }).catch(() => {});
+        return;
+      }
       if (!response.ok) throw Error(result.error || 'Pip could not connect.');
+      current.limitId = result.limit?.id;
+      if (result.limit?.maxSeconds) current.limitTimer = setTimeout(() => stop(current, 'This voice call reached its time limit. Microphone off.'), result.limit.maxSeconds * 1000);
       await peer.setRemoteDescription({ type: 'answer', sdp: result.transport.sdp });
     } catch (error) {
       if (alive()) finish(current, error.name === 'NotAllowedError' ? 'Microphone access was not allowed. You can still type to Pip.' : error.name === 'NotFoundError' ? 'No microphone found. Connect one or type to Pip.' : error.message);
@@ -186,6 +202,7 @@ function waitForIce(peer, signal) {
 }
 
 if (typeof window !== 'undefined') {
+  document.addEventListener('ai-access-changed', event => { aiAccessState = event.detail; stopPipVoice('AI access updated. Start voice again when ready.'); });
   window.addEventListener('pagehide', () => stopPipVoice());
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPipVoice('Voice ended while the tab was away. Microphone off.'); });
   document.addEventListener('input', event => { if (['editor', 'lesson-code'].includes(event.target.id)) stopPipVoice('Code changed. Start voice again to share the updated code.'); });

@@ -19,6 +19,16 @@ the asset's generation prompt and scope.
 
 Return to the [prototype README](../README.md).
 
+`ai-access.js` initializes the global **AI access** dialog before lesson routing.
+It removes invite fragments from the URL, redeems a reusable invite on an explicit
+activation click, and submits personal keys to `/api/access` without storing them in
+browser storage. It displays remaining allowance, session expiry, and disconnect.
+`ai-access.css` styles the dialog. All authorization and quota enforcement lives on
+the server; browser state never grants shared-key access. `pip-voice.js` also ends
+calls at the returned time limit and requests `/api/voice-stop`; the independently
+scheduled backend callback remains the cutoff if a browser ignores that timer.
+See [demo access](../docs/demo-access.md) for server configuration and limits.
+
 `examples/breaker_framework.py` is a complete, optional framework experiment for
 the existing Brick breaker editor. `framework/workshop.py` supplies `StaticScreen`,
 `Brick`, `Paddle` and `Ball`; the learner can inspect `screen.width`/`height`, iterate

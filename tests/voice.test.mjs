@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createServer } from '../server.mjs';
+import { createServer as serverWithAccess } from '../server.mjs';
+import { createAccess } from '../ai-access.mjs';
+// Transport regressions isolate transport; ai-access.test.mjs exercises real quotas.
+function createServer(options) {
+  const access = createAccess({ env: {}, localAi: true });
+  access.reserve = async () => {};
+  return serverWithAccess({ ...options, access });
+}
 import { voiceSession } from '../voice-tutor.mjs';
 import { createVoiceCaptions } from '../public/voice-captions.js';
 const offer = { kind: 'lesson', context: { lessonId: 'command', code: 'fox.jump()' }, sdp: 'v=0\r\n' };
@@ -43,9 +50,9 @@ test('overlapping voice streams update existing chat entries and a new call keep
 
 test('voice endpoint protects credentials, validates requests and recovers after upstream errors', async () => {
   let captured, calls = 0, fail = false;
-  const server = createServer({ apiKey: 'secret-test-key', fetchImpl: async (url, options) => {
+  const server = createServer({localAi: true, apiKey: 'secret-test-key', fetchImpl: async (url, options) => {
     calls++; captured = { url, options };
-    return fail ? new Response('private upstream error', { status: 403 }) : Response.json({ transport: { sdp: 'answer' }, secret: 'never return this' });
+    return fail ? new Response('private upstream error', { status: 403 }) : Response.json({ session: { id: 'live_test' }, transport: { sdp: 'answer' }, secret: 'never return this' });
   } });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const url = `http://127.0.0.1:${server.address().port}/api/voice`;
@@ -57,7 +64,7 @@ test('voice endpoint protects credentials, validates requests and recovers after
     assert.equal(calls, 0);
     const reply = await post();
     assert.equal(reply.status, 201);
-    assert.deepEqual(await reply.json(), { transport: { type: 'webrtc', sdp: 'answer' } });
+    assert.deepEqual(await reply.json(), { transport: { type: 'webrtc', sdp: 'answer' }, limit: { maxSeconds: 120 } });
     assert.equal(captured.url, 'https://api.openai.com/v1/live/sessions');
     assert.equal(captured.options.headers.Authorization, 'Bearer secret-test-key');
     fail = true;
@@ -66,11 +73,11 @@ test('voice endpoint protects credentials, validates requests and recovers after
     assert.doesNotMatch(await failure.text(), /private upstream/);
     fail = false; assert.equal((await post()).status, 201);
   } finally { await new Promise(resolve => server.close(resolve)); }
-  const offline = createServer({ apiKey: '' });
+  const offline = createServer({localAi: true, apiKey: '' });
   await new Promise(resolve => offline.listen(0, '127.0.0.1', resolve));
   try {
     const response = await fetch(`http://127.0.0.1:${offline.address().port}/api/voice`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(offer) });
-    assert.equal(response.status, 503);
+    assert.equal(response.status, 401);
   } finally { await new Promise(resolve => offline.close(resolve)); }
 });
 
@@ -78,8 +85,8 @@ test('abandoning voice setup cancels the upstream request and frees the next Tal
   let markStarted, markCancelled, calls = 0;
   const started = new Promise(resolve => { markStarted = resolve; });
   const cancelled = new Promise(resolve => { markCancelled = resolve; });
-  const server = createServer({ apiKey: 'test-key', fetchImpl: async (url, options) => {
-    if (++calls > 1) return Response.json({ transport: { sdp: 'fresh answer' } });
+  const server = createServer({localAi: true, apiKey: 'test-key', fetchImpl: async (url, options) => {
+    if (++calls > 1) return Response.json({ session: { id: 'live_fresh' }, transport: { sdp: 'fresh answer' } });
     markStarted();
     return new Promise((resolve, reject) => {
       options.signal.addEventListener('abort', () => { markCancelled(); reject(options.signal.reason); }, { once: true });

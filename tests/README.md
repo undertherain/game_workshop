@@ -7,6 +7,20 @@ are performed separately against the running local prototype.
 
 Return to the [prototype README](../README.md).
 
+`ai-access.test.mjs` tests anonymous isolation with a configured shared key,
+atomic reusable invite redemption, secure cookies, exact Origin checks, expiry,
+revocation, per-invite and total caps, concurrent reservations, encrypted personal
+keys, persistent personal-key daily allowance, disconnect, store failures, malformed
+Redis responses, durable voice scheduling, failed scheduling cleanup, callback
+authentication and hangup retries. Upstream and queue calls are simulated; no API
+credits are spent. Legacy transport tests opt into explicit loopback development
+access; voice transport tests isolate quota policy, which has its own coverage.
+A real local Redis check additionally verified the production Lua scripts under
+concurrent quota reservations and invite redemptions. An isolated Chromium check
+covered invite activation, URL cleanup, chat, reload, personal-key entry and clearing,
+disconnect, lesson navigation, and the access dialog at desktop and mobile widths.
+Those browser checks used a fake upstream and made no live AI requests.
+
 `server-config.test.mjs` covers loopback and hosted startup settings, exact Vercel
 hostnames, public HTTPS API requests, rejected foreign origins/forwarded-header
 spoofing, private file isolation, and a streamed game ZIP above 4.5 MB.

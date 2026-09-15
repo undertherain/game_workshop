@@ -53,7 +53,7 @@ test('public HTTPS hosts support APIs while rejecting foreign origins and spoofe
   const cases = [
     ['/api/help', { template: 'breaker', question: 'How do I move?', code: 'pass' }, 200],
     ['/api/lesson-help', { lessonId: 'command', question: 'How do I jump?', code: 'fox.jump()' }, 200],
-    ['/api/voice', { kind: 'lesson', context: { lessonId: 'command', code: 'fox.jump()' }, sdp: 'v=0\r\n' }, 503],
+    ['/api/voice', { kind: 'lesson', context: { lessonId: 'command', code: 'fox.jump()' }, sdp: 'v=0\r\n' }, 401],
     ['/api/export', { template: 'breaker', code: 'pass' }, 200],
   ];
   for (const [pathname, body, status] of cases) {

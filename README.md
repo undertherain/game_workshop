@@ -21,7 +21,9 @@ npm start
 Open <http://localhost:4179>. Python runs locally in a browser worker using the
 installed Pyodide distribution. The server binds to localhost. No CDN is required.
 
-For optional live AI, copy `.env.example` to `.env` and set your API key.
+For optional live AI, copy `.env.example` to `.env` and configure
+[demo invites and personal-key access](docs/demo-access.md). For an explicit
+loopback-only development shortcut, set your key and `WORKSHOP_LOCAL_AI=1`.
 No configuration from the original project is required.
 
 The server discovers the nearest `.env` by walking up from this folder, matching
@@ -30,7 +32,10 @@ Set `WORKSHOP_LOAD_DOTENV=0` to disable discovery. For live AI, set `OPENAI_API_
 Optionally set
 `OPENAI_MODEL` (default `gpt-5.4-mini`) or load an existing environment file with
 `node --env-file=/absolute/path/to/file server.mjs`. Keys stay on the server.
-Without a key the interface explicitly offers built-in guided examples, not AI chat.
+Without an authenticated AI session the interface offers built-in guided examples.
+The **AI access** panel accepts a personal key or activates a reusable demo invite.
+Keys stay on the server; sessions, expiry and shared request limits are enforced by
+the backend. Setting the shared key alone never enables it for public visitors.
 
 ## Deploy
 
@@ -312,7 +317,7 @@ Visited slides are stored locally from this version onward; opening a slide does
 record practice or mastery. Each slide’s recent chat stays in memory during this visit;
 reloading clears conversations. Navigating to another slide cancels its pending reply.
 
-This uses the existing server-side AI configuration. Without an API key, the panel
+This uses the authenticated server-side AI configuration. Without AI access, the panel
 explicitly shows a built-in slide guide. Replies are explanations only; they do not
 change or run code. Restart the server after updating tutor code or lesson content.
 
@@ -326,7 +331,8 @@ audio analysis is available. Reduced-motion preferences keep the expressions sta
 The Pip panels offer **Talk to Pip**, **Mute mic** and **End voice**. Spoken messages
 stream into the same chat as typed messages. Voice uses `gpt-live-1` with the Marin voice; coding questions delegate to
 the existing `OPENAI_MODEL` tutor (default `gpt-5.4-mini`). The server needs
-`OPENAI_API_KEY` with access to GPT-Live. Restart the server and reload the page
+an invite or personal-key session with access to GPT-Live, plus the
+[hosted voice cutoff configuration](docs/demo-access.md). Restart the server and reload the page
 after updating. Use localhost or HTTPS and allow microphone access when prompted.
 
 The live voice prompt contains the learning-through-games goal, conversation guidance,

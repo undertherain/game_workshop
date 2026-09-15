@@ -12,13 +12,29 @@
   <link rel="stylesheet" href="/pip-avatar.css">
   <link rel="stylesheet" href="/museum.css">
   <link rel="stylesheet" href="/title-screen.css">
+  <link rel="stylesheet" href="/ai-access.css">
 </head>
 <body data-mode="home">
   <header class="topbar">
     <a id="home-link" class="brand" href="/" aria-label="Little Makers title screen"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
     <div class="header-actions"><button id="museum-toggle" disabled>Game workshop</button><button id="map-toggle" disabled>Learning map</button><button id="mode-toggle" disabled>Open game workshop ↗</button><span id="save-status">Saved in this browser</span></div>
     <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><div class="workshop-actions"><button id="browse-games" class="quiet">← Back to game</button><details id="build-path" class="exercise-menu" aria-label="Choose an exercise"><summary>Exercises <span aria-hidden="true">⌄</span></summary><div id="build-steps" class="build-steps"></div></details><details id="game-downloads"><summary id="game-download-toggle">↓ Download <span aria-hidden="true">⌄</span></summary><div class="game-download-options"><button id="export-game" disabled><strong>Playable game <span>.zip</span></strong><small>Game, artwork, and Python code</small></button><button id="download" disabled><strong>Python code only <span>.py</span></strong><small>Just your code, without the game player</small></button></div></details></div></div>
+    <button id="ai-access-open" class="ai-access-open" type="button">AI access</button>
   </header>
+  <dialog id="ai-access-dialog" aria-labelledby="ai-access-title">
+    <button type="button" data-close aria-label="Close AI access">Close</button>
+    <h2 id="ai-access-title">AI access</h2>
+    <p id="ai-access-summary">Checking AI access…</p>
+    <button id="ai-activate-invite" type="button" class="primary" hidden>Activate demo AI</button>
+    <form id="ai-key-form">
+      <label for="ai-personal-key">Enter your own OpenAI API key</label>
+      <input id="ai-personal-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="503" placeholder="sk-…" required aria-describedby="ai-key-notice">
+      <small id="ai-key-notice">AI requests use your OpenAI account and billing. Our server handles your key and keeps it encrypted for up to 8 hours. It is not saved in browser storage. Disconnect to forget it. A ChatGPT subscription does not include API usage.</small>
+      <button type="submit" class="primary">Use my key</button>
+    </form>
+    <button id="ai-disconnect" type="button" hidden>Disconnect / use built-in guide</button>
+    <p id="ai-access-status" role="status"></p>
+  </dialog>
   <main id="title-screen" aria-labelledby="title-screen-heading">
     <div class="title-hero">
       <div class="title-copy">

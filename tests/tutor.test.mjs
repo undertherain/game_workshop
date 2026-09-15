@@ -29,7 +29,7 @@ test('guided examples point into changed code and unsupported questions are hone
 });
 test('server serves local Python, isolates secrets, and sends contextual structured AI requests',async()=>{
   let captured;
-  const server=createServer({apiKey:'test-secret',fetchImpl:async(url,options)=>{
+  const server=createServer({localAi: true,apiKey:'test-secret',fetchImpl:async(url,options)=>{
     captured=JSON.parse(options.body);
     return new Response(JSON.stringify({output:[{content:[{type:'output_text',text:JSON.stringify({message:'A bigger number gives a stronger jump.',line:4,before:'player.jump_height = 11',after:'player.jump_height = 15',experiment:'Try jumping again.'})}]}]}));
   }});
@@ -39,7 +39,7 @@ test('server serves local Python, isolates secrets, and sends contextual structu
     assert.equal((await fetch(base+'/starter.py')).status,200);
     assert.equal((await fetch(base+'/.env')).status,404);
     assert.equal((await fetch(base+'/server.mjs')).status,404);
-    assert.deepEqual(await(await fetch(base+'/api/status')).json(),{mode:'ai'});
+    assert.equal((await(await fetch(base+'/api/status')).json()).mode,'ai');
     const reply=await(await fetch(base+'/api/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'jump higher',code,progress:{records:[{skill:'movement',source:'game:breaker',evidence:'checked'}]}})})).json();
     assert.equal(reply.mode,'ai');assert.equal(reply.line,4);
     assert.equal(captured.store,false);assert.equal(captured.text.format.strict,true);
@@ -53,7 +53,7 @@ test('server serves local Python, isolates secrets, and sends contextual structu
   }finally{await new Promise(resolve=>server.close(resolve));}
 });
 test('upstream failures do not masquerade as AI guidance',async()=>{
-  const server=createServer({apiKey:'test-secret',fetchImpl:async()=>new Response('private upstream error',{status:401})});
+  const server=createServer({localAi: true,apiKey:'test-secret',fetchImpl:async()=>new Response('private upstream error',{status:401})});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   try{
     const response=await fetch(`http://127.0.0.1:${server.address().port}/api/help`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'jump',code})});

@@ -18,7 +18,7 @@ test('fresh deployment includes Python assets, an importable default handler and
   assert.equal(config.supportsResponseStreaming, true);
   const { default: handler } = await import(new URL(config.handler, fn));
   assert.equal(typeof handler, 'function');
-  for (const name of ['help', 'lesson-help', 'voice', 'export']) {
+  for (const name of ['help', 'lesson-help', 'voice', 'export', 'access', 'voice-stop', 'voice-expire']) {
     assert.equal(await realpath(new URL(`functions/api/${name}.func`, output)), await realpath(fn));
   }
   for (const [artifact, source] of [

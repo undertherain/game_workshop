@@ -1,0 +1,10 @@
+.ai-access-open { flex-shrink:0; }
+#ai-access-dialog { width:min(480px,calc(100% - 32px)); max-height:90dvh; overflow:auto; color:var(--ink); background:var(--paper); border:1px solid var(--border); border-radius:18px; padding:24px; }
+#ai-access-dialog::backdrop { background:#172f2866; }
+#ai-access-dialog h2 { margin-top:0; }
+#ai-access-dialog p { font-size:14px; line-height:1.6; }
+#ai-access-dialog [data-close] { float:right; }
+#ai-key-form { display:grid; gap:12px; margin:20px 0; }
+#ai-key-form input { width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:white; color:var(--ink); }
+#ai-key-form small { line-height:1.5; }
+@media(max-width:780px) { .topbar { flex-wrap:wrap; gap:10px; } .ai-access-open { margin-left:auto; } }

@@ -30,6 +30,10 @@ Point only to existing nonblank editor lines, never proposed code or reading-sli
   return {
     session: {
       model: 'gpt-live-1', store: false,
+      client: { data_channel: { allowed_client_events: ['session.close'], allowed_server_events: [
+        { type: 'session.started' }, { type: 'session.closed' }, { type: 'session.input_transcript.delta' },
+        { type: 'session.output_transcript.delta' }, { type: 'error' },
+      ] } },
       input: input.history.map(entry => ({ role: entry.role, content: [{ type: entry.role === 'assistant' ? 'output_text' : 'input_text', text: entry.content.slice(0, 1000) }] })),
       audio: { output: { voice: 'marin' } },
       instructions: `You are Pip, an AI Python learning companion in Little Makers. The goal is to learn Python by making, playing and changing games, building from small visible experiments toward game controls and rules.

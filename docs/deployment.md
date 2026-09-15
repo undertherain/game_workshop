@@ -2,7 +2,8 @@
 
 The GitHub repository is `undertherain/game_workshop`; its production branch is
 `master`. Vercel runs the Node server and serves the browser assets from its CDN.
-Docker, Nginx and a database are not needed for this deployment.
+Docker and Nginx are not needed. AI access uses Redis for sessions and shared limits;
+hosted voice also uses QStash for scheduled hangup. Neither is needed for built-in guidance.
 
 ## Import and configure
 
@@ -18,7 +19,7 @@ Import the repository in Vercel. Use project name `game-workshop`, root director
 
 The build creates Vercel's explicit Build Output API directory: static browser
 files under `.vercel/output/static/` and one Node function bundle with aliases for
-the five API endpoints. It copies the locked Pyodide runtime and allowlisted Python
+the API endpoints. It copies the locked Pyodide runtime and allowlisted Python
 framework into the static output, including on the first clean build. No framework
 autodetection or file tracing is needed. The function includes the files needed
 for curriculum loading and offline game exports. It exports a default request
@@ -26,12 +27,13 @@ handler, keeps raw request streams, and enables response streaming because game
 ZIPs exceed Vercel's 4.5 MB buffered-response limit. Environment files and local
 caches are excluded from the artifact; generated output is excluded from Git.
 
-Leave `OPENAI_API_KEY` unset for the initial public deployment. The site then uses
-the built-in guide, and voice reports that it is unavailable. BYOK and judge
-invitation links are planned, not implemented. The public APIs currently have no
-user authentication or per-user usage limits; the in-process busy flag only avoids
-overlapping tutor work in one instance. Setting a shared key would make that key's
-AI usage available to visitors.
+See [demo AI access](demo-access.md) for the server environment, reusable judge
+invites, personal keys, 24-hour invite expiry, total/per-invite request allowances
+and scheduled voice hangup. The shared key is only available to authenticated
+invites; setting `OPENAI_API_KEY` alone does not enable public AI. Missing or failed
+limit storage blocks paid requests. Leave the key unset to use built-in guidance
+only. The in-process busy flag still avoids overlapping tutor work in one instance;
+Redis enforces the shared usage allowances across instances.
 
 ## Hostnames and HTTPS
 
@@ -56,7 +58,7 @@ Vercel provisions and renews the HTTPS certificate after DNS verification.
 
 After deployment, open `https://game-workshop-xi.vercel.app` and check:
 
-1. `/api/status` returns `{"mode":"examples"}`.
+1. `/api/status` includes `"mode":"examples"` and `"access":"none"` for an anonymous visitor.
 2. The first lesson runs `fox.jump()`; this checks the real Pyodide worker.
 3. A game runs and its controls respond.
 4. Ask Pip gives a built-in reply.

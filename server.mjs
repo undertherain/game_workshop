@@ -2,6 +2,8 @@ import { lessonInstructions, validateLessonInput, lessonExample } from './lesson
 import { voiceSession } from './voice-tutor.mjs';
 import { exportGame, validateExport, frameworkFiles } from './export-game.mjs';
 import { serverConfig } from './server-config.mjs';
+import { createAccess, AccessError } from './ai-access.mjs';
+import { createVoiceControl } from './voice-control.mjs';
 import http from 'node:http';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -30,7 +32,8 @@ function json(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
-export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-5.4-mini', fetchImpl = fetch, config = serverConfig() } = {}) {
+export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-5.4-mini', fetchImpl = fetch, config = serverConfig(),
+  localAi = process.env.WORKSHOP_LOCAL_AI === '1', access = createAccess({ localAi }), voiceControl = createVoiceControl({ access, fetchImpl }) } = {}) {
   let busy = false;
   return http.createServer(async (req, res) => {
     try {
@@ -38,7 +41,38 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       const origin = config.requestOrigin(host);
       if (!origin) return json(res, 403, { error: 'This workshop address is not enabled.' });
       const url = new URL(req.url, origin);
-      if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, { mode: apiKey ? 'ai' : 'examples' });
+      if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, await access.status(req, origin, apiKey, voiceControl.hostedReady || localAi));
+      if (url.pathname === '/api/voice-expire' && req.method === 'POST') {
+        await voiceControl.expire(req.headers.authorization);
+        return json(res, 200, { ok: true });
+      }
+      if (['/api/access', '/api/voice-stop'].includes(url.pathname)) {
+        if (!['POST', 'DELETE'].includes(req.method)) return json(res, 405, { error: 'Method not allowed.' });
+        // Cookie-authenticated mutations require an exact Origin, including logout.
+        if (req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.method === 'DELETE' && url.pathname === '/api/access') {
+          let session;
+          try { session = await access.resolve(req, origin, apiKey); } catch (error) { if (!(error instanceof AccessError) || error.status >= 500) throw error; }
+          await voiceControl.stopActive(session);
+          return json(res, 200, await access.disconnect(req, res, origin));
+        }
+        if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed.' });
+        if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
+        let raw = ''; let size = 0;
+        for await (const chunk of req) { size += chunk.length; if (size > 4096) return json(res, 413, { error: 'Connection request is too large.' }); raw += chunk; }
+        let input; try { input = JSON.parse(raw); if (!input || typeof input !== 'object') throw Error(); } catch { return json(res, 400, { error: 'Expected a connection request.' }); }
+        if (url.pathname === '/api/voice-stop') {
+          const session = await access.resolve(req, origin, apiKey);
+          if (!session) throw new AccessError(401, 'Connect AI first.');
+          if (typeof input.id !== 'string' || !/^[a-f0-9]{64}$/.test(input.id)) throw new AccessError(400, 'Invalid voice call.');
+          await voiceControl.close(input.id, session.principal);
+          return json(res, 200, { ok: true });
+        }
+        let previous;
+        try { previous = await access.resolve(req, origin, apiKey); } catch (error) { if (!(error instanceof AccessError) || error.status >= 500) throw error; }
+        await voiceControl.stopActive(previous);
+        return json(res, 200, await access.connect(req, res, origin, input, apiKey));
+      }
       if (url.pathname === '/api/export' && req.method === 'POST') {
         if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
@@ -57,30 +91,39 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       }
       if (url.pathname === '/api/voice' && req.method === 'POST') {
         if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.headers.cookie && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         let raw = ''; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 100000) return json(res, 413, { error: 'Voice context is too large.' }); raw += chunk; }
         let payload;
         try { payload = voiceSession(JSON.parse(raw), model); } catch (error) { return json(res, 400, { error: error.message }); }
-        if (!apiKey) return json(res, 503, { error: 'Voice needs OPENAI_API_KEY on the server. You can still use the built-in guide.' });
+        const session = await access.resolve(req, origin, apiKey);
+        if (!session) return json(res, 401, { error: 'Use an invite or enter your own key in AI access to talk to Pip.' });
+        if (!voiceControl.available(session)) return json(res, 503, { error: 'Limited voice access is not configured. You can still type to Pip.' });
         if (res.destroyed) return;
         if (busy) return json(res, 429, { error: 'Pip is connecting or answering another question. Try again in a moment.' });
         busy = true;
+        try { await access.reserve(session, 'voice'); } catch (error) { busy = false; throw error; }
         const connection = new AbortController();
         const cancelConnection = () => { if (!res.writableEnded) connection.abort(); };
         res.once('close', cancelConnection);
         const connectionTimer = setTimeout(() => connection.abort(), 30000);
         try {
           const response = await fetchImpl('https://api.openai.com/v1/live/sessions', {
-            method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            method: 'POST', headers: { Authorization: `Bearer ${session.apiKey}`, 'Content-Type': 'application/json' }, redirect: 'error',
             signal: connection.signal, body: JSON.stringify(payload),
           });
           if (!response.ok) return json(res, 502, { error: `Voice connection returned ${response.status}. Check GPT-Live access and try again.` });
           const result = await response.json();
-          if (typeof result.transport?.sdp !== 'string' || !result.transport.sdp) throw Error('Missing answer');
-          return json(res, 201, { transport: { type: 'webrtc', sdp: result.transport.sdp } });
-        } catch {
-          if (!res.destroyed) json(res, 502, { error: 'Voice could not connect. Please try again.' });
+          const limit = await voiceControl.arm(session, result.session?.id);
+          if (res.destroyed || connection.signal.aborted || typeof result.transport?.sdp !== 'string' || !result.transport.sdp) {
+            await voiceControl.hangup(result.session.id, session.apiKey);
+            if (!res.destroyed) json(res, 502, { error: 'Voice could not connect. Please try again.' });
+            return;
+          }
+          return json(res, 201, { transport: { type: 'webrtc', sdp: result.transport.sdp }, limit });
+        } catch (error) {
+          if (!res.destroyed) json(res, error instanceof AccessError ? error.status : 502, { error: error instanceof AccessError ? error.message : 'Voice could not connect. Please try again.' });
           return;
         }
         finally { clearTimeout(connectionTimer); res.removeListener('close', cancelConnection); busy = false; }
@@ -88,17 +131,20 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       if (['/api/help', '/api/lesson-help'].includes(url.pathname) && req.method === 'POST') {
         const isLesson = url.pathname === '/api/lesson-help';
         if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.headers.cookie && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         let raw = ''; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 60000) return json(res, 413, { error: 'That question is too large.' }); raw += chunk; }
         let input;
         try { input = (isLesson ? validateLessonInput : validateInput)(JSON.parse(raw)); } catch (e) { return json(res, 400, { error: e.message }); }
-        if (!apiKey) return json(res, 200, { mode: 'examples', ...(isLesson ? lessonExample(input) : guidedExample(input)) });
+        const session = await access.resolve(req, origin, apiKey);
+        if (!session) return json(res, 200, { mode: 'examples', ...(isLesson ? lessonExample(input) : guidedExample(input)) });
         if (busy) return json(res, 429, { error: 'The helper is answering another question. Try again in a moment.' });
         busy = true;
+        try { await access.reserve(session, 'chat'); } catch (error) { busy = false; throw error; }
         try {
           const response = await fetchImpl('https://api.openai.com/v1/responses', {
-            method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            method: 'POST', headers: { Authorization: `Bearer ${session.apiKey}`, 'Content-Type': 'application/json' }, redirect: 'error',
             signal: AbortSignal.timeout(30000),
             body: JSON.stringify({ model, instructions: isLesson ? lessonInstructions : instructions + '\n' + arcadeInstructions[input.template], input: JSON.stringify(input), store: false,
               max_output_tokens: 1800, text: { format: { type: 'json_schema', name: 'game_tutor', strict: true, schema } } }),
@@ -138,7 +184,8 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       res.end(req.method === 'HEAD' ? undefined : body);
     } catch (error) {
       if (res.headersSent || res.destroyed) { res.destroy(); return; }
-      json(res, error.code === 'ENOENT' ? 404 : 500, { error: 'Could not load that resource.' });
+      json(res, error instanceof AccessError ? error.status : error.code === 'ENOENT' ? 404 : 503,
+        { error: error instanceof AccessError ? error.message : error.code === 'ENOENT' ? 'Not found.' : 'The service is temporarily unavailable. Please try again.' });
     }
   });
 }
@@ -148,5 +195,5 @@ export default createServer().listeners('request')[0];
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const config = serverConfig();
-  createServer({ config }).listen(config.port, config.bindHost, () => console.log(`Little Makers listening on ${config.bindHost}:${config.port} · helper: ${process.env.OPENAI_API_KEY ? 'AI connected' : 'built-in examples'}`));
+  createServer({ config }).listen(config.port, config.bindHost, () => console.log(`Little Makers listening on ${config.bindHost}:${config.port} · AI access is session-gated${process.env.WORKSHOP_LOCAL_AI === '1' ? ' (local development shortcut enabled)' : ''}`));
 }

@@ -1,3 +1,5 @@
+import { initializeAIAccess } from './ai-access.js';
+await initializeAIAccess();
 try {
   await import('./lessons.js');
   for (const id of ['lesson-reset', 'lesson-run', 'lesson-next', 'map-toggle', 'mode-toggle', 'title-continue', 'title-map', 'museum-toggle', 'title-museum']) document.getElementById(id).disabled = false;

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const frameworkFiles = JSON.parse(await readFile(new URL('public/framework-files.json', root), 'utf8'));
 const pyodideFiles = ['pyodide.mjs', 'pyodide.asm.js', 'pyodide.asm.wasm', 'pyodide-lock.json', 'python_stdlib.zip', 'package.json', 'README.md'];
-const serverFiles = ['server.mjs', 'server-config.mjs', 'export-game.mjs', 'tutor.mjs',
+const serverFiles = ['server.mjs', 'server-config.mjs', 'ai-access.mjs', 'access-store.mjs', 'voice-control.mjs', 'export-game.mjs', 'tutor.mjs',
   'tutor-principles.mjs', 'lesson-tutor.mjs', 'lesson-capabilities.mjs', 'voice-tutor.mjs', 'package.json'];
 
 async function copyFiles(source, target, names) {
@@ -42,7 +42,7 @@ export async function buildDeployment(output = new URL('.vercel/output/', root))
     shouldAddHelpers: false, supportsResponseStreaming: true, maxDuration: 60,
   }, null, 2) + '\n');
   // Aliases use the same function bundle, with the original API URL intact.
-  for (const name of ['help', 'lesson-help', 'voice', 'export']) {
+  for (const name of ['help', 'lesson-help', 'voice', 'export', 'access', 'voice-stop', 'voice-expire']) {
     await symlink('status.func', new URL(`functions/api/${name}.func`, output));
   }
   await writeFile(new URL('config.json', output), JSON.stringify({

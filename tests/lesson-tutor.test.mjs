@@ -20,7 +20,7 @@ test('slide context uses canonical content, exact route distances and distinct e
 
 test('lesson endpoint uses slide instructions, strips edits, bounds history and handles offline mode', async () => {
   let captured;
-  const server = createServer({ apiKey: 'fake', fetchImpl: async (url, options) => {
+  const server = createServer({localAi: true, apiKey: 'fake', fetchImpl: async (url, options) => {
     captured = JSON.parse(options.body);
     return Response.json({ output: [{ content: [{ type: 'output_text', text: JSON.stringify({
       message: 'The greeting is one slide ahead.', experiment: '', before: 'fox.jump()', after: 'fox.move()', line: 1,
@@ -39,7 +39,7 @@ test('lesson endpoint uses slide instructions, strips edits, bounds history and 
     assert.doesNotMatch(captured.instructions, /Platformer API:/);
     assert.equal(JSON.parse(captured.input).history.length, 6);
   } finally { await new Promise(resolve => server.close(resolve)); }
-  const offline = createServer({ apiKey: '' });
+  const offline = createServer({localAi: true, apiKey: '' });
   await new Promise(resolve => offline.listen(0, '127.0.0.1', resolve));
   try {
     const reply = await (await fetch(`http://127.0.0.1:${offline.address().port}/api/lesson-help`, {
