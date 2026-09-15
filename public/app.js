@@ -163,7 +163,7 @@ $('expanded-game').addEventListener('keydown', event => {
 window.addEventListener('hashchange', () => closeExpandedGame({ restoreFocus: false }));
 function setPlaying(value){
   playing=value;
-  $('run').textContent=value?'■ Stop':'▶ Run my code';
+  $('run').textContent=value?'■ Stop':'▶ Run';
   $('run').setAttribute('aria-pressed',String(value));
 }
 function stopPlayback(){
@@ -481,7 +481,6 @@ function renderStep(){
   $('build-steps').replaceChildren();
   template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>{selectStep(i);$('build-path').open=false;$('build-path').querySelector('summary').focus();};$('build-steps').append(button);});
   $('exercise-result').textContent='';
-  $('next-step').hidden=stepIndex===3;
   paintEditor();scrollToGuidance();
   try{if(!completeMode)localStorage.setItem(gameStorageKey()+'-step',String(stepIndex));}catch{}
 }

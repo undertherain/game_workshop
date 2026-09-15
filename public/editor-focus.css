@@ -34,3 +34,19 @@
 
 .code-edit-actions { display:flex; flex-wrap:wrap; gap:4px; }
 .run-bar { gap:8px; }
+
+/* One compact row of existing editor actions, shared across workshop games. */
+.editor-toolbar { justify-content:flex-start; flex-wrap:wrap; padding:10px 12px; gap:6px; }
+.editor-toolbar .code-edit-actions { flex-wrap:nowrap; }
+.editor-toolbar button { min-height:34px; padding:7px 8px; font-size:11px; white-space:nowrap; }
+.editor-toolbar > .primary { margin-left:auto; min-width:64px; }
+@media(max-width:480px) {
+  .editor-toolbar { padding:8px; gap:4px; }
+  .editor-toolbar button { padding:7px 6px; }
+}
+@media(max-width:360px) {
+  .editor-toolbar { padding:8px 6px; gap:2px; }
+  .editor-toolbar .code-edit-actions, .editor-toolbar .exercise-actions { gap:2px; }
+  .editor-toolbar button { padding:7px 4px; }
+  .editor-toolbar > .primary { min-width:54px; }
+}

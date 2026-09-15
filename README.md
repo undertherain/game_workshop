@@ -202,17 +202,19 @@ Older shared paddle drafts remain stored separately.
    selects `pass` while keeping its indentation. In these first movement exercises,
    only the rule area is editable; **Edit whole file** opts into free editing for
    that exercise during this visit. Later steps show a function-location hint
-   without locking the surrounding code. Use **Give me a hint** or
+   without locking the surrounding code. Use **Hint** or
    **Show a small example** as needed.
-3. Press **Run my code** and try the arrow keys; focus moves to the game. **Check my step**
+3. Press **Run** and try the arrow keys; focus moves to the game. **Check**
    executes behavioral checks against the current editor code, in a separate Python
    namespace. It gives specific feedback without changing the live game.
-4. Continue to jumping / aimed bounce / firing, then scoring, then a free variation.
-   Steps are navigable; checks do not lock the learner into a curriculum.
+4. Use the **Exercises** menu to continue to jumping / aimed bounce / firing, then
+   scoring, then a free variation. The inline Next button is hidden for now, pending
+   better completion detection. Checks do not lock the learner into a curriculum.
 5. Ask Pip about an error or selected line. Suggested edits only apply through
-   **Try this edit**, and require a separate **Run my code** to affect the game.
-6. **Reset code** restores the starter and stops playback. In Platformer and Paratroopers it returns to
-   the first exercise; **Undo edit** recovers the previous code and exercise. Intro
+   **Try this edit**, and require a separate **Run** to affect the game.
+6. **Reset** restores the starter and stops playback. In Platformer and Paratroopers it returns to
+   the first exercise; **Undo** recovers the previous code and exercise. Undo, Reset,
+   Hint, Check and Run/Stop share one compact row above the game editor. Intro
    lessons reset only their own code and offer **Undo reset**. Learning progress is
    kept. Use **Download → Playable game** for a complete offline game ZIP,
    including the Python source. **Python code only** is a secondary download option. Ctrl/Cmd+Enter runs code. On touch devices,
@@ -258,7 +260,7 @@ thrust, scoring and variation; horizontal movement evidence does not count as
 rotation practice. Invaders can offer previously checked horizontal controls.
 Complete versions, keyboard/touch controls, Pip guidance and downloaded ZIPs are
 available through the same museum paths. **Play again** restarts from the last-run
-program; **Run my code** applies edits.
+program; **Run** applies edits.
 
 The brick breaker starts with only Left implemented; the other starters have no arrow
 controls until the exercise is written.

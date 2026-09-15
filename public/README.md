@@ -239,6 +239,12 @@ line-location/unlock controls without the repeated Your turn banner; routine lin
 and runtime status updates remain available to screen readers. `templates.css`
 styles the toolbar and menu without resizing the game canvas or code editor.
 
+The game editor places Undo, Reset, Hint, Check and Run/Stop in one compact toolbar,
+using the same controls and handlers across workshop games. Check feedback appears
+directly below the toolbar. Complete-game editing shows Undo, Reset and Run/Stop.
+The inline Next step button is hidden pending better completion detection; the
+Exercises menu still lets learners choose any exercise.
+
 `app.js` keeps a newly selected game's canvas hidden until its own Python state
 arrives. Python readiness alone does not dismiss the loading overlay, and the draw
 loop skips the default or previous game's scene during selection and startup.

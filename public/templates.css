@@ -20,9 +20,9 @@ body[data-mode="workshop"] .header-actions { display:none; }
 .exercise-menu[open] > summary { background:#e9edde; }
 .exercise-menu .build-steps { position:absolute; z-index:20; top:calc(100% + 8px); right:0; width:280px; display:flex; flex-direction:column; gap:4px; padding:6px; border:1px solid var(--border); border-radius:12px; background:#fffdf5; box-shadow:0 12px 32px #243d3326; }
 .exercise-menu .build-steps button { flex-direction:row; font-size:12px; padding:12px; text-align:left; }
-.exercise-actions { padding:8px 16px; border-top:1px solid var(--border); background:#f9fbf1; }
-.exercise-actions .step-actions { flex-direction:row; justify-content:flex-end; flex-wrap:wrap; }
-.exercise-actions #exercise-result { margin:8px 0 0; font-size:12px; line-height:1.5; }
+.exercise-actions { display:flex; align-items:center; gap:4px; }
+#exercise-result { margin:0; padding:10px 16px; font-size:12px; line-height:1.5; border-bottom:1px solid var(--border); background:#f9fbf1; }
+#exercise-result[data-pass="false"] { color:#a87947; }
 #workshop-main .file-tab { display:none; }
 #workshop-main .conversation { margin-top:12px; }
 .editor-tools { display:flex; align-items:center; flex-wrap:wrap; gap:4px; }

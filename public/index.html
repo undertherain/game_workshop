@@ -142,8 +142,12 @@
       <section class="code-card" aria-labelledby="code-title">
         <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><div id="editor-guide" class="editor-tools" hidden><span id="editor-guide-message" class="sr-only"></span><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div></div>
         <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
-        <div id="exercise-actions" class="exercise-actions"><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div><p id="exercise-result" role="status"></p></div>
-        <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the starting code for this exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
+        <div class="run-bar editor-toolbar" role="group" aria-label="Code actions">
+          <div class="code-edit-actions"><button id="undo" class="quiet" disabled title="Undo the last saved edit or reset">↶ Undo</button><button id="reset-code" class="quiet" disabled title="Restore the starting code for this exercise">↺ Reset</button></div>
+          <div id="exercise-actions" class="exercise-actions"><button id="guide-step" class="quiet" title="Ask Pip for a hint">Hint ↗</button><button id="check-step" class="small-primary" title="Check my step">Check ✓</button><button id="next-step" class="quiet" hidden>Next →</button></div>
+          <button id="run" aria-pressed="false" class="primary" disabled>▶ Run</button>
+        </div>
+        <p id="exercise-result" role="status"></p>
         <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-describedby="editor-guide-message" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
         <div id="line-note" class="sr-only" role="status">✧ Start with a number. See what happens.</div>
         <div id="error-box" class="error-box" role="alert" hidden><strong id="error-title"></strong><p id="error-message"></p><button id="explain-error" class="quiet">Help me understand this ↗</button></div>

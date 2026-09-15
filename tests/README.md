@@ -172,3 +172,8 @@ Restart works, Escape and the return button restore the workshop, and hash navig
 cleans up the view. Desktop, portrait and touch-landscape layouts keep controls visible.
 Checks also cover movement, clearing held keys on exit, thrust through visible controls,
 and returning to the editor with the draft intact after a Python error.
+
+An isolated Chromium check verifies the compact editor toolbar stays on one row at
+1280, 900, 390 and 320 pixels wide. It covers exercise-menu navigation with Next
+hidden, reset/undo, real Python Run/Stop and Check, check feedback placement,
+Hint with a simulated tutor reply, and complete-game and second-game layouts.
