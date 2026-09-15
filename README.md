@@ -45,19 +45,19 @@ First Python, Words and names, Numbers and variables, Repetition, Decisions, Reu
 code, and Live game rules. The map groups lessons into expandable chapters; Back/Next
 continues across chapter boundaries. The base URL opens the title screen.
 
-The **Learning map** connects thirty-six foundational lessons, three optional drawing
+The **Learning map** connects thirty-three foundational lessons, three optional drawing
 lessons, and the three game workshops. All paths are open; the map recommends a
 starting route without locking later activities. Sokoban, Xonix and a fractal lesson
 are explicitly marked as planned, not playable.
 
-The foundations open with fourteen compact, single-column slides. The first jump leads to “Make the jump yours”: edit `fox.jump(100)` and press Run
+The foundations open with eleven compact, single-column slides. The first jump leads to “Make the jump yours”: edit `fox.jump(100)` and press Run
 for an immediate jump. Whole-number heights from 40 to 180 keep the fox in view;
-invalid values receive a hint. A short transition explains that the next Python
-ideas will help learners build their game’s controls and rules. Next comes a move-then-jump prediction that introduces line-by-line execution,
+invalid values receive a hint. The next activity connects Python to the game’s controls
+and rules through a move-then-jump prediction that introduces line-by-line execution,
 then editing # comments to learn which lines Python skips. Short explanations and code practice follow: Python →
-a preview of constants (literal values), expressions, variables and keywords →
-calculator, strings → fox speech, add quotes and compare,
-variables → integer addition versus string joining → a personal greeting. In that exercise, only the variable assignment
+calculator, strings → fox speech, integer addition versus string joining →
+variables and a personal greeting. Vocabulary appears with the activity that uses it.
+In the greeting exercise, only the variable assignment
 line is editable; the supplied `fox.say(...)` line stays fixed. A one-time overlay
 explains this when the editor first appears and dismisses on focus or Run.
 Explanation slides
@@ -67,19 +67,21 @@ Reading an explanation does not record code practice.
 The calculator echoes a top-level expression in the Output panel; `fox.say(value)`
 shows a speech bubble in the scene, with no duplicate Output panel. The Meet Python
 slide introduces Python as the language used to build things and explains 2 + 3
-as an expression. After the building-block overview, the calculator starts with
+as an expression. The calculator starts with
 10 - 3.
 The text/number lesson runs one line at a time: calculate
 3 + 4, then compare with "3" + "4" to see integer addition versus string joining.
-The variable explanation uses `print(username)` to show reading a stored value.
-The next slide compares integer addition with string joining and connects it to a
-personal greeting. The route then builds
+The variable explanation uses `fox.say(username)` to read a stored value, then
+joins it to a greeting; the next slide lets the learner personalize it. `print()`
+is introduced later where console output is used in the guessing game. The route then builds
 through sequence, numeric arguments,
 expressions, variables, a grid-robot square patrol, bounded loops, comparisons,
 booleans and guessing-game decisions, reusable functions, parameters, scene
 properties, a Space-key event and a live `update()` function. The movement
-lessons use `fox.move(distance)` to make numeric results visible, then invite predictions
-and changes. Functions are called by the learner before event callbacks are introduced.
+lessons add signed distances, calculated arguments and reuse of one variable across
+two trips. After the guided robot loop and guessing-game examples, learners write
+their own fox loop and conditional jump rule. These apply earlier ideas without
+repeating the introductory explanations. Functions are called by the learner before event callbacks are introduced.
 The routine exercise reuses a dance between different walks; there is no code-space
 penalty and loops remain available. These are practice activities, not mastery checks. The last two
 lessons show the difference between executing commands once and installing rules

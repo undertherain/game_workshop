@@ -3,7 +3,7 @@
   "branch": "foundations",
   "title": "Calculate a distance",
   "heading": "Python can work out the number.",
-  "description": "Before running, predict how far 30 + 20 will move the fox. An expression computes a value; move uses that result. Then change the expression to make a 100-pixel trip.",
+  "description": "Use a calculation to control movement. Predict how far 30 + 20 will move the fox, then Run. Change the expression to make a 100-pixel trip.",
   "starter": [
     "fox.move(30 + 20)"
   ],

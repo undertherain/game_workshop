@@ -21,14 +21,14 @@
       "text": "The = stores the text Ola in a variable called username."
     },
     {
-      "title": "Read it with print()",
-      "code": "print(username)",
-      "text": "print() shows a value in the Output. Python looks up username and prints Ola. Without quotes, username means the variable; \"username\" would just be text."
+      "title": "Use the stored value",
+      "code": "fox.say(username)",
+      "text": "Without quotes, username means the stored value, so the fox says Ola. \"username\" would just be text."
     },
     {
-      "title": "More fun: let the fox say it",
-      "code": "fox.say(username)",
-      "text": "The fox says Ola in a speech bubble. Same stored value, shown in the scene instead of the Output."
+      "title": "Build a greeting",
+      "code": "fox.say(\"Hello \" + username)",
+      "text": "You’ve used + to join strings. Here it joins \"Hello \" to the stored name, making Hello Ola. Keep the space after Hello!"
     }
   ],
   "practiceFeature": "assignment",
@@ -36,5 +36,8 @@
     "runOnEnter": true,
     "maxLines": 1
   },
-  "chapter": "words-and-names"
+  "chapter": "words-and-names",
+  "aliases": [
+    "addition-intro"
+  ]
 }

@@ -1,9 +1,9 @@
 {
   "id": "numbers",
   "branch": "foundations",
-  "title": "Change one number",
+  "title": "Choose distance and direction",
   "heading": "How far should the fox move?",
-  "description": "The number inside move(...) is an argument: it tells the fox how many pixels to move. Run 50, then change it to 100. Predict which trip will be longer. Each Run starts in the same place.",
+  "description": "You changed jump height with a number. The number inside move(...) is also an argument: here it sets distance in pixels. Compare 50 and 100, then predict what -50 will do. Each Run starts in the same place.",
   "starter": [
     "fox.move(50)"
   ],
@@ -26,7 +26,7 @@
     }
   ],
   "feedback": {
-    "success": "Compare 50 and 100. Try -50: which direction does the fox go?"
+    "success": "Positive distances move right; negative distances move left. Try a trip that returns to its start: fox.move(50), then fox.move(-50) on the next line."
   },
   "chapter": "numbers-and-variables"
 }

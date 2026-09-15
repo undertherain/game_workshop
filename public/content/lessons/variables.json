@@ -1,9 +1,9 @@
 {
   "id": "variables",
   "branch": "foundations",
-  "title": "Give a value a name",
+  "title": "Reuse one value",
   "heading": "Change one value. Change both trips.",
-  "description": "distance = 40 stores a number under a name. The next lines use that value. Predict the length of each trip, then change only 40 so the trips become 60 and 120 pixels.",
+  "description": "A name can hold a number as well as text. Here distance controls two trips. Predict each trip’s length, then change only 40 so the trips become 60 and 120 pixels.",
   "starter": [
     "distance = 40",
     "fox.move(distance)",

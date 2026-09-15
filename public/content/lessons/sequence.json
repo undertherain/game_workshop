@@ -3,7 +3,7 @@
   "branch": "foundations",
   "title": "Put actions in order",
   "heading": "Move, then jump.",
-  "description": "Python follows these instructions line by line, from top to bottom. Each line tells the fox what to do next. Choose what happens first to turn on Run, then watch. Swap the two lines and run again!",
+  "description": "You’ve chosen a jump height. Now combine actions to build toward your game’s controls and rules. Python follows the lines from top to bottom. Choose what happens first, then Run. Swap the two lines and run again!",
   "rows": 2,
   "mode": "commands",
   "skill": "sequence",
@@ -47,5 +47,8 @@
     "required": true
   },
   "layout": "compact",
-  "chapter": "first-python"
+  "chapter": "first-python",
+  "aliases": [
+    "before-games"
+  ]
 }

@@ -138,6 +138,23 @@ check game starters through their runtime. Loading failures identify the offendi
 file in the browser console; the UI offers Retry instead of a half-loaded lesson.
 Content is rendered as text, not HTML or executable JavaScript.
 
+## Curriculum consolidation
+
+Foundations has 33 slides. Each later visit to a concept should add a new task:
+signed movement, reusing one variable, or writing a rule without a supplied solution.
+Keep an explanation and its practice adjacent where possible.
+
+Three former reading slides are folded into the route: `before-games` into
+`sequence`, `python-pieces` into `sum` (with vocabulary taught at its point of use),
+and `addition-intro` into `names-intro`. Aliases preserve their old URLs and saved
+locations. The text/number experiment owns the addition-versus-joining comparison;
+the variable explanation applies joining to a greeting.
+
+The fox loop and conditional movement lessons now ask learners to write rules after
+the guided robot and guessing-game examples. Exact old starters migrate to the new
+prompts; custom drafts keep their code. These activities still record practice,
+not correctness or mastery.
+
 Return to [browser implementation](../README.md).
 
 `jump-design` accepts one `fox.jump(N)` call, where N is a whole-number literal

@@ -1,15 +1,14 @@
 {
   "id": "repeat",
   "branch": "foundations",
-  "title": "Repeat with a loop",
-  "heading": "A little code. Three jumps.",
-  "description": "The indented instruction belongs to the loop. Replace pass with fox.jump(), then run it. Change 3 to another number from 1 to 6.",
-  "rows": 3,
+  "title": "Write your own loop",
+  "heading": "Make a travelling jump loop.",
+  "description": "Use what you learned with the robot to write a loop for the fox. Replace pass with a loop that repeats a move followed by a jump three times. Both actions should repeat together. Run and count each action.",
+  "rows": 4,
   "mode": "loop",
   "skill": "loops",
   "starter": [
-    "for step in range(3):",
-    "    pass"
+    "pass"
   ],
   "scene": {
     "label": "Your character in a meadow. Run your instructions to make it act."
@@ -25,5 +24,20 @@
       "description": "Move right"
     }
   ],
-  "chapter": "repetition"
+  "chapter": "repetition",
+  "feedback": {
+    "initial": "Write a for loop with range(3). Put fox.move() and fox.jump() on separate indented lines. Revisit the robot loop if you need an example.",
+    "success": "Did you see three moves and three jumps? Try putting the jump after the loop, without indentation. Predict how many times it will happen now."
+  },
+  "draftMigrations": [
+    {
+      "from": [
+        "for step in range(3):",
+        "    pass"
+      ],
+      "to": [
+        "pass"
+      ]
+    }
+  ]
 }

@@ -1,14 +1,13 @@
 {
   "id": "conditions",
   "branch": "foundations",
-  "title": "Make a decision",
+  "title": "Use a decision in the meadow",
   "heading": "Should the fox jump?",
-  "description": "distance > 50 compares two values and produces True or False. The indented jump runs only when the comparison is True. Predict what happens at 40, 80, and exactly 50; run each one to check.",
+  "description": "Bring your guessing-game decisions into the scene. Replace pass with a rule that makes the fox jump only after a trip of at least 50 pixels. Test distances 40, 50 and 80: which trips should end with a jump?",
   "starter": [
     "distance = 40",
     "fox.move(distance)",
-    "if distance > 50:",
-    "    fox.jump()"
+    "pass"
   ],
   "rows": 5,
   "mode": "basics",
@@ -29,8 +28,24 @@
     }
   ],
   "feedback": {
-    "success": "Change > to >=. What happens at exactly 50 now? = stores a value; == compares whether two values are equal."
+    "initial": "Use if with a comparison, then indent fox.jump() beneath it. “At least 50” includes 50.",
+    "success": "Check that 40 gives no jump, while 50 and 80 do. The walk should happen every time. Change the rule so only trips shorter than 50 end with a jump."
   },
   "practiceFeature": "condition",
-  "chapter": "decisions"
+  "chapter": "decisions",
+  "draftMigrations": [
+    {
+      "from": [
+        "distance = 40",
+        "fox.move(distance)",
+        "if distance > 50:",
+        "    fox.jump()"
+      ],
+      "to": [
+        "distance = 40",
+        "fox.move(distance)",
+        "pass"
+      ]
+    }
+  ]
 }

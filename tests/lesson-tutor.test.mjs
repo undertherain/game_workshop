@@ -9,7 +9,7 @@ test('slide context uses canonical content, exact route distances and distinct e
   const context = validateLessonInput({ ...body, current: { title: 'Fake' }, route: [] });
   assert.equal(context.current.title, 'A variable remembers a value.');
   assert.equal(context.current.explanation.length, 3);
-  assert.equal(context.route.find(l => l.id === 'greeting').slidesFromCurrent, 2);
+  assert.equal(context.route.find(l => l.id === 'greeting').slidesFromCurrent, 1);
   assert.equal(context.route.find(l => l.id === 'command').visited, true);
   assert.equal(context.route.find(l => l.id === 'command').practised, true);
   assert.equal(context.route.find(l => l.id === 'hello').visited, false);
@@ -23,7 +23,7 @@ test('lesson endpoint uses slide instructions, strips edits, bounds history and 
   const server = createServer({ apiKey: 'fake', fetchImpl: async (url, options) => {
     captured = JSON.parse(options.body);
     return Response.json({ output: [{ content: [{ type: 'output_text', text: JSON.stringify({
-      message: 'The greeting is two slides ahead.', experiment: '', before: 'fox.jump()', after: 'fox.move()', line: 1,
+      message: 'The greeting is one slide ahead.', experiment: '', before: 'fox.jump()', after: 'fox.move()', line: 1,
     }) }] }] });
   } });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
