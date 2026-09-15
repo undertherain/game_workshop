@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { exportGame, validateExport, frameworkFiles } from '../export-game.mjs';
+import { templates } from '../public/templates.js';
 import { createServer } from '../server.mjs';
 
 const read = name => readFile(new URL('../' + name, import.meta.url), 'utf8');
@@ -17,7 +18,7 @@ test('all three ZIPs extract and replay the exact draft using only the bundled f
   const temporary = await mkdtemp(path.join(tmpdir(), 'little-makers-export-'));
   try {
     for (const template of ['platformer', 'breaker', 'paratroopers']) {
-      const code = '# My exported draft 🦊\n' + await read(template === 'platformer' ? 'public/starter.py' : template === 'breaker' ? 'public/examples/breaker_framework.py' : 'public/paratroopers.py');
+      const code = '# My exported draft 🦊\n' + templates[template].completeCode;
       const archive = await exportGame({ template, code });
       const zipPath = path.join(temporary, template + '.zip');
       await writeFile(zipPath, archive);

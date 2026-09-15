@@ -102,8 +102,9 @@ export async function loadTemplates(ids, read = readContent) {
   validateIds(ids, 'catalog.json: templates');
   return Object.fromEntries(await Promise.all(ids.map(async id => {
     const template = await read(`games/${id}.json`);
-    for (const key of ['title','genre','icon','description','file','controls','action','placeholder','intro']) requireValue(text(template[key]), `games/${id}.json: missing ${key}`);
+    for (const key of ['title','genre','icon','description','file','controls','action','placeholder','intro','museumIntro']) requireValue(text(template[key]), `games/${id}.json: missing ${key}`);
     for (const key of ['ideas','guide']) requireValue(Array.isArray(template[key]) && template[key].every(pair => Array.isArray(pair) && pair.length === 2 && pair.every(text)), `games/${id}.json: invalid ${key}`);
+    requireValue(Array.isArray(template.complete) && template.complete.length > 0 && template.complete.every(line => typeof line === 'string'), `games/${id}.json: missing complete program`);
     validateIds(template.lessons, `games/${id}.json: lessons`);
     requireValue(template.lessons.length === 4, `games/${id}.json: the game runtime currently expects four exercises`);
     const exercises = await Promise.all(template.lessons.map(async lessonId => {
@@ -116,6 +117,6 @@ export async function loadTemplates(ids, read = readContent) {
       }
       return lesson;
     }));
-    return [id, { ...template, steps: exercises.map(l => [l.title, l.description, l.hint]), guides: exercises.map(l => l.guide || null), starters: exercises.map(l => l.starter ? l.starter.join('\n')+'\n' : null) }];
+    return [id, { ...template, completeCode: template.complete.join('\n')+'\n', steps: exercises.map(l => [l.title, l.description, l.hint]), guides: exercises.map(l => l.guide || null), starters: exercises.map(l => l.starter ? l.starter.join('\n')+'\n' : null) }];
   })));
 }

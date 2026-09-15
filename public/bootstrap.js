@@ -1,6 +1,6 @@
 try {
   await import('./lessons.js');
-  for (const id of ['lesson-reset', 'lesson-run', 'lesson-next', 'map-toggle', 'mode-toggle', 'title-continue', 'title-map']) document.getElementById(id).disabled = false;
+  for (const id of ['lesson-reset', 'lesson-run', 'lesson-next', 'map-toggle', 'mode-toggle', 'title-continue', 'title-map', 'museum-toggle', 'title-museum']) document.getElementById(id).disabled = false;
 } catch (error) {
   console.error(error);
   document.body.dataset.mode = 'lessons';

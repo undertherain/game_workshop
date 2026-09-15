@@ -11,19 +11,19 @@ let code = '', starter = '', runningCode = '', gameState = initialState, current
 let worker, ready = false, pending = null, requestId = 0, requestTimer, bootTimer, playing = false;
 let focusedLine = null, proposal = null, proposalSource = '', history = [], snapshots = [], asking = false;
 let keys = { left: false, right: false, jump: false }, lastStep = 0, lastDraw = 0;
-let protection = null;
+let protection = null, questionController = null;
 const unlockedExercises = new Set();
 let assisted = false, suppliedControls = false;
-let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null;
+let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null, completeMode=false, conversationActivity=null;
 const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
-const hasStepStarter = () => !!templates[templateId].starters?.[stepIndex];
-const storageKey = () => hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
+const hasStepStarter = () => completeMode || !!templates[templateId].starters?.[stepIndex];
+const storageKey = () => completeMode ? gameStorageKey()+'-complete' : hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
 const stepDrafts = new Map();
 createPipVoice($('ask-form').parentElement, 'game', () => ({
   code: editor.value, runningCode, template: templateId, error: currentError,
   selected: editor.value.slice(editor.selectionStart, editor.selectionEnd),
   selectedLine: editor.value.slice(0, editor.selectionStart).split('\n').length,
-  exercise: { index: stepIndex, feedback: exerciseFeedback }, progress: progress.get(), history,
+  activity: completeMode ? 'complete' : 'lesson', exercise: { index: stepIndex, feedback: exerciseFeedback }, progress: progress.get(), history,
   state: { player: gameState.player, paddle: gameState.paddle, ball: gameState.ball, cannon: gameState.cannon, world: gameState.world },
 }), role => {
   const entry = { role, content: '' };
@@ -199,10 +199,12 @@ function appendMessage(role,text,experiment=''){
   $('conversation').append(element);$('conversation').scrollTop=$('conversation').scrollHeight;return element;
 }
 function setAsking(value){asking=value;$('ask').disabled=value;$('guide-step').disabled=value;document.querySelectorAll('.ideas button,.template-choice').forEach(b=>b.disabled=value);$('ask').textContent=value?'…':'↑';}
+function cancelQuestion(){questionController?.abort();questionController=null;setAsking(false);}
 async function ask(question,mode='chat') {
   if(asking||!question.trim())return;
   stopPipVoice('Continuing in chat. Microphone off.');
   setAsking(true);proposal=null;$('suggestion').hidden=true;
+  const requestController=new AbortController();questionController=requestController;
   const requestedCode=editor.value;
   const selected=editor.value.slice(editor.selectionStart,editor.selectionEnd);
   const selectedLine=editor.value.slice(0,editor.selectionStart).split('\n').length;
@@ -211,12 +213,12 @@ async function ask(question,mode='chat') {
   appendMessage('user',question);const waiting=appendMessage('assistant','Pip is looking at your code…');
   $('question').value='';
   try {
-    const response=await fetch('/api/help',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(35000),
+    const response=await fetch('/api/help',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.any([requestController.signal,AbortSignal.timeout(35000)]),
       body:JSON.stringify({question,mode,code:requestedCode,runningCode,selected,selectedLine,error:currentError,template:templateId,
-        exercise:{index:stepIndex,title:templates[templateId].steps[stepIndex][0],description:templates[templateId].steps[stepIndex][1],feedback:exerciseFeedback},
+        activity:completeMode?'complete':'lesson',exercise:{index:stepIndex,title:templates[templateId].steps[stepIndex][0],description:templates[templateId].steps[stepIndex][1],feedback:exerciseFeedback},
         progress:progress.get(),
         state:{player:gameState.player,paddle:gameState.paddle,ball:gameState.ball,cannon:gameState.cannon,world:gameState.world,collected:gameState.collected,won:gameState.won},history:requestHistory})});
-    const reply=await response.json();if(!response.ok)throw new Error(reply.error||'Pip could not answer just now.');
+    const reply=await response.json();if(questionController!==requestController)return;if(!response.ok)throw new Error(reply.error||'Pip could not answer just now.');
     waiting.remove();appendMessage('assistant',reply.message,reply.experiment);
     history.push({role:'assistant',content:reply.message});history=history.slice(-6);
     if(editor.value===requestedCode){
@@ -226,8 +228,8 @@ async function ask(question,mode='chat') {
         $('before-code').textContent=reply.before;$('after-code').textContent=reply.after;
       }
     }else appendMessage('assistant','You changed your code while I was thinking. My answer refers to the earlier version; ask again if you want me to look at the new one.');
-  }catch(error){waiting.remove();appendMessage('error',error.name==='TimeoutError'?'Pip took too long. Please try again.':error.message);}
-  finally{setAsking(false);}
+  }catch(error){if(questionController!==requestController)return;waiting.remove();appendMessage('error',error.name==='TimeoutError'?'Pip took too long. Please try again.':error.message);}
+  finally{if(questionController===requestController){questionController=null;setAsking(false);}}
 }
 
 function prepareRuleEdit(event){
@@ -360,7 +362,7 @@ $('transfer-use').onclick=()=>{
 };
 $('transfer-practice').onclick=()=>{$('transfer-offer').hidden=true;stepIndex=0;renderStep();};
 function selectStep(index){
-  if(asking||index===stepIndex||!Number.isInteger(index)||index<0||index>3)return;
+  if(completeMode||asking||index===stepIndex||!Number.isInteger(index)||index<0||index>3)return;
   save();
   const prepared=!!templates[templateId].starters?.[index];
   if(prepared){
@@ -380,7 +382,14 @@ function renderStep(){
   stopPipVoice('Activity changed. Start voice again for the updated context.');
   focusedLine=null;
   const template=templates[templateId];
-  const region=unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
+  const activity=templateId+':'+(completeMode?'complete':stepIndex);
+  if(conversationActivity!==activity){
+    conversationActivity=activity;history=[];proposal=null;proposalSource='';$('suggestion').hidden=true;
+    $('conversation').replaceChildren();
+    appendMessage('assistant',completeMode ? 'The complete game is ready to play. Change a rule to make it yours, or export it to keep a playable copy.' : stepIndex===0 ? template.intro : template.steps[stepIndex][0]+'. '+template.steps[stepIndex][1]);
+  }
+  $('build-path').hidden=completeMode;
+  const region=completeMode||unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
   protection=region?protectRegion(editor.value,region):null;
   $('build-steps').replaceChildren();
   template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>selectStep(i);$('build-steps').append(button);});
@@ -388,27 +397,26 @@ function renderStep(){
   $('step-description').textContent=template.steps[stepIndex][1];$('exercise-result').textContent='';
   $('next-step').hidden=stepIndex===3;
   paintEditor();scrollToGuidance();
-  try{localStorage.setItem(gameStorageKey()+'-step',String(stepIndex));}catch{}
+  try{if(!completeMode)localStorage.setItem(gameStorageKey()+'-step',String(stepIndex));}catch{}
 }
-async function selectTemplate(id){
-  if(asking||!templates[id])return;
-  const chooserHadFocus=$('game-chooser').contains(document.activeElement);
-  $('game-chooser').open=false;
-  $('selected-game').textContent=templates[id].genre;
-  if(chooserHadFocus)$('game-chooser').querySelector('summary').focus();
+async function selectTemplate(id,complete=false){
+  if(!templates[id])return;
+  cancelQuestion();
+  $('selected-game').textContent=templates[id].genre+(complete?' · Complete game':'');
   if(editor.value)save();
-  protection=null;templateId=id;const template=templates[id];starter=sourceCache[id];
+  protection=null;completeMode=complete;conversationActivity=null;templateId=id;const template=templates[id];starter=sourceCache[id];
   try{stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(gameStorageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
-  starter=templates[id].starters?.[stepIndex]??sourceCache[id];
+  if(completeMode)stepIndex=3;
+  starter=completeMode?templates[id].completeCode:templates[id].starters?.[stepIndex]??sourceCache[id];
   const saved=readDraft();
-  assisted=false;suppliedControls=false;try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';suppliedControls=localStorage.getItem(storageKey()+'-controls-supplied')==='true';}catch{}
+  assisted=false;suppliedControls=false;try{assisted=localStorage.getItem(storageKey()+'-assisted')==='true';suppliedControls=completeMode||localStorage.getItem(storageKey()+'-controls-supplied')==='true';}catch{}
   editor.value=saved??starter;runningCode='';history=[];snapshots=[];currentError=null;proposal=null;exerciseFeedback=null;focusedLine=null;
   $('reset-code').disabled=false;$('undo').disabled=true;$('suggestion').hidden=true;$('error-box').hidden=true;$('check-step').disabled=false;
   $('game-title').textContent=template.title;canvas.setAttribute('aria-label',`${template.title}. Click to play. Arrow keys move; Space ${template.controls}.`);
   $('action-label').textContent=template.controls;document.querySelector('[data-key="jump"]').textContent=template.action;
-  $('question').placeholder=template.placeholder;$('conversation').replaceChildren();appendMessage('assistant',template.intro);
+  $('question').placeholder=template.placeholder;
   $('template-ideas').replaceChildren();
-  const example=document.createElement('button');example.textContent='Show a small example';example.onclick=()=>ask(`For my current mini-exercise, show one small code edit I can try and explain what it does. Stay on this step.`);$('template-ideas').append(example);
+  const example=document.createElement('button');example.textContent='Show a small example';example.onclick=()=>ask(completeMode?'Show one small variation I can make to this complete game and explain what it changes.':`For my current mini-exercise, show one small code edit I can try and explain what it does. Stay on this step.`);$('template-ideas').append(example);
   for(const [label,question] of template.ideas){const button=document.createElement('button');button.textContent=label;button.onclick=()=>ask(question);$('template-ideas').append(button);}
   const guide=document.querySelector('.pocket-guide dl');guide.replaceChildren();for(const [name,description] of template.guide){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=name;dd.textContent=description;guide.append(dt,dd);}
   document.querySelectorAll('.template-choice').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.template===id)));
@@ -417,6 +425,7 @@ async function selectTemplate(id){
 $('guide-step').onclick=()=>{ask(templates[templateId].steps[stepIndex][2]+' Give a hint first, without a replacement edit unless I ask for one.','hint');$('helper-title').scrollIntoView({behavior:'smooth',block:'center'});};
 $('next-step').onclick=()=>selectStep(Math.min(3,stepIndex+1));
 async function checkStep(){
+  if(completeMode)return;
   if(!ready){$('exercise-result').textContent='Run your code to start Python, then check this step.';return;}
   if(pending){setTimeout(checkStep,60);return;}
   exerciseFeedback=null;$('check-step').disabled=true;$('exercise-result').textContent='Trying your rule with a few key presses…';send('check',{code:editor.value,step:stepIndex});
@@ -428,7 +437,6 @@ export async function startWorkshop(){
   started=true;
 try {
   await Promise.all(Object.entries(templates).map(async([id,template])=>{const response=await fetch('/'+template.file);if(!response.ok)throw Error('Could not load the '+template.genre+' starter.');sourceCache[id]=await response.text();}));
-  for(const id of ['breaker','platformer','paratroopers']){const template=templates[id];const button=document.createElement('button');button.className='template-choice';button.dataset.template=id;button.innerHTML=`<span class="template-icon">${template.icon}</span><span><strong>${template.genre}</strong><small>${template.description}</small></span>`;button.onclick=()=>selectTemplate(id);$('template-picker').append(button);}
   let initial='breaker';try{initial=localStorage.getItem('little-makers-active-template')||initial;}catch{}
   await selectTemplate(templates[initial]?initial:'breaker');
   $('export-game').disabled=false;
@@ -444,4 +452,4 @@ window.workshop={getState:()=>gameState,getError:()=>currentError,isReady:()=>re
   getCode:()=>editor.value,setCode(value){checkpoint();editor.value=value;exerciseFeedback=null;save();},run,ask,
   getRunningCode:()=>runningCode,setKeys(value){keys={left:false,right:false,jump:false,...value};},
   pause(){setPlaying(false);clearKeys();},resume(){setPlaying(true);},starter:()=>starter,
-  selectTemplate,getTemplate:()=>templateId,checkStep,setStep:selectStep,getExerciseFeedback:()=>exerciseFeedback};
+  selectTemplate,cancelQuestion,getTemplate:()=>templateId,isComplete:()=>completeMode,checkStep,setStep:selectStep,getExerciseFeedback:()=>exerciseFeedback};

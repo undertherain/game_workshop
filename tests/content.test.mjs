@@ -67,3 +67,16 @@ test('typed output predictions need no fixed answer or choices', async () => {
   assert.equal(validateLesson(lesson, 'sequence', defaults, skillLabels).quiz.type, 'output');
   assert.throws(() => validateLesson({ ...lesson, quiz: { ...lesson.quiz, type: 'unknown' } }, 'sequence', defaults, skillLabels), /unknown quiz type/);
 });
+
+
+test('every complete museum game passes movement, mechanic and scoring checks', () => {
+  const result = spawnSync('python3', ['-B', '-c', `
+import json,sys
+from framework.workshop_checks import check_exercise
+for game, source in json.load(sys.stdin).items():
+    for step in range(3):
+        result=json.loads(check_exercise(source,game,step))
+        assert result['passed'], (game, step, result)
+`], {input: JSON.stringify(Object.fromEntries(Object.entries(templates).map(([id,t]) => [id,t.completeCode]))), encoding:'utf8'});
+  assert.equal(result.status, 0, result.stderr);
+});

@@ -117,3 +117,12 @@ general Python keyboard input, whether input() runs in the current cell, and the
 location of loop lessons. The general-input probe exposed an unnecessary local
 disclaimer; after revising the prompt it answered the language question without one.
 These are backend answer checks, not an end-to-end spoken conversation evaluation.
+
+
+Museum checks verify all complete programs pass movement, the second mechanic and
+scoring; export checks bundle those complete versions and compare isolated replay.
+Editor regressions cover Pip's restored fourth-exercise greeting, clearing earlier
+conversation, and separate complete-game storage/reset/undo. Voice checks cover the
+museum, exercise and complete-game contexts. Browser smoke checks cover museum chat,
+complete playback, returning to lesson drafts and mobile width. Live AI replies and
+real microphone conversations are not covered by those deterministic checks.

@@ -49,5 +49,24 @@
     "paratroopers-mechanic",
     "paratroopers-score",
     "paratroopers-variation"
-  ]
+  ],
+  "complete": [
+    "# Intercept the falling robots.",
+    "cannon.speed = 5",
+    "world.fall_speed = 0.7",
+    "world.sky = \"mint\"",
+    "",
+    "def update():",
+    "    if keyboard.left:",
+    "        cannon.x -= cannon.speed",
+    "    if keyboard.right:",
+    "        cannon.x += cannon.speed",
+    "    if keyboard.fire:",
+    "        cannon.fire()",
+    "",
+    "def on_hit(target):",
+    "    target.hide()",
+    "    world.score += 10"
+  ],
+  "museumIntro": "Move your launcher with the arrow keys and press Space to fire at the falling robots. Intercept all eight to finish. The interesting choice is when to move and when to shoot; slower falling robots give you more time."
 }

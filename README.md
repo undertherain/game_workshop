@@ -142,15 +142,31 @@ the visible Python; Run applies the choice. Those appearance choices carry into
 other meadow lessons. Drafts, the last lesson and appearance choices are saved in
 this browser, with an in-memory fallback if storage is unavailable.
 
-Use **Open game workshop** at any point, or choose a game from the map after the
+Use **Golden Classics** at any point, or choose a game from the map after the
 foundations. **First commands** returns to your current lesson. Workshop drafts
 remain intact when switching layouts. Autocomplete currently belongs to the
 introductory cells only.
 
 In the game workshop:
 
-The selected game has a compact heading. **Change game** opens the game choices;
-choosing one closes them to keep the activity and editor in view.
+**Golden Classics** opens a game museum from the title screen or top bar. Choose
+Brick breaker, Platformer or Sky Patrol; Pip is present with an introduction to the
+goal, controls and rules, plus typed questions and optional voice. Sokoban and Xonix
+are planned exhibits. This first museum covers mechanics; historical encyclopedia
+articles are not included yet.
+
+Each playable exhibit offers **Learn to build it** for the existing four exercises,
+or **Take the complete game** to open a working game with controls, its main mechanic
+and scoring supplied. Complete games start playing immediately and allow free editing.
+Their drafts are saved separately from lesson drafts; reset restores the complete
+program and Undo recovers edits. Export playable game ZIP includes the current complete
+game draft, just as it includes the current exercise draft in lessons. Choose
+**Back to museum** to change games or paths. Museum and game paths have shareable URLs,
+such as `/#museum/breaker` and `/#workshop/breaker/complete`.
+
+Pip's workshop greeting follows the selected exercise, including a restored fourth
+exercise. Changing exercise clears the previous conversation and edit suggestion.
+Typed and voice context distinguish museum browsing, exercises and complete games.
 
 Brick breaker uses a prepared program for each exercise, with only that exercise’s
 rule missing. Aimed bounce includes both arrow controls; scoring includes controls

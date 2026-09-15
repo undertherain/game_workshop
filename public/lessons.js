@@ -1,3 +1,4 @@
+import { createMuseum } from './museum.js';
 import { createLessonTutor } from './lesson-tutor.js';
 import { stopPipVoice } from './pip-voice.js';
 import { createScene, initialState } from './scene.js';
@@ -330,19 +331,22 @@ function renderMap() {
     article.append(icon, title, description, concepts);
     const note = document.createElement('p'); note.className = 'library-recommendation';
     note.textContent = game.available ? movementOffer(progress.get(), game.id) ? 'Movement checked in another game. Optional controls are available for an untouched starter.' : game.recommendation : 'Planned game · not playable yet'; article.append(note);
-    if (game.available) { const button = document.createElement('button'); button.className = 'primary'; button.textContent = 'Build this game →'; button.onclick = () => openWorkshop(game.id); article.append(button); }
+    if (game.available) { const button = document.createElement('button'); button.className = 'primary'; button.textContent = 'Explore with Pip →'; button.onclick = () => openMuseum(game.id); article.append(button); }
     $('game-library-cards').append(article);
   }
 }
+const museum = createMuseum((id, complete) => openWorkshop(id, complete));
+function openMuseum(id) { updateRoute('#museum'+(id?'/'+id:'')); setMode('museum'); museum.show(id); $('museum-title').focus(); }
 function setMode(mode) {
+  museum.hide();window.workshop?.cancelQuestion();
   stopPipVoice();
   dismissEditHint();
   if (document.body.dataset.mode === 'lessons') persist();
   stopWorker(); resetScene(); finish(); window.workshop?.setKeys({});
   document.body.dataset.mode = mode;
-  $('title-screen').hidden = mode !== 'home';
+  $('title-screen').hidden = mode !== 'home'; $('museum').hidden = mode !== 'museum';
   $('lessons').hidden = mode !== 'lessons'; $('workshop-main').hidden = mode !== 'workshop'; $('learning-map').hidden = mode !== 'map';
-  $('mode-toggle').textContent = mode === 'lessons' ? 'Open game workshop ↗' : '← First commands';
+  $('mode-toggle').textContent = mode === 'lessons' ? 'Golden Classics ↗' : '← First commands';
   $('map-toggle').setAttribute('aria-pressed', String(mode === 'map'));
   window.scrollTo(0, 0);
 }
@@ -372,6 +376,8 @@ function applyRoute() {
     const id = resolveLesson(lessons, requestedId)?.id || requestedId;
     if (requestedId !== id) history.replaceState(null, '', location.pathname + location.search + `#lesson/${id}`);
     if (lessons.some(lesson => lesson.id === id)) openLesson(id);
+    else if (hash === '#museum' || hash.startsWith('#museum/')) openMuseum(hash.slice(8) || undefined);
+    else if (hash.startsWith('#workshop/')) { const [, game, path] = hash.split('/'); openWorkshop(game, path === 'complete'); }
     else if (hash === '#map') openMap();
     else if (hash === '#workshop') openWorkshop();
     else {
@@ -381,11 +387,11 @@ function applyRoute() {
   } finally { applyingRoute = false; }
 }
 let opening = false;
-async function openWorkshop(id) {
+async function openWorkshop(id, complete=false) {
   if (opening) return; opening = true;
-  updateRoute('#workshop');
+  updateRoute(id ? '#workshop/'+id+(complete?'/complete':'/lessons') : '#workshop');
   setMode('workshop');
-  try { await startWorkshop(); if (id && window.workshop.getTemplate() !== id) await window.workshop.selectTemplate(id); }
+  try { await startWorkshop(); if (id) await window.workshop.selectTemplate(id,complete); }
   finally { opening = false; }
 }
 function edited() {
@@ -402,9 +408,12 @@ function edited() {
 }
 $('home-link').onclick = event => { if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); openHome(); };
 $('title-map').onclick = openMap;
+$('title-museum').onclick = () => openMuseum();
+$('museum-toggle').onclick = () => openMuseum();
+$('browse-games').onclick = () => openMuseum(window.workshop.getTemplate());
 $('title-continue').onclick = () => openLesson(current().id);
 $('map-toggle').onclick = openMap;
-$('mode-toggle').onclick = () => document.body.dataset.mode === 'lessons' ? openWorkshop() : openLesson(current().id);
+$('mode-toggle').onclick = () => document.body.dataset.mode === 'lessons' ? openMuseum() : openLesson(current().id);
 function restoreLessonCode(source, message) {
   stopWorker(); resetScene(); finish(); recorded = false; runningSource = '';
   $('lesson-space').disabled = $('lesson-right').disabled = true;

@@ -18,10 +18,14 @@ Help the learner make THEIR game. Explain through observable game behavior. Use 
 Keep responses to 2-4 short sentences, plus a short optional experiment. No markdown headings.
 This is a mini-exercise workshop. Scenery, physics, collisions and moving objects are provided;
 the learner implements a small behavior inside a Python function. A pass statement is a valid placeholder.
-Stay on the selected exercise unless the learner asks to explore a variation or another topic.
+Use the supplied activity and current exercise as the source of what the learner is doing.
+In museum activity, introduce the game's goal, controls and interesting rules. Explain the choice between learning through exercises and playing a complete version. Do not assign the first exercise or propose code edits.
+In complete activity, controls and rules are supplied; help the learner play, understand or vary the current code.
+In lesson activity, stay on the selected exercise unless the learner asks to explore a variation or another topic.
 For a hint request, point to the place to write and explain one next action.
-When asked for a small example, provide one small edit (often just the right-key condition first),
-then let them write the left-key counterpart themselves. Use check feedback to guide the next hint.
+When asked for a small example, provide one small edit relevant to the current exercise.
+For variation, suggest a change to a working rule or appearance; do not restart the movement tutorial.
+Check the current code before suggesting a missing control. Use check feedback to guide the next hint.
 Do not declare the exercise passed unless the supplied runtime check actually passed.
 Default to pointing at a relevant line and giving a useful hint. Do not quiz, lecture, patronize,
 or withhold a direct answer when asked. If they ask for an explanation, explain without proposing an edit.
@@ -83,8 +87,8 @@ export function validateInput(body) {
       typeof body.code !== 'string' || body.code.length > 20000) throw new Error('Send a question and a small Python game.');
   const template = Object.hasOwn(templates, body.template) ? body.template : 'platformer';
   const index = Number.isInteger(body.exercise?.index) ? Math.max(0, Math.min(3, body.exercise.index)) : 0;
-  return { progress: sanitizeProgress(body.progress), question: body.question, code: body.code, template, mode: ['hint','explain'].includes(body.mode) ? body.mode : 'chat',
-    exercise: { index, title: templates[template].steps[index][0], description: templates[template].steps[index][1], feedback: body.exercise?.feedback ?? null },
+  return { activity: ['museum', 'complete'].includes(body.activity) ? body.activity : 'lesson', progress: sanitizeProgress(body.progress), question: body.question, code: body.code, template, mode: ['hint','explain'].includes(body.mode) ? body.mode : 'chat',
+    exercise: { index, title: templates[template].steps[index][0], description: templates[template].steps[index][1], hint: templates[template].steps[index][2], feedback: body.exercise?.feedback ?? null },
     runningCode: typeof body.runningCode === 'string' ? body.runningCode.slice(0, 20000) : '',
     selected: typeof body.selected === 'string' ? body.selected.slice(0, 3000) : '',
     selectedLine: Number.isInteger(body.selectedLine) ? body.selectedLine : null,
@@ -107,8 +111,10 @@ export function validateReply(reply, code) {
   return result;
 }
 
-export function guidedExample({ question, code, template='platformer', exercise, mode='chat' }) {
+export function guidedExample({ question, code, template='platformer', exercise, activity='lesson', mode='chat' }) {
   const q = question.toLowerCase();
+  if(activity==='museum')return {message:templates[template].description+' '+templates[template].museumIntro,line:null,before:null,after:null,experiment:'Choose Learn to build it for lessons, or Take the complete game to play and change a finished version.'};
+  if(activity==='complete')exercise={index:3};
   if (mode === 'hint' || template !== 'platformer') {
     const step = exercise?.index || 0;
     const who = template === 'breaker' ? 'paddle' : template === 'paratroopers' ? 'cannon' : 'player';

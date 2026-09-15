@@ -100,3 +100,14 @@ test('abandoning voice setup cancels the upstream request and frees the next Tal
     assert.equal(calls, 2);
   } finally { controller.abort(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
 });
+
+
+test('Pip receives museum, complete game and variation activity in both voice layers', () => {
+  for (const activity of ['museum', 'complete', 'lesson']) {
+    const payload = voiceSession({ ...offer, kind:'game', context:{template:'breaker',code:'pass',activity,exercise:{index:3}} }, 'test-model');
+    assert.ok(payload.session.instructions.includes('"activity":"'+activity+'"'));
+    assert.match(payload.session.delegation.responses.instructions, /Invent your variation/);
+    assert.ok(payload.session.delegation.responses.instructions.includes('"activity":"'+activity+'"'));
+    if(activity==='museum')assert.match(payload.session.instructions,/There is no editor in the museum/);
+  }
+});

@@ -152,3 +152,12 @@ measures wrapping and responsive fonts; the overlay never changes code or select
 Introductory editors use a cream background for editable code, including fully
 editable early cells. Guided cells retain grey supplied lines and a cream editable
 line. A subtle green focus cue replaces the browser’s default textarea outline.
+
+
+`museum.js` renders Golden Classics exhibits and Pip's museum panel. It shares the
+existing game tutor and opt-in voice transport with an explicit `museum` activity;
+the backend receives the complete program as context, while museum guidance explains
+play and rules without code line references. Navigation cancels pending chat and voice.
+Game content supplies `museumIntro` and `complete`; `app.js` saves complete programs
+under separate `-complete` keys and identifies them as `complete` activity. Workshop
+exercise greetings and conversation resets follow the current template and exercise.

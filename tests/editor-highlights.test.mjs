@@ -13,12 +13,12 @@ function editorHarness() {
   const elements = new Map();
   function element(id) {
     if (!elements.has(id)) elements.set(id, {
-      value: '', textContent: '', innerHTML: '', hidden: false, dataset: {}, handlers: {},
+      children: [], value: '', textContent: '', innerHTML: '', hidden: false, dataset: {}, handlers: {},
       selectionStart: 0, selectionEnd: 0,
       addEventListener(type, handler) { this.handlers[type] = handler; },
       setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; },
       setRangeText(text, start, end) { this.value = this.value.slice(0, start) + text + this.value.slice(end); },
-      focus() {}, setAttribute() {}, replaceChildren() {}, append() {},
+      focus() {}, setAttribute() {}, replaceChildren(...children) { this.children = children; }, append(...children) { this.children.push(...children); },
     });
     return elements.get(id);
   }
@@ -116,4 +116,39 @@ test('paddle steps use independent drafts and reset the current exercise', () =>
   assert.equal(element('editor').value, templates.breaker.starters[1]);
   element('undo').onclick();
   assert.equal(element('editor').value, draft);
+});
+
+
+test('Pip greets the restored variation and replaces first-exercise conversation on navigation', () => {
+  const { element, run } = editorHarness();
+  run('renderStep()');
+  assert.match(element('conversation').children[0].children[0].textContent, /matching rule for Right/);
+  run("history=[{role:'assistant',content:'Add Right'}];selectStep(3)");
+  assert.equal(run('history.length'), 0);
+  assert.equal(element('conversation').children.length, 1);
+  assert.match(element('conversation').children[0].children[0].textContent, /Invent your variation/);
+  assert.doesNotMatch(element('conversation').children[0].children[0].textContent, /matching rule for Right/);
+  const restored = editorHarness();
+  restored.run('stepIndex=3;renderStep()');
+  assert.match(restored.element('conversation').children[0].children[0].textContent, /Invent your variation/);
+});
+
+test('complete-game storage and reset are separate from exercise drafts', () => {
+  const { element, run } = editorHarness();
+  run('selectStep(3)');
+  element('editor').value += '\n# My lesson variation'; run('save()');
+  const lessonDraft = element('editor').value;
+  run("completeMode=true;starter=templates.breaker.completeCode;editor.value=starter;save();renderStep()");
+  assert.equal(element('build-path').hidden, true);
+  assert.equal(run('protection'), null);
+  assert.equal(run('storageKey()'), 'little-makers-exercises-v1-breaker-complete');
+  element('editor').value += '\n# My complete game'; run('save()');
+  element('editor-guide-focus').click = () => {};
+  element('reset-code').onclick();
+  assert.equal(element('editor').value, templates.breaker.completeCode);
+  element('undo').onclick();
+  assert.match(element('editor').value, /My complete game/);
+  run('completeMode=false;editor.value=readDraft();renderStep()');
+  assert.equal(element('editor').value, lessonDraft);
+  assert.equal(element('build-path').hidden, false);
 });

@@ -12,13 +12,13 @@ export function voiceSession(body, model) {
   const backendContext = { ...input, editorLines };
   delete backendContext.question; // Validation needs a question; the real one arrives through live delegation.
   delete backendContext.history; // Session input already supplies history; don't freeze a duplicate in instructions.
-  const pointing = `When explaining an existing editor line, name its exact number from editorLines, counting blank lines: "On line two, ...". Preserve the backend tutor's line references when speaking its answer.
+  const pointing = input.activity === 'museum' ? 'There is no editor in the museum. Explain game behavior without naming code line numbers.' : `When explaining an existing editor line, name its exact number from editorLines, counting blank lines: "On line two, ...". Preserve the backend tutor's line references when speaking its answer.
 Point only to existing nonblank editor lines, never proposed code or reading-slide examples. Do not promise exact synchronization.`;
   const activity = lesson ? {
     title: input.current.title, focus: input.current.description,
     capabilities: input.capabilities,
     suppliedCharacter: 'The workshop supplies fox (later called character) and draws the scene. These names/actions are not built into Python; no import or creation step is needed.',
-  } : { game: input.template, focus: input.exercise.description, editor: { commentToggleShortcut: false },
+  } : { game: input.template, activity: input.activity, title: input.exercise.title, focus: input.activity === 'museum' ? 'Introduce the game, its goal and controls, and the choice of lessons or a complete version.' : input.activity === 'complete' ? 'Play and customize the complete game; controls are already supplied.' : input.exercise.description, editor: { commentToggleShortcut: false },
     runtime: 'The workshop supplies scenery, physics and moving objects; the backend has the selected game API and current code.' };
   const outline = {
     foundations: branches.find(branch => branch.id === 'foundations').chapters.map(chapter => chapter.title),

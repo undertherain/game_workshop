@@ -108,7 +108,9 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
 ## Game workshops
 
 - `games/<game>.json` holds the game's display metadata, introduction, idea prompts,
-  pocket guide and ordered `lessons` IDs.
+  pocket guide and ordered `lessons` IDs. `museumIntro` introduces its goal, controls
+  and rules; `complete` is an array of Python lines for its finished playable version.
+  Complete versions must pass all three game behavior checks.
 - `game-lessons/<id>.json` holds **one** exercise: `id`, `title`, `description`, `hint`.
 - An optional `guide` object provides editor guidance: `function` names the Python
   function, `replace` optionally identifies an exact placeholder line, `instruction`
