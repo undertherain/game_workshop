@@ -190,10 +190,15 @@ it is not a standalone desktop game.
 ## Slide tutor
 
 **Ask Pip** sits beside each lesson on desktop and below it on narrow screens.
-Ask a question or choose **Explain this** / **What’s next?**. Pip receives the current
+Ask a question about Python, your code or game making, or choose **Explain this** /
+**What’s next?**. Pip answers general Python questions directly. It distinguishes
+language features from editor conveniences and the subset the current activity can
+run; the lesson does not limit which concepts can be discussed. Pip receives the current
 slide’s instructions and examples, editor code and last-run feedback, the ordered
 lesson route with exact slide distances, visited/practised lesson evidence, and a
 high-level outline of other chapters, drawing and games, including planned activities.
+It also receives explicit supported commands, syntax, runtime limits and editor
+restrictions, separately from the current lesson’s teaching focus.
 It can explain that a topic is two slides ahead without assuming skipped slides were studied.
 Visited slides are stored locally from this version onward; opening a slide does not
 record practice or mastery. Each slide’s recent chat stays in memory during this visit;
@@ -210,6 +215,14 @@ stream into the same chat as typed messages. Voice uses `gpt-live-1` with the Ma
 the existing `OPENAI_MODEL` tutor (default `gpt-5.4-mini`). The server needs
 `OPENAI_API_KEY` with access to GPT-Live. Restart the server and reload the page
 after updating. Use localhost or HTTPS and allow microphone access when prompted.
+
+The live voice prompt contains the learning-through-games goal, conversation guidance,
+current activity focus and runtime capabilities, and a compact curriculum outline.
+The backend tutor holds the current lesson details, code, progress and ordered lesson
+summaries with exact slide distances. It answers programming and curriculum questions
+in spoken prose; typed chat keeps its separate structured response format. Full content
+for every lesson is not packed into the live prompt, and no curriculum search tool is
+currently installed.
 
 Audio travels directly between the browser and OpenAI over WebRTC; the API key
 stays on the server. The UI identifies Pip as an AI voice. Sessions request

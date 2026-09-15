@@ -89,6 +89,6 @@ export function createLessonTutor(getContext) {
     $('lesson-tutor-messages').replaceChildren();
     const history = conversations.get(activeId);
     if (history?.length) for (const entry of history) message(entry.role, entry.content);
-    else message('assistant', 'Ask about this slide, your code, or what comes next. We can take it one idea at a time.');
+    else message('assistant', 'Ask me about Python, your code, or what you’d like to make. We can take it one idea at a time.');
   } };
 }

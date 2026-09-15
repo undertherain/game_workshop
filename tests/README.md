@@ -90,3 +90,16 @@ test also verifies that cancelling a browser request aborts pending upstream set
 and permits a fresh connection. An isolated Chromium check using simulated microphone
 and WebRTC verified real Next/Back/map navigation, page departure, returning with
 capture off, stale callbacks, late permission, and reconnecting via Talk.
+
+`lesson-capabilities.test.mjs` verifies canonical capabilities for all lesson modes,
+editor constraints, accepted/rejected examples through the real Python runtime,
+the split between teaching focus and executable scope, separate voice/chat output
+contracts, and selected-game API context. These checks validate prompt construction;
+they do not guarantee model behavior. Prompt changes should also be checked with
+representative questions, including general Python questions and corrections to an
+earlier interpretation.
+Live text probes of the voice backend prompt covered a C-style-comment clarification,
+general Python keyboard input, whether input() runs in the current cell, and the
+location of loop lessons. The general-input probe exposed an unnecessary local
+disclaimer; after revising the prompt it answered the language question without one.
+These are backend answer checks, not an end-to-end spoken conversation evaluation.

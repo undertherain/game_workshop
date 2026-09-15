@@ -91,6 +91,26 @@ root builds canonical curriculum context for `/api/lesson-help`; the existing se
 provides the AI transport and offline slide guide. The sidebar stacks below slides
 on narrow screens.
 
+The shared `tutor-principles.mjs` policy frames Pip as a Python tutor whose examples
+come from making games. General questions get language-level answers; local limits
+matter when proposing code to run here. `lesson-capabilities.mjs` describes each
+runtime mode, separately from the current lesson’s title/instructions, and includes
+editor limits such as a protected line or a single-line cell. Keep it aligned with
+`lesson_runtime.py` when adding capabilities. Completions are suggestions, not an
+exhaustive list of accepted Python.
+
+`voice-tutor.mjs` gives the live model that current scope plus a compact chapter/game
+outline. The backend receives the ordered route summaries and full current lesson;
+it does not receive every other lesson’s full contents. No curriculum retrieval tool
+is needed for this small route. A future lookup tool would belong to the backend if
+questions require detailed content from other lessons. This follows the
+[OpenAI voice prompting guidance](https://developers.openai.com/api/docs/guides/live-prompting)
+to keep the live conversation prompt compact and put detailed work in the backend.
+Voice and typed chat share teaching rules but have separate response-format instructions;
+game tutors receive only the selected game’s API. Voice history goes through session
+input; the backend snapshot omits the placeholder question and duplicate history,
+leaving the spoken conversation to supply the actual request.
+
 `pip-voice.js` supplies shared opt-in WebRTC controls, mute and graceful shutdown.
 Only the Talk button requests microphone access. Navigation and page lifecycle stops
 release tracks, audio, the data channel, peer connection, request and timers immediately;
