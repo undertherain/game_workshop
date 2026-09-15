@@ -1,4 +1,42 @@
-# Local top-down framework
+# Little Makers framework
+
+## Workshop games and standalone browser exports
+
+`WorkshopGame` is the shared simulation for the platformer, brick breaker and
+Paratroopers-style workshop games. It owns the supplied objects, physics, input
+edges and callback lifecycle. Each instance has independent state. It imports no
+browser or raylib APIs, so ordinary Python and browser Pyodide run the same rules:
+
+```python
+from pathlib import Path
+from framework import WorkshopGame
+
+game = WorkshopGame(Path('public/starter.py').read_text(), 'platformer')
+initial = game.snapshot()
+next_frame = game.step({'right': True, 'jump': True})
+```
+
+The host calls `step(keys)` at 30 Hz; each call advances two fixed 60 Hz ticks.
+Inputs are `left`, `right` and `jump` (Space); the template maps Space to jumping,
+ball reset or firing. The return value is a detached JSON-compatible snapshot of
+the 840 × 480 scene. Construct a new instance to restart. Invalid source or callback
+values raise Python exceptions; hosts report the original `my_game.py` line.
+The host owns rendering, timing, pausing and execution isolation. Direct Python
+execution is for trusted code; browser hosts run learner code in a terminable worker.
+
+`workshop_checks.py` creates a separate session per exercise check, leaving live
+games unchanged. The browser loads the modules declared in
+`public/framework-files.json`; the server serves only those framework files.
+**Export playable game** bundles that same package, worker and Canvas renderer with
+the current draft. See [export instructions](../README.md#export-and-play-independently).
+
+`WorkshopGame` preserves the template callback API and tick-based movement. The
+`Game`/`World` primitives below are a separate top-down authoring API with movement
+in pixels per second. Workshop templates have not been rewritten as top-down worlds,
+and their exports use the browser host rather than raylib. This keeps the two APIs
+explicit while making workshop simulations reusable outside the teaching interface.
+
+## Local top-down games
 
 For a smaller starting point, [Alien invaders](../examples/alien_invaders/README.md)
 uses the new experimental `Game` wrapper: a default screen, explicitly imported pixel sprites,

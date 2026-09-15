@@ -5,9 +5,11 @@ Prototype UI and original Canvas 2D artwork. `platformer.py`, `breaker.py` and
 short build paths and game-specific UI from JSON content. `starter.py` retains the initial complete
 platformer sample.
 
-`runtime.py` supplies the platform game API; `arcade_runtime.py` supplies the two
-arcade games and mini-exercise checks. `python-worker.js` runs real Python through
-local Pyodide and isolates checks from the live game. `app.js` connects editor,
+`../framework/workshop.py` supplies all three game simulations through `WorkshopGame`;
+`../framework/workshop_checks.py` supplies isolated mini-exercise checks.
+`runtime.py` and `arcade_runtime.py` retain compatibility entries for older local
+scripts. `python-worker.js` installs the shared framework package listed in
+`framework-files.json` into local Pyodide. `app.js` connects editor,
 templates and helper; `scene.js` only draws snapshots. `forest.js` loads the
 platformer's generated forest background, draws deterministic pixel terrain at the
 runtime's platform coordinates, and animates a small pixel fox. The background is
@@ -18,11 +20,21 @@ the asset's generation prompt and scope.
 Return to the [prototype README](../README.md).
 
 `examples/breaker_framework.py` is a complete, optional framework experiment for
-the existing Brick breaker editor. `arcade_runtime.py` supplies `StaticScreen`,
+the existing Brick breaker editor. `framework/workshop.py` supplies `StaticScreen`,
 `Brick`, `Paddle` and `Ball`; the learner can inspect `screen.width`/`height`, iterate
 `bricks`, call paddle movement methods and `ball.bounce_up()`. Existing property
 access and callbacks still work. See the [framework note](../docs/framework-north-star.md)
 for scope and the proposed browser/standalone backend boundary.
+
+`standalone/` contains the exported player, responsive controls and standard-library
+Python launcher. **Export playable game** sends the selected template and exact
+editor draft to `/api/export`; the server packages an allowlisted set of files,
+including this same worker and scene renderer, all runtime dependencies and artwork.
+The player loads `game.json` and `my_game.py` relative to its own URL, so extracted
+exports also work below a static host's subpath. It retains worker timeout recovery,
+error line reporting, input clearing on blur and paused stepping in hidden tabs.
+The launcher requires Python 3; gameplay requires a modern browser. No workshop API
+calls, lesson content, chat or credentials are included.
 
 `content/` holds lesson and catalogue data; see the [content authoring guide](content/README.md).
 Each introductory lesson and each game mini-exercise has its own JSON file.

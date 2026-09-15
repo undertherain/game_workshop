@@ -168,10 +168,19 @@ into shared actions, drive the same simulation timing, and render its state usin
 shared asset identifiers. Display, asset loading, audio and packaging belong behind
 explicit backend interfaces rather than in learner game rules.
 
-The existing Python simulation and browser snapshot renderer provide a starting
-boundary. The local top-down experiment below adds a standalone runner and desktop
-renderer. A shared contract with the browser runtime remains proposed; neither
-slice verifies cross-backend portability.
+Implemented 2026-09-15: all three workshop templates now run through
+`framework.WorkshopGame`, independent of the teaching UI. **Export playable game**
+packages the exact draft, versioned game manifest, framework, Canvas renderer,
+Pyodide and artwork into an offline ZIP with a Python 3 local web launcher.
+The workshop and exported browser player use the same runtime and rendering files.
+Isolated ordinary-Python replay tests verify that bundled simulations produce the
+same snapshots as the repository version. The exported player retains keyboard and
+touch controls, restart, source errors and worker timeout recovery.
+
+This delivers standalone browser play. The local top-down experiment below still
+uses a separate raylib host; porting workshop scenes to that renderer and building
+native desktop executables remain future work. `WorkshopGame` preserves the
+existing callback scaffolds rather than converting them to the top-down `Game` API.
 The choice of language remains open and should account for both targets.
 
 ## Local framework slice: tank world

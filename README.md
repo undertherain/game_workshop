@@ -178,14 +178,34 @@ Older shared paddle drafts remain stored separately.
 6. **Reset code** restores the starter and stops playback. In Platformer and Paratroopers it returns to
    the first exercise; **Undo edit** recovers the previous code and exercise. Intro
    lessons reset only their own code and offer **Undo reset**. Learning progress is
-   kept. Use **Save Python** to export your work. Ctrl/Cmd+Enter runs code. On touch devices,
+   kept. Use **Save Python** to save just your source, or **Export playable game** for
+   a complete offline game ZIP. Ctrl/Cmd+Enter runs code. On touch devices,
    on-screen controls supply the same inputs once the child has implemented them.
 
 The brick breaker starts with only Left implemented; the other starters have no arrow
 controls until the exercise is written.
 They are small scaffolds, not fully authored games. `public/starter.py` retains the
-original complete platformer sample. Exported Python uses this workshop's game API;
-it is not a standalone desktop game.
+original complete platformer sample.
+
+## Export and play independently
+
+In any of the three game workshops, click **Export playable game** below the editor.
+Extract the ZIP, then run `python3 play.py` from that folder (Windows: `py play.py`).
+The launcher opens the game in your browser. Keep its terminal open while playing;
+Ctrl+C stops the local server. Python 3 must already be installed, but no Node,
+workshop server, API key or internet connection is needed to play.
+
+The ZIP includes the exact current editor draft as `my_game.py`, a versioned
+`game.json`, the shared Python framework, browser player, artwork and local Pyodide.
+Edits you have not run yet are included; missing exercise rules remain missing.
+The player displays Python errors and supports keyboard/touch controls and Restart.
+Edit `my_game.py` and reload to try a new version. To share online, serve the extracted
+folder with any static HTTP host; subfolder hosting is supported. Opening `index.html`
+directly with `file://` does not work.
+
+These are standalone browser bundles. Native desktop executable packaging is not
+implemented. **Save Python** still downloads source only. Introductory lesson programs
+are not game exports.
 
 ## Slide tutor
 
@@ -309,12 +329,23 @@ using new top-down Python primitives and a standalone raylib host. Run it with
 `python3 -m examples.tank_world` (requires `raylib`). The separate [tank battle](examples/tank_battle/README.md) runs with
 `python3 -m examples.tank_battle` and demonstrates framework-owned tile interactions,
 projectiles and a smooth following camera. See the [local framework API](framework/README.md).
-Browser and desktop exercise separate slices; a shared cross-backend game is not yet verified.
+The three workshop games use `framework.WorkshopGame` in both the workshop and
+exported browser player. The same simulation also runs under ordinary Python for
+headless testing. The separate `Game`/top-down raylib examples retain their own
+renderer; workshop exports do not yet target that native desktop host.
 
 - `public/`: browser UI, Canvas 2D art, Python worker and game runtime.
 - `server.mjs`: static server and OpenAI Responses API helper endpoint.
 - `tutor.mjs`: tutor instructions, response validation, built-in guided examples.
 - `tests/`: runtime and server/tutor checks.
+
+`framework/workshop.py` owns game objects, gravity, collisions, callback execution
+and score state; `framework/workshop_checks.py` runs isolated teaching checks.
+The browser worker installs the framework package from an explicit module list.
+`export-game.mjs` bundles those same files with the draft and the small player in
+`public/standalone/`. Export packages source without executing it on the server.
+The old `public/runtime.py` and `public/arcade_runtime.py` are compatibility adapters
+for existing scripts, with no duplicated simulation.
 
 Python owns movement rules, gravity, collisions, callbacks and score. JavaScript draws
 state snapshots at 30 fps and pauses work in hidden tabs. A stalled worker is terminated

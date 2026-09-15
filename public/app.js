@@ -290,6 +290,19 @@ $('reset-code').onclick=()=>{
   $('line-note').textContent='Starting code restored. Undo brings your previous code back.';
 };
 $('download').onclick=()=>{const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+$('export-game').onclick=async()=>{
+  const button=$('export-game'),status=$('export-status');
+  const template=templateId,source=editor.value;
+  button.disabled=true;status.textContent='Packing your game…';
+  try{
+    const response=await fetch('/api/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({template,code:source})});
+    if(!response.ok)throw Error((await response.json()).error||'Could not export your game.');
+    const url=URL.createObjectURL(await response.blob()),link=document.createElement('a');
+    link.href=url;link.download=`little-makers-${template}.zip`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    status.textContent='ZIP downloaded. Extract it, then run play.py with Python 3. Instructions are inside.';
+  }catch(error){status.textContent=error.message;}
+  finally{button.disabled=false;}
+};
 $('ask-form').onsubmit=event=>{event.preventDefault();ask($('question').value);};
 document.querySelectorAll('[data-question]').forEach(button=>button.onclick=()=>ask(button.dataset.question));
 $('explain').onclick=()=>{const selected=editor.value.slice(editor.selectionStart,editor.selectionEnd);const line=editor.value.slice(0,editor.selectionStart).split('\n').length;ask(selected?`Please explain this selected code: ${selected}`:`Please explain line ${line} in my game. Show how it affects what happens when I play.`,'explain');};
@@ -418,6 +431,7 @@ try {
   for(const id of ['breaker','platformer','paratroopers']){const template=templates[id];const button=document.createElement('button');button.className='template-choice';button.dataset.template=id;button.innerHTML=`<span class="template-icon">${template.icon}</span><span><strong>${template.genre}</strong><small>${template.description}</small></span>`;button.onclick=()=>selectTemplate(id);$('template-picker').append(button);}
   let initial='breaker';try{initial=localStorage.getItem('little-makers-active-template')||initial;}catch{}
   await selectTemplate(templates[initial]?initial:'breaker');
+  $('export-game').disabled=false;
   const status=await(await fetch('/api/status')).json();
   $('helper-mode').textContent=status.mode==='ai'?'Your AI coding companion · you make the changes':'Built-in examples · live AI is not connected';
   $('helper-badge').textContent=status.mode==='ai'?'AI helper':'Examples';

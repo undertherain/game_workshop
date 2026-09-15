@@ -7,6 +7,20 @@ are performed separately against the running local prototype.
 
 Return to the [prototype README](../README.md).
 
+`test_workshop_framework.py` verifies independent game instances, snapshot detachment,
+repeatable input replay, restart and teaching-check isolation for all three templates.
+`export-game.test.mjs` validates the export endpoint and extracts each ZIP into a
+temporary directory. An isolated Python subprocess imports only the bundled
+framework and must reproduce the repository simulation's snapshots for the same
+inputs. Checks also verify exact Unicode draft preservation, ZIP integrity, matching
+runtime/artwork bytes, restricted framework routes and rejected export requests.
+Export deliberately packages unfinished or invalid source without executing it.
+
+An isolated Chromium smoke check verifies actual Pyodide workshop play, the download
+button, the extracted Python launcher, all three exported players, keyboard controls,
+scoring, restart, mobile layout, subfolder hosting and infinite-loop recovery. During
+exported play, workshop and external HTTPS requests are blocked.
+
 `test_lessons.py` checks introductory Python execution, loop/drawing limits,
 numeric expressions, calculator output, speech values, friendly errors, bounded text
 operations, parameterized helper calls, comparison boundaries,

@@ -1,5 +1,6 @@
 import { lessonInstructions, validateLessonInput, lessonExample } from './lesson-tutor.mjs';
 import { voiceSession } from './voice-tutor.mjs';
+import { exportGame, validateExport, frameworkFiles } from './export-game.mjs';
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -34,6 +35,18 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return json(res, 403, { error: 'Local connections only.' });
       const url = new URL(req.url, 'http://' + host);
       if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, { mode: apiKey ? 'ai' : 'examples' });
+      if (url.pathname === '/api/export' && req.method === 'POST') {
+        if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
+        const chunks = []; let size = 0;
+        for await (const chunk of req) { size += chunk.length; if (size > 150000) return json(res, 413, { error: 'That game is too large.' }); chunks.push(chunk); }
+        let input;
+        try { input = validateExport(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch (error) { return json(res, 400, { error: error.message }); }
+        const archive = await exportGame(input);
+        res.writeHead(200, { 'Content-Type': 'application/zip', 'Content-Length': archive.length,
+          'Content-Disposition': `attachment; filename="little-makers-${input.template}.zip"`, 'Cache-Control': 'no-store' });
+        return res.end(archive);
+      }
       if (url.pathname === '/api/voice' && req.method === 'POST') {
         if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
@@ -102,8 +115,10 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       if (!['GET', 'HEAD'].includes(req.method)) return json(res, 405, { error: 'Method not allowed.' });
       const pathname = decodeURIComponent(url.pathname);
       const vendor = pathname.startsWith('/vendor/pyodide/');
-      const base = path.join(root, vendor ? 'node_modules/pyodide' : 'public');
-      const relative = vendor ? pathname.slice('/vendor/pyodide/'.length) : pathname === '/' ? 'index.html' : pathname.slice(1);
+      const framework = pathname.startsWith('/framework/');
+      if (framework && !frameworkFiles.includes(pathname.slice('/framework/'.length))) return json(res, 404, { error: 'Not found.' });
+      const base = path.join(root, vendor ? 'node_modules/pyodide' : framework ? 'framework' : 'public');
+      const relative = vendor ? pathname.slice('/vendor/pyodide/'.length) : framework ? pathname.slice('/framework/'.length) : pathname === '/' ? 'index.html' : pathname.slice(1);
       const target = path.resolve(base, relative);
       if (!target.startsWith(base + path.sep) || relative.split('/').some(s => s.startsWith('.'))) return json(res, 404, { error: 'Not found.' });
       const info = await stat(target);
