@@ -1,0 +1,33 @@
+{
+  "id": "sokoban-goals",
+  "title": "Define the finish",
+  "description": "The crates can move, but the game does not know when to celebrate. Return True when every crate is on a goal.",
+  "hint": "Help me return board.all_crates_on_goals() from is_complete(). Explain the Boolean result and when it should be True.",
+  "starter": [
+    "# A crate puzzle: your code defines its controls and rules.",
+    "board.level = 1",
+    "world.sky = \"mint\"",
+    "",
+    "def on_key(key):",
+    "    if key == \"left\":",
+    "        player.move(-1, 0)",
+    "    if key == \"right\":",
+    "        player.move(1, 0)",
+    "    if key == \"up\":",
+    "        player.move(0, -1)",
+    "    if key == \"down\":",
+    "        player.move(0, 1)",
+    "",
+    "def can_push(crate, dx, dy):",
+    "    return board.is_free(crate.x + dx, crate.y + dy)",
+    "",
+    "def is_complete():",
+    "    return False"
+  ],
+  "guide": {
+    "function": "is_complete",
+    "replace": "return False",
+    "instruction": "Return board.all_crates_on_goals() so all goals must be covered.",
+    "review": "Try an unfinished board, then finish it. Only the completed board should celebrate."
+  }
+}

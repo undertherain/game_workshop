@@ -127,7 +127,7 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
   Games without exercise starters continue to use their shared `.py` starter.
 
 The game runtime currently expects four exercises in order: movement, a second
-mechanic, scoring, variation. Text and hints are editable here; changing that
+mechanic, scoring or completion, variation. Text and hints are editable here; changing that
 structure requires corresponding behavior checks and progress mappings. Listing a
 new game in the catalogue does not implement it; use `available: false` for planned
 entries.

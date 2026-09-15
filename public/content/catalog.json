@@ -19,7 +19,10 @@
     "parameters": "Parameters",
     "conditions": "Conditions",
     "comparisons": "Comparisons",
-    "booleans": "Booleans"
+    "booleans": "Booleans",
+    "grid-movement": "Grid movement",
+    "pushing": "Pushing rules",
+    "completion": "Completion conditions"
   },
   "gameSkills": {
     "platformer": [
@@ -36,6 +39,11 @@
       "movement",
       "fire",
       "scoring"
+    ],
+    "sokoban": [
+      "grid-movement",
+      "pushing",
+      "completion"
     ]
   },
   "games": [
@@ -71,8 +79,9 @@
       "title": "Sokoban",
       "mark": "□",
       "description": "Push crates onto goals. Every move changes the puzzle.",
-      "concepts": "Grid movement · conditions · undo",
-      "available": false
+      "concepts": "Grid movement · conditions · level design",
+      "available": true,
+      "recommendation": "Build controls, a pushing rule, a finish condition and your own puzzle."
     },
     {
       "id": "xonix",
@@ -81,12 +90,21 @@
       "description": "Draw paths to claim territory while avoiding enemies.",
       "concepts": "Grids · regions · flood fill",
       "available": false
+    },
+    {
+      "id": "asteroids",
+      "title": "Asteroids",
+      "mark": "△",
+      "description": "Steer a drifting ship, thrust through space and break up rocks.",
+      "concepts": "Rotation · momentum · wrapping · projectiles",
+      "available": false
     }
   ],
   "templates": [
     "platformer",
     "breaker",
-    "paratroopers"
+    "paratroopers",
+    "sokoban"
   ],
   "branches": [
     {

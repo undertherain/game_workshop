@@ -1,0 +1,33 @@
+{
+  "id": "sokoban-pushing",
+  "title": "Write the pushing rule",
+  "description": "A crate can move only if the tile behind it is free. Write the condition that allows a push.",
+  "hint": "Explain dx and dy and how board.is_free(crate.x + dx, crate.y + dy) checks the tile beyond the crate. Let me write the returned condition.",
+  "starter": [
+    "# A crate puzzle: your code defines its controls and rules.",
+    "board.level = 1",
+    "world.sky = \"mint\"",
+    "",
+    "def on_key(key):",
+    "    if key == \"left\":",
+    "        player.move(-1, 0)",
+    "    if key == \"right\":",
+    "        player.move(1, 0)",
+    "    if key == \"up\":",
+    "        player.move(0, -1)",
+    "    if key == \"down\":",
+    "        player.move(0, 1)",
+    "",
+    "def can_push(crate, dx, dy):",
+    "    return False",
+    "",
+    "def is_complete():",
+    "    return board.all_crates_on_goals()"
+  ],
+  "guide": {
+    "function": "can_push",
+    "replace": "return False",
+    "instruction": "Return whether the tile beyond the crate is free. Use crate.x + dx and crate.y + dy.",
+    "review": "Try pushing into a free tile and toward a wall. Only the free tile should work."
+  }
+}

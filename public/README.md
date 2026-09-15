@@ -5,7 +5,7 @@ Prototype UI and original Canvas 2D artwork. `platformer.py`, `breaker.py` and
 short build paths and game-specific UI from JSON content. `starter.py` retains the initial complete
 platformer sample.
 
-`../framework/workshop.py` supplies all three game simulations through `WorkshopGame`;
+`../framework/workshop.py` supplies all four game simulations through `WorkshopGame`;
 `../framework/workshop_checks.py` supplies isolated mini-exercise checks.
 `runtime.py` and `arcade_runtime.py` retain compatibility entries for older local
 scripts. `python-worker.js` installs the shared framework package listed in
@@ -161,3 +161,11 @@ play and rules without code line references. Navigation cancels pending chat and
 Game content supplies `museumIntro` and `complete`; `app.js` saves complete programs
 under separate `-complete` keys and identifies them as `complete` activity. Workshop
 exercise greetings and conversation resets follow the current template and exercise.
+
+
+`framework/sokoban.py` owns grid movement, crate collisions, undo and original puzzle
+layouts. `sokoban-scene.js` draws its snapshots without implementing puzzle rules.
+`game-controls.js` maps input for both the workshop and exported player; Sokoban
+uses four directions, Undo and Next puzzle. Its lesson starters and complete source
+live in the same content structure as the other games. Grid movement has separate
+progress evidence; paddle/launcher movement is not automatically supplied to it.

@@ -14,10 +14,10 @@ test('export validation never treats a template as a file path', () => {
   for (const code of ['', ' ', null, 'a'.repeat(20001)]) assert.throws(() => validateExport({ template: 'breaker', code }));
 });
 
-test('all three ZIPs extract and replay the exact draft using only the bundled framework', async () => {
+test('all game ZIPs extract and replay the exact draft using only the bundled framework', async () => {
   const temporary = await mkdtemp(path.join(tmpdir(), 'little-makers-export-'));
   try {
-    for (const template of ['platformer', 'breaker', 'paratroopers']) {
+    for (const template of Object.keys(templates)) {
       const code = '# My exported draft 🦊\n' + templates[template].completeCode;
       const archive = await exportGame({ template, code });
       const zipPath = path.join(temporary, template + '.zip');

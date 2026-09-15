@@ -1,3 +1,4 @@
+import { drawSokoban } from './sokoban-scene.js';
 import { createForest, drawPixelFox } from './forest.js';
 
 const palettes = {
@@ -90,6 +91,7 @@ export function createScene(canvas) {
   return {
     update(next){if(next.kind!==state.kind){backgroundKey=null;particles=[];previous=next;}else previous=state;state=next;changedAt=performance.now();if(next.player&&next.collected>lastCollected){for(let i=0;i<12;i++)particles.push({x:next.player.x,y:next.player.y-30,vx:Math.cos(i)*1.9,vy:-2-Math.sin(i)*1.8,life:1});}lastCollected=next.collected;},
     draw(time){
+      if(state.kind==='sokoban'){drawSokoban(ctx,state);return;}
       const key=state.world.sky+state.kind+JSON.stringify(state.platforms);
       if(backgroundKey!==key){drawBackground();background=ctx.getImageData(0,0,840,480);backgroundKey=key;}else ctx.putImageData(background,0,0);
       if(state.kind){drawArcade(time);return;}

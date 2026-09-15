@@ -46,8 +46,8 @@ code, and Live game rules. The map groups lessons into expandable chapters; Back
 continues across chapter boundaries. The base URL opens the title screen.
 
 The **Learning map** connects thirty-three foundational lessons, three optional drawing
-lessons, and the three game workshops. All paths are open; the map recommends a
-starting route without locking later activities. Sokoban, Xonix and a fractal lesson
+lessons, and the four game workshops. All paths are open; the map recommends a
+starting route without locking later activities. Xonix, Asteroids and a fractal lesson
 are explicitly marked as planned, not playable.
 
 The foundations open with eleven compact, single-column slides. The first jump leads to “Make the jump yours”: edit `fox.jump(100)` and press Run
@@ -150,14 +150,14 @@ introductory cells only.
 In the game workshop:
 
 **Golden Classics** opens a game museum from the title screen or top bar. Choose
-Brick breaker, Platformer or Sky Patrol; Pip is present with an introduction to the
-goal, controls and rules, plus typed questions and optional voice. Sokoban and Xonix
+Brick breaker, Platformer, Sky Patrol or Sokoban; Pip is present with an introduction to the
+goal, controls and rules, plus typed questions and optional voice. Xonix and Asteroids
 are planned exhibits. This first museum covers mechanics; historical encyclopedia
 articles are not included yet.
 
 Each playable exhibit offers **Learn to build it** for the existing four exercises,
 or **Take the complete game** to open a working game with controls, its main mechanic
-and scoring supplied. Complete games start playing immediately and allow free editing.
+and a scoring or completion rule supplied. Complete games start playing immediately and allow free editing.
 Their drafts are saved separately from lesson drafts; reset restores the complete
 program and Undo recovers edits. Export playable game ZIP includes the current complete
 game draft, just as it includes the current exercise draft in lessons. Choose
@@ -198,6 +198,25 @@ Older shared paddle drafts remain stored separately.
    a complete offline game ZIP. Ctrl/Cmd+Enter runs code. On touch devices,
    on-screen controls supply the same inputs once the child has implemented them.
 
+### Build a crate puzzle with Sokoban
+
+Sokoban adds a grid-based building path. First connect Right in `on_key(key)`;
+Left, Up and Down are worked examples. Next implement `can_push(crate, dx, dy)`
+by checking the tile beyond the crate, then `is_complete()` to recognize a solved
+board. The fourth exercise constructs a custom room with `board.load([...])`:
+edit rows of walls, floor, player, crates and goals in Python, then Run to test it.
+Each exercise has its own draft and prepared surrounding code. This is an initial
+scaffold toward building games through code; play is the test of the authored rules.
+
+The complete version supplies controls and rules for three original small puzzles.
+Arrow keys or WASD move; U/Z/Space undoes a move; N opens the next supplied puzzle
+after a win. The visible controls also support touch and keyboard activation.
+Restart reloads the current source's initial room. Crates cannot be pulled or pushed
+two at once. Moves, pushes, goals and undo history belong to the shared framework.
+Custom rooms validate dimensions and tile counts; they are not automatically checked
+for solvability. Complete versions and custom puzzle drafts export with the same
+renderer, controls and runtime as the workshop.
+
 The brick breaker starts with only Left implemented; the other starters have no arrow
 controls until the exercise is written.
 They are small scaffolds, not fully authored games. `public/starter.py` retains the
@@ -205,7 +224,7 @@ original complete platformer sample.
 
 ## Export and play independently
 
-In any of the three game workshops, click **Export playable game** below the editor.
+In any of the four game workshops, click **Export playable game** below the editor.
 Extract the ZIP, then run `python3 play.py` from that folder (Windows: `py play.py`).
 The launcher opens the game in your browser. Keep its terminal open while playing;
 Ctrl+C stops the local server. Python 3 must already be installed, but no Node,
@@ -345,7 +364,7 @@ using new top-down Python primitives and a standalone raylib host. Run it with
 `python3 -m examples.tank_world` (requires `raylib`). The separate [tank battle](examples/tank_battle/README.md) runs with
 `python3 -m examples.tank_battle` and demonstrates framework-owned tile interactions,
 projectiles and a smooth following camera. See the [local framework API](framework/README.md).
-The three workshop games use `framework.WorkshopGame` in both the workshop and
+The four workshop games use `framework.WorkshopGame` in both the workshop and
 exported browser player. The same simulation also runs under ordinary Python for
 headless testing. The separate `Game`/top-down raylib examples retain their own
 renderer; workshop exports do not yet target that native desktop host.

@@ -1,0 +1,79 @@
+{
+  "title": "Crate Cottage",
+  "genre": "Sokoban",
+  "icon": "□",
+  "description": "Build a room, push its crates onto goals, and plan a way through.",
+  "file": "sokoban.py",
+  "controls": "undo a move",
+  "action": "Undo ↶",
+  "placeholder": "How can I build a puzzle that…",
+  "intro": "Your room, crates and goals are ready. Left, Up and Down are connected in on_key(). Add the Right-key rule, then use it to test your room.",
+  "museumIntro": "Push every crate onto a marked goal. You can push one crate at a time, but cannot pull it. Use all four arrow keys, U to undo a move and N for the next puzzle after solving one. In the lessons, you will write movement, pushing and completion rules, then build your own room from rows of tiles.",
+  "complete": [
+    "# A crate puzzle: your code defines its controls and rules.",
+    "board.level = 1",
+    "world.sky = \"mint\"",
+    "",
+    "def on_key(key):",
+    "    if key == \"left\":",
+    "        player.move(-1, 0)",
+    "    if key == \"right\":",
+    "        player.move(1, 0)",
+    "    if key == \"up\":",
+    "        player.move(0, -1)",
+    "    if key == \"down\":",
+    "        player.move(0, 1)",
+    "",
+    "def can_push(crate, dx, dy):",
+    "    return board.is_free(crate.x + dx, crate.y + dy)",
+    "",
+    "def is_complete():",
+    "    return board.all_crates_on_goals()"
+  ],
+  "ideas": [
+    [
+      "My own room",
+      "Explain how to build a custom room with board.load and rows of tile symbols."
+    ],
+    [
+      "Why is this push blocked?",
+      "Explain which condition permits a crate push and why a wall or another crate blocks it."
+    ],
+    [
+      "My own twist",
+      "Suggest two small changes I can code into my crate puzzle."
+    ]
+  ],
+  "guide": [
+    [
+      "board.load(rows)",
+      "Build a puzzle: # wall, space floor, @ player, $ crate, . goal."
+    ],
+    [
+      "player.move(dx, dy)",
+      "Move one tile: x goes right, y goes down."
+    ],
+    [
+      "board.is_free(x, y)",
+      "True if a tile is inside the board and has no wall or crate."
+    ],
+    [
+      "can_push(crate, dx, dy)",
+      "Return whether the proposed push is allowed."
+    ],
+    [
+      "is_complete()",
+      "Return whether the puzzle is solved."
+    ],
+    [
+      "board.level",
+      "Choose one of three supplied puzzles."
+    ]
+  ],
+  "lessons": [
+    "sokoban-controls",
+    "sokoban-pushing",
+    "sokoban-goals",
+    "sokoban-variation"
+  ]
+}

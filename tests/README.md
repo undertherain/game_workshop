@@ -126,3 +126,12 @@ conversation, and separate complete-game storage/reset/undo. Voice checks cover 
 museum, exercise and complete-game contexts. Browser smoke checks cover museum chat,
 complete playback, returning to lesson drafts and mobile width. Live AI replies and
 real microphone conversations are not covered by those deterministic checks.
+
+
+`test_sokoban.py` independently solves the three original rooms and replays the
+solutions through real input. It covers blocked pushes, no pulling, no double pushes,
+undo after winning, next-room reset, held-key timing, custom maps, invalid return
+values and exercise checks against incorrect rules. Complete-program and export
+checks include Sokoban. Browser checks exercise actual Pyodide, keyboard movement,
+undo/next, guided edits, custom boards, ZIP download and the exported player with
+workshop and external requests blocked. Asteroids remains a planned exhibit.

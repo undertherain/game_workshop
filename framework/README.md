@@ -3,7 +3,7 @@
 ## Workshop games and standalone browser exports
 
 `WorkshopGame` is the shared simulation for the platformer, brick breaker and
-Paratroopers-style workshop games. It owns the supplied objects, physics, input
+Paratroopers-style and Sokoban workshop games. It owns the supplied objects, physics, input
 edges and callback lifecycle. Each instance has independent state. It imports no
 browser or raylib APIs, so ordinary Python and browser Pyodide run the same rules:
 
@@ -35,6 +35,35 @@ the current draft. See [export instructions](../README.md#export-and-play-indepe
 in pixels per second. Workshop templates have not been rewritten as top-down worlds,
 and their exports use the browser host rather than raylib. This keeps the two APIs
 explicit while making workshop simulations reusable outside the teaching interface.
+
+## Sokoban: build a room and its rules
+
+`WorkshopGame(source, 'sokoban')` supplies `board`, `player` and `world`.
+The Python program defines `on_key(key)`, `can_push(crate, dx, dy)` and
+`is_complete()`. Inputs are `left`, `right`, `up`, `down`, `undo` (also `jump`),
+and `next`. A direction moves on the first press; holding repeats after ten host
+frames and then every four frames. There is no movement on idle frames. Undo and
+next are edge-triggered. Ticks still advance by two per host step.
+
+`player.move(dx, dy)` attempts one orthogonal grid tile. The authored pushing
+predicate returns a bool; the framework also prevents walls, bounds and other
+crates from being crossed. `board.is_free(x, y)` tests the proposed destination.
+`board.all_crates_on_goals()` supplies a Boolean for the authored completion rule.
+Undo restores the player, crates, moves and pushes, and reevaluates completion.
+Up to 1,000 successful moves are retained. Next advances after completion through
+three original supplied puzzles; reconstructing the session restarts from source.
+
+`board.level = 1` through `3` chooses a supplied room. `board.load(rows)` constructs
+a custom room from equal-width strings: `#` wall, space floor, `@` player, `$` crate,
+`.` goal, `*` crate on goal and `+` player on goal. Rooms need 3–8 rows, 3–12 columns,
+one player and 1–8 crates with equal goals. Custom rooms disable Next. Structural
+validation does not prove solvability; the test suite separately solves the supplied
+rooms and replays each solution through the actual key-input runtime.
+
+Snapshots include the board, player, crates, goal count, move/push counts and
+undo/next availability. `world.sky` selects the same four palettes as other games;
+the renderer is Canvas code shared with offline exports. This workshop grid API
+is separate from the experimental top-down `TileMap` below.
 
 ## Local top-down games
 

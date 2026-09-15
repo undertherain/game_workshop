@@ -1,0 +1,34 @@
+{
+  "id": "sokoban-controls",
+  "title": "Connect the Right key",
+  "description": "Left, Up and Down are connected. Add Right to move one tile across your room.",
+  "hint": "Use the existing on_key conditions as examples. A move of (1, 0) goes one tile right. Let me write that condition.",
+  "starter": [
+    "# A crate puzzle: your code defines its controls and rules.",
+    "board.level = 1",
+    "world.sky = \"mint\"",
+    "",
+    "def on_key(key):",
+    "    if key == \"left\":",
+    "        player.move(-1, 0)",
+    "    if key == \"up\":",
+    "        player.move(0, -1)",
+    "    if key == \"down\":",
+    "        player.move(0, 1)",
+    "    # Your turn: connect the Right key.",
+    "    pass",
+    "",
+    "def can_push(crate, dx, dy):",
+    "    return board.is_free(crate.x + dx, crate.y + dy)",
+    "",
+    "def is_complete():",
+    "    return board.all_crates_on_goals()"
+  ],
+  "guide": {
+    "function": "on_key",
+    "replace": "pass",
+    "editAfter": "# Your turn: connect the Right key.",
+    "instruction": "Replace pass with a condition for key == \"right\" and player.move(1, 0).",
+    "review": "Run your code and test all four directions."
+  }
+}

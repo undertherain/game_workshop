@@ -97,8 +97,8 @@
         <div class="game-card">
           <div class="panel-heading"><div><span class="status-dot"></span><strong id="game-title">Star Meadow</strong><span class="subtle">your game</span></div><button id="restart" class="quiet" title="Restart the last working code">↻ Play again</button></div>
           <div class="stage-wrap"><canvas id="game" width="840" height="480" tabindex="0" aria-label="Star Meadow. Click to play. Arrow keys move; Space jumps."></canvas><div id="boot-overlay" class="boot-overlay">Waking up your world…<small>Loading Python for the first time</small></div><div id="win-banner" class="win-banner" hidden>All seven stars!<small>Now change a rule and make it yours.</small></div></div>
-          <div class="game-footer"><span><kbd>←</kbd> <kbd>→</kbd> move <span class="separator">/</span> <kbd>space</kbd> <span id="action-label">jump</span></span><span id="score">✦ 0 / 7 stars</span></div>
-          <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="jump">Jump ↑</button></div>
+          <div class="game-footer"><span id="game-controls">← → move · Space: jump</span><span id="action-label" hidden>jump</span><span id="score">✦ 0 / 7 stars</span></div>
+          <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="up" data-grid-control hidden aria-label="Move up">↑</button><button data-key="down" data-grid-control hidden aria-label="Move down">↓</button><button data-key="jump">Jump ↑</button><button data-key="next" data-grid-control hidden>Next puzzle →</button></div>
         </div>
         <section class="helper-card" aria-labelledby="helper-title">
           <div class="helper-heading"><div class="pip-avatar">✳</div><div><h2 id="helper-title">A little help from Pip</h2><p id="helper-mode">Connecting your coding companion…</p></div><span class="helper-badge" id="helper-badge">…</span></div>

@@ -12,7 +12,7 @@ export function recordEvidence(progress, record) {
   return sanitizeProgress({ records: [...progress.records.filter(r => r.skill !== clean.skill || r.source !== clean.source || r.evidence !== clean.evidence), clean] });
 }
 export function movementOffer(progress, target) {
-  if (!Object.hasOwn(gameSkills, target)) return null;
+  if (!Object.hasOwn(gameSkills, target) || gameSkills[target][0] !== 'movement') return null;
   return progress.records.find(r => r.skill === 'movement' && r.evidence === 'checked' && r.source !== `game:${target}` && r.source.startsWith('game:')) || null;
 }
 export function createProgressStore(storage) {

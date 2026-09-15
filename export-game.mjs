@@ -3,10 +3,10 @@ import { deflateRawSync } from 'node:zlib';
 
 const root = new URL('./', import.meta.url);
 export const frameworkFiles = JSON.parse(await readFile(new URL('public/framework-files.json', root), 'utf8'));
-const titles = { platformer: 'Forest adventure', breaker: 'Brick breaker', paratroopers: 'Sky patrol' };
+const titles = { platformer: 'Forest adventure', breaker: 'Brick breaker', paratroopers: 'Sky patrol', sokoban: 'Crate Cottage' };
 const hasTemplate = template => Object.hasOwn(titles, template);
 export function validateExport(input) {
-  if (!input || !hasTemplate(input.template)) throw new Error('Choose one of the three game templates.');
+  if (!input || !hasTemplate(input.template)) throw new Error('Choose a supported game template.');
   if (typeof input.code !== 'string' || !input.code.trim() || input.code.length > 20000) throw new Error('Export needs between 1 and 20,000 characters of Python.');
   return { template: input.template, code: input.code };
 }
@@ -50,7 +50,7 @@ export async function exportGame(input) {
   const paths = [
     ...['index.html', 'player.js', 'player.css', 'play.py'].map(name => [name, 'public/standalone/' + name]),
     ['licenses/MPL-2.0.txt', 'public/standalone/licenses/MPL-2.0.txt'],
-    ...['scene.js', 'forest.js', 'python-worker.js', 'framework-files.json', 'assets/forest/background.png'].map(name => [name, 'public/' + name]),
+    ...['scene.js', 'sokoban-scene.js', 'game-controls.js', 'forest.js', 'python-worker.js', 'framework-files.json', 'assets/forest/background.png'].map(name => [name, 'public/' + name]),
     ...frameworkFiles.map(name => ['framework/' + name, 'framework/' + name]),
     ...['pyodide.mjs', 'pyodide.asm.js', 'pyodide.asm.wasm', 'pyodide-lock.json', 'python_stdlib.zip', 'package.json', 'README.md'].map(name => ['vendor/pyodide/' + name, 'node_modules/pyodide/' + name]),
   ];
@@ -70,7 +70,7 @@ and all artwork. After Python 3 is installed, no internet, Node, workshop server
 account or API key is needed. Opening index.html directly does not work; use play.py
 or serve this folder with any static HTTP server. It can also be hosted under a subfolder.
 
-Arrow keys or A/D move. Space performs the game action. Touch buttons work too.
+${template === 'sokoban' ? 'Arrow keys or WASD move. U or Space undoes a move. N opens the next puzzle after a win.' : 'Arrow keys or A/D move. Space performs the game action.'} Touch buttons work too.
 Restart resets the game. Hiding the tab pauses simulation.
 
 ## Your code

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Little Makers game</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='28'%3E✳%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="player.css">
 </head>
 <body>
@@ -11,7 +12,7 @@
     <header><div><p>MADE WITH LITTLE MAKERS</p><h1 id="title">My game</h1></div><button id="restart" type="button">↻ Restart</button></header>
     <div class="stage"><canvas id="game" width="840" height="480" tabindex="0" aria-label="Game. Left and right arrows move. Space performs the game action."></canvas><p id="win" hidden>You did it!</p></div>
     <div class="info"><span id="controls">← → Move · Space to play</span><strong id="score">Score: 0</strong></div>
-    <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="jump" id="action">Space</button></div>
+    <div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="up" data-grid-control hidden aria-label="Move up">↑</button><button data-key="down" data-grid-control hidden aria-label="Move down">↓</button><button data-key="jump" id="action">Space</button><button data-key="next" data-grid-control hidden>Next puzzle →</button></div>
     <p id="status" role="status" aria-live="polite">Loading your game…</p>
   </main>
   <script type="module" src="player.js"></script>

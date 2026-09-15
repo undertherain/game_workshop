@@ -9,6 +9,8 @@ def check_exercise(source, kind, step):
         game = WorkshopGame(source, kind)
     except Exception as exc:
         return json.dumps({"passed": False, "message": "Fix the Python error first, then check this step again.", "error": _error(exc)})
+    if kind == "sokoban":
+        return check_sokoban(game, step)
     _arcade = game.simulation
     _scope = _arcade.scope
     _stars = _arcade.stars if kind == "platformer" else []
@@ -79,3 +81,54 @@ def check_exercise(source, kind, step):
         return json.dumps({"passed": passed, "message": message})
     except Exception as exc:
         return json.dumps({"passed": False, "message": "Your rule raised an error during the check: " + str(exc), "error": _error(exc)})
+
+
+def check_sokoban(game, step):
+    sim = game.simulation
+    try:
+        def load(rows):
+            sim.board.load(rows)
+            sim.won = False
+            sim.last_keys = set()
+            sim.held_direction = None
+        def tap(direction):
+            game.step({direction: True})
+            game.step({})
+        if step == 0:
+            room = ["#######", "# . $ #", "#     #", "#  @  #", "#     #", "#######"]
+            results = []
+            for key, expected in [('left',(2,3)),('right',(4,3)),('up',(3,2)),('down',(3,4))]:
+                load(room)
+                game.step({})
+                still = (sim.player.x,sim.player.y) == (3,3)
+                tap(key)
+                results.append(still and (sim.player.x,sim.player.y) == expected)
+            passed = all(results)
+            message = "All four directions move one tile, and no key means no movement." if passed else "Inside on_key(key), connect each direction to a one-tile player.move(dx, dy). Right uses (1, 0)."
+        elif step == 1:
+            load(["#######", "#     #", "# @$ .#", "#     #", "#######"])
+            tap('right')
+            moved = sim.board.crates[0].x == 4
+            crate = sim.board.crates[0]
+            free = sim.scope['can_push'](crate, 1, 0) is True
+            # A wall and a second crate must both be rejected by the authored predicate.
+            load(["#######", "#     #", "# @$#.#", "#     #", "#######"])
+            wall = sim.scope['can_push'](sim.board.crates[0],1,0) is False
+            load(["########", "#      #", "# @$$..#", "#      #", "########"])
+            blocked = sim.scope['can_push'](sim.board.crates[0],1,0) is False
+            passed = moved and free and wall and blocked
+            message = "Your rule allows a free tile and rejects walls and other crates." if passed else "Return board.is_free(crate.x + dx, crate.y + dy) from can_push(). Test both a free and a blocked tile."
+        elif step == 2:
+            load(["#######", "#     #", "# @$ .#", "#     #", "#######"])
+            unfinished = sim.scope['is_complete']() is False
+            load(["#######", "#     #", "# @*  #", "#     #", "#######"])
+            finished = sim.scope['is_complete']() is True
+            load(["########", "#      #", "# @* $.#", "#      #", "########"])
+            partial = sim.scope['is_complete']() is False
+            passed = unfinished and finished and partial
+            message = "Only a board with every crate on a goal counts as complete." if passed else "Return board.all_crates_on_goals() from is_complete(). One filled goal is not enough when other crates remain."
+        else:
+            return json.dumps({'passed':None,'message':'Your puzzle loads. Play it, use Undo, and test whether all goals can be reached. Loading alone does not prove it is solvable.'})
+        return json.dumps({'passed':passed,'message':message})
+    except Exception as exc:
+        return json.dumps({'passed':False,'message':'Your rule raised an error: '+str(exc),'error':_error(exc)})

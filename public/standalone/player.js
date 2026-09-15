@@ -1,3 +1,4 @@
+import { gameKey, gameControls } from './game-controls.js';
 import { createScene } from './scene.js';
 
 const $ = id => document.getElementById(id);
@@ -31,7 +32,9 @@ function boot() {
     if (data.error) { fail(`${data.error.type}${data.error.line ? ' on line ' + data.error.line : ''}: ${data.error.message}`); return; }
     if (data.state) {
       scene.update(data.state);
-      $('score').textContent = 'Score: ' + data.state.world.score;
+      $('score').textContent = data.state.kind === 'sokoban' ? `${data.state.collected}/${data.state.items.length} goals · ${data.state.moves} moves` : 'Score: ' + data.state.world.score;
+      for(const button of document.querySelectorAll('[data-key=next]'))button.disabled=!data.state.can_next;
+      $('win').textContent=data.state.can_next?'Puzzle solved! Press N for the next room.':'You did it!';
       $('win').hidden = !data.state.won;
     }
     if (data.type === 'load') {
@@ -41,11 +44,7 @@ function boot() {
     }
   };
 }
-function keyName(event) {
-  if (['ArrowLeft', 'KeyA'].includes(event.code)) return 'left';
-  if (['ArrowRight', 'KeyD'].includes(event.code)) return 'right';
-  if (['Space', 'ArrowUp', 'KeyW'].includes(event.code)) return 'jump';
-}
+function keyName(event) { return gameKey(project?.template, event); }
 document.addEventListener('keydown', event => {
   const key = keyName(event);
   if (key && document.activeElement === canvas) { event.preventDefault(); keys[key] = true; }
@@ -56,6 +55,10 @@ document.addEventListener('visibilitychange', clearKeys);
 window.addEventListener('pagehide', () => { clearTimeout(timer); worker?.terminate(); playing = false; });
 window.addEventListener('pageshow', event => { if (event.persisted) boot(); });
 document.querySelectorAll('[data-key]').forEach(button => {
+  for(const type of ['keydown','keyup'])button.addEventListener(type,event=>{
+    if(['Enter',' '].includes(event.key)){event.preventDefault();keys[button.dataset.key]=type==='keydown';}
+  });
+  button.addEventListener('blur',()=>{keys[button.dataset.key]=false;});
   button.onpointerdown = event => { event.preventDefault(); button.setPointerCapture(event.pointerId); keys[button.dataset.key] = true; };
   for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(name, () => { keys[button.dataset.key] = false; });
 });
@@ -72,10 +75,12 @@ try {
   const responses = await Promise.all([fetch('./game.json'), fetch('./my_game.py')]);
   if (responses.some(response => !response.ok)) throw new Error('Could not load the exported game files.');
   project = await responses[0].json(); source = await responses[1].text();
-  if (project.format !== 'little-makers-game' || project.version !== 1 || !['platformer', 'breaker', 'paratroopers'].includes(project.template)) throw new Error('Unsupported game export.');
+  if (project.format !== 'little-makers-game' || project.version !== 1 || !['platformer', 'breaker', 'paratroopers', 'sokoban'].includes(project.template)) throw new Error('Unsupported game export.');
   document.title = project.title; $('title').textContent = project.title;
-  const action = { platformer: 'Jump', breaker: 'Reset ball', paratroopers: 'Fire' }[project.template];
-  $('controls').textContent = `← → or A/D to move · Space: ${action.toLowerCase()}`;
+  const action = { platformer: 'Jump', breaker: 'Reset ball', paratroopers: 'Fire', sokoban: 'Undo ↶' }[project.template];
+  $('controls').textContent = gameControls(project.template);
+  canvas.setAttribute('aria-label',project.title+'. '+gameControls(project.template));
+  for(const button of document.querySelectorAll('[data-grid-control]'))button.hidden=project.template!=='sokoban';
   $('action').textContent = action;
   boot();
 } catch (error) { fail(error.message); }

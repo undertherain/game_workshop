@@ -14,6 +14,7 @@ export const schema = {
 export const gameTeachingInstructions = `You are Pip, a patient Python programming companion in Little Makers.
 ${pythonTutorPrinciples}
 ${pythonCommentGuidance}
+The goal is to build games through code. Playing is a way to test authored rules, not the learning endpoint. Help the learner progress from supplied scaffolds toward constructing their own game.
 Help the learner make THEIR game. Explain through observable game behavior. Use the user's language.
 Keep responses to 2-4 short sentences, plus a short optional experiment. No markdown headings.
 This is a mini-exercise workshop. Scenery, physics, collisions and moving objects are provided;
@@ -57,6 +58,21 @@ of the supplied current code, including indentation. after replaces it with vali
 Use null for both if no edit is appropriate. line is a 1-based line of current code, or null.`;
 
 export const arcadeInstructions = {
+  sokoban: `Selected game: Crate Cottage, a Sokoban-style grid puzzle.
+The learner builds a game through code; playing tests their rules. Supplied objects: board, player, world.
+No paddle, ball, cannon, keyboard object, update(), gravity, or jumping API.
+def on_key(key): receives "left", "right", "up" or "down" on a press, repeating slowly while held.
+player.move(dx, dy) attempts one orthogonal tile: (-1,0), (1,0), (0,-1), (0,1). x grows right, y down.
+def can_push(crate, dx, dy): return a bool. crate.x + dx, crate.y + dy is the tile beyond it.
+board.is_free(x, y) is True for in-bounds tiles without a wall or crate. The engine also preserves collision invariants: no pulling or pushing two crates.
+def is_complete(): return a bool; board.all_crates_on_goals() checks every crate. Individual crate.on_goal is a bool.
+board.level = 1, 2 or 3 selects a supplied original room. board.load(rows) builds a custom puzzle from equal-length strings.
+Use # wall, space floor, @ player, $ crate, . goal; * is a crate on a goal, + is a player on a goal.
+Maps have 3–8 rows, 3–12 columns, exactly one player and 1–8 crates with an equal number of goals.
+Map loading validates structure, not solvability. A corner can trap a crate. Do not claim a puzzle was solved or tested.
+Undo (U/Z/Space) and Next puzzle (N, after completion) are built in; Restart reloads the current source's initial board.
+Custom boards have no next puzzle. world.sky is mint/peach/lavender/night; the engine counts goals and moves.
+Current exercises: movement, pushing condition, completion condition, then constructing a custom board. Do not give first-exercise hints on later steps.`,
   platformer: platformerInstructions,
   breaker: `Selected game: Moon Bricks, a brick breaker. No player, Actor, world.gravity, or on_collect.
 Available objects already exist: paddle (x=420, width=110, speed=6), ball (x,y,vx=3,vy=-4),
@@ -115,6 +131,18 @@ export function guidedExample({ question, code, template='platformer', exercise,
   const q = question.toLowerCase();
   if(activity==='museum')return {message:templates[template].description+' '+templates[template].museumIntro,line:null,before:null,after:null,experiment:'Choose Learn to build it for lessons, or Take the complete game to play and change a finished version.'};
   if(activity==='complete')exercise={index:3};
+  if(template==='sokoban'){
+    const step=exercise?.index??0;
+    const hints=[
+      'Inside on_key(key), compare key with "right" and call player.move(1, 0). The other directions show the pattern.',
+      'The tile beyond a crate is at crate.x + dx, crate.y + dy. Return board.is_free(...) for that tile from can_push().',
+      'Return board.all_crates_on_goals() from is_complete(). It is True only when every crate is on a goal.',
+      'Build a room with board.load([...]): each string is a row. Use # for walls, @ for your player, $ for crates and . for goals. Keep the rows equally wide and give each crate a goal.'
+    ];
+    const token=['def on_key','def can_push','def is_complete','board.load'][step];
+    const line=code.split('\n').findIndex(row=>row.startsWith(token))+1;
+    return {message:hints[step],line:line||null,before:null,after:null,experiment:'Built-in guide. Write a rule or change your room, then Run to test what you built.'};
+  }
   if (mode === 'hint' || template !== 'platformer') {
     const step = exercise?.index || 0;
     const who = template === 'breaker' ? 'paddle' : template === 'paratroopers' ? 'cannon' : 'player';
