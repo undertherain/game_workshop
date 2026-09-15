@@ -222,3 +222,15 @@ clears held inputs on transitions, ends voice on entry and keeps Tab focus withi
 the dialog. `style.css` fits the canvas proportionally inside the remaining viewport
 height, with controls and score outside the scene. This fills the browser page;
 it does not request browser/OS fullscreen.
+
+The workshop toolbar lives in the shared header and replaces its general navigation
+while a game is open. `#build-path` is an exercise menu beside Download; selecting
+an exercise closes it and restores focus to its summary. Pip's opening message
+carries the exercise instructions, before the suggested questions. The editor keeps
+line-location/unlock controls without the repeated Your turn banner; routine line
+and runtime status updates remain available to screen readers. `templates.css`
+styles the toolbar and menu without resizing the game canvas or code editor.
+
+`app.js` keeps a newly selected game's canvas hidden until its own Python state
+arrives. Python readiness alone does not dismiss the loading overlay, and the draw
+loop skips the default or previous game's scene during selection and startup.

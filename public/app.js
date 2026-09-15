@@ -16,6 +16,7 @@ let protection = null, questionController = null;
 const unlockedExercises = new Set();
 let assisted = false, suppliedControls = false;
 let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null, completeMode=false, conversationActivity=null;
+let renderedTemplate = null;
 const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
 const hasStepStarter = () => completeMode || !!templates[templateId].starters?.[stepIndex];
 const storageKey = () => completeMode ? gameStorageKey()+'-complete' : hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
@@ -174,6 +175,7 @@ function stopPlayback(){
 }
 function showError(error) {
   closeExpandedGame();
+  $('boot-overlay').hidden=true;
   currentError=error;setPlaying(false);clearKeys();
   $('error-box').hidden=false;$('error-title').textContent=error.line?`Let’s look at line ${error.line}`:'Something needs a little attention';
   const friendly={SyntaxError:'Python could not read this rule yet. Check its punctuation.',IndentationError:'The spaces at the start of a line show which rule it belongs to.',NameError:'Python found a name it does not know. Check its spelling.',TypeError:'These pieces do not fit together yet. Check the values on this line.'};
@@ -183,6 +185,7 @@ function showError(error) {
 }
 function displayState(state){
   gameState=state;scene.update(state);
+  renderedTemplate=templateId;canvas.style.visibility='visible';
   const total=state.stars?.length??state.items?.length??0;
   const noun=state.kind==='invaders'?'aliens':state.kind==='asteroids'?'rocks':state.kind==='breaker'?'bricks':state.kind==='paratroopers'?'robots':state.kind==='sokoban'?'crates on goals':'stars';
   $('score').textContent=`${state.collected}/${total} ${noun} · ${state.kind==='sokoban'?state.moves+' moves':state.world.score+' pts'}`;
@@ -215,7 +218,7 @@ function boot(source) {
   worker.onmessage=({data})=>{
     if(worker!==thisWorker)return;
     if(data.type==='boot-error'){fail(data.message);return;}
-    if(data.type==='ready'){clearTimeout(bootTimer);ready=true;$('boot-overlay').hidden=true;$('run').disabled=false;send('load',{code:source});return;}
+    if(data.type==='ready'){clearTimeout(bootTimer);ready=true;$('run').disabled=false;send('load',{code:source});return;}
     if(data.id!==pending?.id)return;
     const request=pending;clearTimeout(requestTimer);pending=null;
     if(data.type==='check'){
@@ -232,6 +235,7 @@ function boot(source) {
     if(data.error){$('run').disabled=false;showError(data.error);return;}
     if(data.state)displayState(data.state);
     if(data.type==='load'){
+      $('boot-overlay').hidden=true;
       runningCode=request.code;currentError=null;setPlaying(true);focusedLine=null;
       $('error-box').hidden=true;$('run').disabled=false;$('code-state').textContent=editor.value===runningCode?'Running this version':'Changes to try';
       $('run-status').textContent='Your Python is running';$('line-note').textContent='✧ Click the game and try your rules.';paintEditor();
@@ -359,6 +363,13 @@ $('game-downloads').addEventListener('focusout', event => {
 });
 document.addEventListener('pointerdown', event => {
   if ($('game-downloads').open && !$('game-downloads').contains(event.target)) closeDownloads();
+  if ($('build-path').open && !$('build-path').contains(event.target)) $('build-path').open=false;
+});
+$('build-path').addEventListener('keydown', event => {
+  if (event.key==='Escape') { event.preventDefault();$('build-path').open=false;$('build-path').querySelector('summary').focus(); }
+});
+$('build-path').addEventListener('focusout', event => {
+  if (event.relatedTarget && !$('build-path').contains(event.relatedTarget)) $('build-path').open=false;
 });
 $('download').onclick=()=>{closeDownloads(true);$('export-status').textContent='Python code downloaded as my_game.py.';const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('export-game').onclick=async()=>{
@@ -411,7 +422,7 @@ document.querySelectorAll('[data-key]').forEach(button=>{
 function frame(time){
   if(!document.hidden&&document.body.dataset.mode==='workshop'){
     if(time-lastStep>=33.33){lastStep=time;if(playing&&ready&&!pending)send('step',{keys:{...keys}});}
-    if(time-lastDraw>=32){lastDraw=time;scene.draw(time);}
+    if(time-lastDraw>=32&&renderedTemplate===templateId){lastDraw=time;scene.draw(time);}
   }
   requestAnimationFrame(frame);
 }
@@ -464,12 +475,12 @@ function renderStep(){
     appendMessage('assistant',completeMode ? 'The complete game is ready to play. Change a rule to make it yours, or export it to keep a playable copy.' : stepIndex===0 ? template.intro : template.steps[stepIndex][0]+'. '+template.steps[stepIndex][1]);
   }
   $('build-path').hidden=completeMode;
+  $('exercise-actions').hidden=completeMode;
   const region=completeMode||unlockedExercises.has(templateId+':'+stepIndex)?null:findEditableRegion(editor.value,template.guides?.[stepIndex]);
   protection=region?protectRegion(editor.value,region):null;
   $('build-steps').replaceChildren();
-  template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>selectStep(i);$('build-steps').append(button);});
-  $('step-title').textContent=`${stepIndex===3?'Your variation':'Mini-exercise '+(stepIndex+1)} · ${template.steps[stepIndex][0]}`;
-  $('step-description').textContent=template.steps[stepIndex][1];$('exercise-result').textContent='';
+  template.steps.forEach((step,i)=>{const button=document.createElement('button');button.innerHTML=`<span>${i+1}</span>${escape(step[0])}`;if(i===stepIndex)button.setAttribute('aria-current','step');button.onclick=()=>{selectStep(i);$('build-path').open=false;$('build-path').querySelector('summary').focus();};$('build-steps').append(button);});
+  $('exercise-result').textContent='';
   $('next-step').hidden=stepIndex===3;
   paintEditor();scrollToGuidance();
   try{if(!completeMode)localStorage.setItem(gameStorageKey()+'-step',String(stepIndex));}catch{}
@@ -481,6 +492,7 @@ async function selectTemplate(id,complete=false){
   $('selected-game').textContent=templates[id].genre+(complete?' · Complete game':'');
   if(editor.value)save();
   protection=null;completeMode=complete;conversationActivity=null;templateId=id;const template=templates[id];starter=sourceCache[id];
+  renderedTemplate=null;canvas.style.visibility='hidden';$('win-banner').hidden=true;
   try{stepIndex=Math.max(0,Math.min(3,Number(localStorage.getItem(gameStorageKey()+'-step'))||0));localStorage.setItem('little-makers-active-template',id);}catch{stepIndex=0;}
   if(completeMode)stepIndex=3;
   starter=completeMode?templates[id].completeCode:templates[id].starters?.[stepIndex]??sourceCache[id];

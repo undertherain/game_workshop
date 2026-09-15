@@ -16,6 +16,7 @@
   <header class="topbar">
     <a id="home-link" class="brand" href="/" aria-label="Little Makers title screen"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
     <div class="header-actions"><button id="museum-toggle" disabled>Game workshop</button><button id="map-toggle" disabled>Learning map</button><button id="mode-toggle" disabled>Open game workshop ↗</button><span id="save-status">Saved in this browser</span></div>
+    <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><div class="workshop-actions"><button id="browse-games" class="quiet">← Back to game</button><details id="build-path" class="exercise-menu" aria-label="Choose an exercise"><summary>Exercises <span aria-hidden="true">⌄</span></summary><div id="build-steps" class="build-steps"></div></details><details id="game-downloads"><summary id="game-download-toggle">↓ Download <span aria-hidden="true">⌄</span></summary><div class="game-download-options"><button id="export-game" disabled><strong>Playable game <span>.zip</span></strong><small>Game, artwork, and Python code</small></button><button id="download" disabled><strong>Python code only <span>.py</span></strong><small>Just your code, without the game player</small></button></div></details></div></div>
   </header>
   <main id="title-screen" aria-labelledby="title-screen-heading">
     <div class="title-hero">
@@ -119,10 +120,8 @@
   </aside>
   </div>
   <main id="workshop-main" hidden>
-    <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><div class="workshop-actions"><button id="browse-games" class="quiet">← Back to game</button><details id="game-downloads"><summary id="game-download-toggle">↓ Download <span aria-hidden="true">⌄</span></summary><div class="game-download-options"><button id="export-game" disabled><strong>Playable game <span>.zip</span></strong><small>Game, artwork, and Python code</small></button><button id="download" disabled><strong>Python code only <span>.py</span></strong><small>Just your code, without the game player</small></button></div></details></div></div>
     <p id="export-status" role="status"></p>
     <section id="transfer-offer" class="transfer-offer" hidden><strong>A familiar skill, a new game</strong><p id="transfer-message"></p><details><summary>See the controls that will be included</summary><pre id="transfer-preview"></pre></details><div><button id="transfer-use" class="primary">Include controls · try the next mechanic</button><button id="transfer-practice" class="quiet">I’ll practise controls again</button></div></section>
-    <section id="build-path" class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
     <div class="workspace">
       <section class="play-column" aria-label="Your game and helper">
         <div id="game-card" class="game-card">
@@ -133,21 +132,21 @@
         </div>
         <section class="helper-card" aria-labelledby="helper-title">
           <div class="helper-heading"><div class="pip-avatar">✳</div><div><h2 id="helper-title">A little help from Pip</h2><p id="helper-mode">Connecting your coding companion…</p></div><span class="helper-badge" id="helper-badge">…</span></div>
-          <div class="ideas" aria-label="Ideas to try"><span id="template-ideas"></span><button id="explain">Explain my line ?</button></div>
           <div id="conversation" class="conversation" role="log" aria-live="polite"><div class="message assistant"><p>Play a little first. When you have an idea, I’ll help you find the code that makes it happen.</p></div></div>
           <div id="suggestion" class="suggestion" hidden><div class="suggestion-label">A SMALL CHANGE TO TRY <button id="show-line" class="quiet">Find this line ↗</button></div><pre id="before-code" class="before"></pre><pre id="after-code" class="after"></pre><div class="suggestion-actions"><span>You can type it yourself, too.</span><button id="apply" class="small-primary">Try this edit</button></div></div>
+          <div class="ideas" aria-label="Ideas to try"><span id="template-ideas"></span><button id="explain">Explain my line ?</button></div>
           <form id="ask-form"><label class="sr-only" for="question">Ask Pip about your game</label><input id="question" maxlength="2000" placeholder="I want my fox to…" autocomplete="off"><button id="ask" type="submit" aria-label="Ask Pip">↑</button></form>
         </section>
       </section>
       <section class="code-card" aria-labelledby="code-title">
-        <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><span class="language-badge">Python</span></div>
+        <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><div id="editor-guide" class="editor-tools" hidden><span id="editor-guide-message" class="sr-only"></span><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div></div>
         <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
+        <div id="exercise-actions" class="exercise-actions"><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div><p id="exercise-result" role="status"></p></div>
         <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the starting code for this exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
-        <div id="editor-guide" class="editor-guide" hidden><div><strong>Your turn</strong><p id="editor-guide-message"></p></div><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div>
         <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-describedby="editor-guide-message" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
-        <div id="line-note" class="line-note">✧ Start with a number. See what happens.</div>
+        <div id="line-note" class="sr-only" role="status">✧ Start with a number. See what happens.</div>
         <div id="error-box" class="error-box" role="alert" hidden><strong id="error-title"></strong><p id="error-message"></p><button id="explain-error" class="quiet">Help me understand this ↗</button></div>
-        <div class="code-bottom"><span id="run-status">Python is starting…</span><span>⌘ / Ctrl + Enter to run</span></div>
+        <div class="code-bottom"><span id="run-status" class="sr-only" role="status">Python is starting…</span><span>⌘ / Ctrl + Enter to run</span></div>
         <details class="pocket-guide"><summary>Your pocket guide <span>+</span></summary><dl><dt>player.speed</dt><dd>How far you move each moment.</dd><dt>player.jump_height</dt><dd>The upward push at the start of a jump.</dd><dt>world.sky</dt><dd>"peach", "lavender", "mint", or "night".</dd><dt>Actor("fox", …)</dt><dd>Try "cat" or "bunny" as well.</dd><dt>def update():</dt><dd>The rules that repeat while you play.</dd></dl></details>
       </section>
     </div>

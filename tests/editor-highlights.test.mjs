@@ -13,7 +13,7 @@ function editorHarness() {
   const elements = new Map();
   function element(id) {
     if (!elements.has(id)) elements.set(id, {
-      children: [], value: '', textContent: '', innerHTML: '', hidden: false, dataset: {}, handlers: {},
+      children: [], value: '', textContent: '', innerHTML: '', hidden: false, dataset: {}, style: {}, handlers: {},
       selectionStart: 0, selectionEnd: 0,
       addEventListener(type, handler) { this.handlers[type] = handler; },
       setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; },
@@ -23,10 +23,11 @@ function editorHarness() {
     return elements.get(id);
   }
   const context = vm.createContext({
-    ...guidance, templates, initialState: {}, createScene: () => ({}), createPipVoice() {}, stopPipVoice() {},
-    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {}, createElement: () => element(Symbol()) },
+    ...guidance, templates, initialState: {}, createScene: () => ({ update() {} }), createPipVoice() {}, stopPipVoice() {},
+    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {}, createElement: () => element(Symbol()), createTextNode: text => ({ textContent: text }) },
     window: { addEventListener() {} },
-    localStorage: { setItem() {} }, requestAnimationFrame() {}, clearTimeout() {},
+    localStorage: { setItem() {} }, requestAnimationFrame() {}, clearTimeout() {}, setTimeout() { return 1; },
+    Worker: class { postMessage(message) { this.lastMessage = message; } terminate() {} },
     getComputedStyle: () => ({ lineHeight: '20px' }),
   });
   vm.runInContext(app, context);
@@ -35,6 +36,23 @@ function editorHarness() {
   run('save()');
   return { element, run };
 }
+
+test('the selected game stays behind its loading overlay until its own state arrives', () => {
+  const { element, run } = editorHarness();
+  run('templateId="invaders";boot(editor.value);');
+  assert.equal(run('renderedTemplate'), null);
+  run('worker.onmessage({data:{type:"ready"}})');
+  assert.equal(element('boot-overlay').hidden, false);
+  assert.equal(run('worker.lastMessage.template'), 'invaders');
+  run('worker.onmessage({data:{id:pending.id,type:"load",state:{kind:"invaders",items:[],world:{score:0},collected:0}}})');
+  assert.equal(element('boot-overlay').hidden, true);
+  assert.equal(element('game').style.visibility, 'visible');
+  assert.equal(run('renderedTemplate'), 'invaders');
+  run('var previousWorker=worker;templateId="asteroids";renderedTemplate=null;boot(editor.value);previousWorker.onmessage({data:{type:"ready"}})');
+  assert.equal(run('renderedTemplate'), null);
+  assert.equal(element('boot-overlay').hidden, false);
+  assert.equal(run('worker.lastMessage'), undefined);
+});
 
 for (const key of ['Enter', 'Tab']) {
   test(`${key} clears a previous helper highlight and suggestion`, () => {

@@ -183,6 +183,10 @@ Pip voice call. A Python error returns to the editor with the error visible.
 Pip's workshop greeting follows the selected exercise, including a restored fourth
 exercise. Changing exercise clears the previous conversation and edit suggestion.
 Typed and voice context distinguish museum browsing, exercises and complete games.
+The workshop has one toolbar, with an **Exercises** menu beside **Download**.
+Pip introduces the selected exercise in the conversation; Check, Next and the
+editable-line controls stay beside the code. Repeated instruction banners above
+and below the editor are omitted. The game and editor retain their full sizes.
 
 Brick breaker uses a prepared program for each exercise, with only that exercise’s
 rule missing. Aimed bounce includes both arrow controls; scoring includes controls

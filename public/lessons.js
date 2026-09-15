@@ -342,6 +342,7 @@ const museum = createMuseum((id, complete) => openWorkshop(id, complete), id => 
 function openMuseum(id) { updateRoute('#museum'+(id?'/'+id:'')); setMode('museum'); museum.show(id); }
 function setMode(mode) {
   $('game-downloads').open = false;
+  $('build-path').open = false;
   museum.hide();window.workshop?.cancelQuestion();
   stopPipVoice();
   dismissEditHint();

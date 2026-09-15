@@ -6,3 +6,33 @@
 #game-chooser summary:focus-visible{outline:2px solid #6d8b55;outline-offset:3px}
 #game-chooser[open] .template-picker{position:absolute;top:100%;left:0;right:0;z-index:10;padding:12px;background:#fcfbf5;border:1px solid var(--border);border-radius:11px;box-shadow:0 8px 24px #263c2420;margin:4px 0 0}
 @media(max-width:580px){.workshop-heading h1{font-size:20px}}
+
+/* One toolbar for the workshop; Pip introduces the selected exercise. */
+.topbar > .workshop-heading { display:none; }
+body[data-mode="workshop"] .topbar { max-width:1460px; padding-top:10px; padding-bottom:10px; gap:24px; }
+body[data-mode="workshop"] .topbar > .workshop-heading { display:flex; flex:1; margin:0; min-width:0; }
+body[data-mode="workshop"] .brand-note,
+body[data-mode="workshop"] .header-actions { display:none; }
+#workshop-main { padding-top:14px; }
+.exercise-menu { position:relative; }
+.exercise-menu > summary { display:flex; align-items:center; gap:14px; cursor:pointer; list-style:none; border:1px solid var(--border); border-radius:8px; padding:10px 14px; min-height:44px; font-size:12px; background:#fffdf5; }
+.exercise-menu > summary::-webkit-details-marker { display:none; }
+.exercise-menu[open] > summary { background:#e9edde; }
+.exercise-menu .build-steps { position:absolute; z-index:20; top:calc(100% + 8px); right:0; width:280px; display:flex; flex-direction:column; gap:4px; padding:6px; border:1px solid var(--border); border-radius:12px; background:#fffdf5; box-shadow:0 12px 32px #243d3326; }
+.exercise-menu .build-steps button { flex-direction:row; font-size:12px; padding:12px; text-align:left; }
+.exercise-actions { padding:8px 16px; border-top:1px solid var(--border); background:#f9fbf1; }
+.exercise-actions .step-actions { flex-direction:row; justify-content:flex-end; flex-wrap:wrap; }
+.exercise-actions #exercise-result { margin:8px 0 0; font-size:12px; line-height:1.5; }
+#workshop-main .file-tab { display:none; }
+#workshop-main .conversation { margin-top:12px; }
+.editor-tools { display:flex; align-items:center; flex-wrap:wrap; gap:4px; }
+.editor-tools button { padding:7px 9px; font-size:11px; }
+#workshop-main .code-card > .panel-heading { height:auto; min-height:54px; flex-wrap:wrap; padding-top:8px; padding-bottom:8px; }
+@media(max-width:780px) {
+  body[data-mode="workshop"] .topbar { gap:10px; }
+  body[data-mode="workshop"] .topbar > .workshop-heading { flex-wrap:wrap; gap:8px; }
+  body[data-mode="workshop"] .workshop-actions { width:auto; flex-wrap:wrap; gap:6px; }
+  body[data-mode="workshop"] .workshop-heading h1 { font-size:20px; }
+  .exercise-menu { position:static; }
+  .exercise-menu .build-steps { right:0; left:0; width:auto; }
+}
