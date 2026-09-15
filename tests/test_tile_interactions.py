@@ -124,7 +124,7 @@ class FrameworkInteractions(unittest.TestCase):
         self.assertEqual(actor.health, 3)
 
     def test_battle_runs_and_restart_restores_world(self):
-        game = TankBattle()
+        game = TankBattle(seed=12)
         initial = (game.player.x, game.player.y)
         for _ in range(90):
             game.step({'up', 'fire'}, 1 / 60)
@@ -135,7 +135,7 @@ class FrameworkInteractions(unittest.TestCase):
         game.step({'restart'}, 0)
         self.assertTrue(game.player.alive)
         self.assertEqual((game.player.x, game.player.y), initial)
-        self.assertEqual(len(game.world.actors), 5)
+        self.assertEqual(len(game.world.actors), 13)  # Player and twelve enemies.
 
 
 class FollowingCameraTests(unittest.TestCase):

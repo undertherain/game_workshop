@@ -56,7 +56,7 @@ class TopDownTests(unittest.TestCase):
                 self.assertEqual(terrain.asset_at((x, y)), other.world.map.asset_at((x, y)))
 
     def test_game_timing_and_snapshot(self):
-        game = TankBattle()
+        game = TankBattle(seed=12)
         start_y = game.player.y
         for _ in range(60):
             game.step({'up'}, 1 / 60)

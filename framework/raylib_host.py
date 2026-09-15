@@ -1,5 +1,6 @@
 """Desktop renderer and input adapter for the top-down snapshot protocol."""
 from pathlib import Path
+from functools import lru_cache
 from math import cos, radians, sin
 from .assets import PixelSprite, SpriteAsset
 
@@ -7,6 +8,53 @@ from .assets import PixelSprite, SpriteAsset
 def pixel_position(position, camera_position, zoom):
     """Snap world and camera to the same physical-pixel grid, independently."""
     return (round(position * zoom) - round(camera_position * zoom)) / zoom
+
+
+@lru_cache(maxsize=512)
+def rounded_tile_rects(size, neighbors, quadrants=15):
+    """Pixel-aligned texture clips for connected terrain; N, NE, E, ... bits.
+
+    Each quarter uses its two side neighbors and diagonal: an exposed corner
+    curves inward, one exposed side stays straight, and a missing diagonal
+    leaves a small concave shoreline. Merge identical rows to reduce draw calls.
+    Optional quadrant bits select NW, NE, SE, SW for partial terrain underlays.
+    """
+    half = size / 2
+    inset = size / 24
+    rectangles = []
+    for y in range(size):
+        row = []
+        for x in range(size):
+            right, bottom = x + 0.5 >= half, y + 0.5 >= half
+            quadrant = (2 if right else 3) if bottom else (1 if right else 0)
+            if not quadrants & (1 << quadrant):
+                continue
+            horizontal = bool(neighbors & (1 << (2 if right else 6)))
+            vertical = bool(neighbors & (1 << (4 if bottom else 0)))
+            diagonal_bit = (3 if right else 5) if bottom else (1 if right else 7)
+            diagonal = bool(neighbors & (1 << diagonal_bit))
+            edge_x = size - x - 0.5 if right else x + 0.5
+            edge_y = size - y - 0.5 if bottom else y + 0.5
+            if not horizontal and not vertical:
+                inside = (half - edge_x) ** 2 + (half - edge_y) ** 2 <= (half - inset) ** 2
+            elif not horizontal:
+                inside = edge_x >= inset
+            elif not vertical:
+                inside = edge_y >= inset
+            else:
+                inside = diagonal or edge_x ** 2 + edge_y ** 2 >= inset ** 2
+            if inside:
+                row.append(x)
+        if not row:
+            continue
+        left, width = row[0], row[-1] - row[0] + 1
+        if (rectangles and rectangles[-1][0] == left and rectangles[-1][2] == width
+                and rectangles[-1][1] + rectangles[-1][3] == y):
+            previous = rectangles[-1]
+            rectangles[-1] = (*previous[:3], previous[3] + 1)
+        else:
+            rectangles.append((left, y, width, 1))
+    return tuple(rectangles)
 
 
 def run(game, assets, title='Top-down game', max_frames=None, fullscreen=True, screenshot=None):
@@ -79,7 +127,8 @@ def run(game, assets, title='Top-down game', max_frames=None, fullscreen=True, s
             keys = {name for name, key in (
                 ('left', rl.KEY_LEFT), ('right', rl.KEY_RIGHT),
                 ('up', rl.KEY_UP), ('down', rl.KEY_DOWN),
-                ('fire', rl.KEY_SPACE), ('restart', rl.KEY_R)) if rl.is_key_down(key)}
+                ('fire', rl.KEY_SPACE), ('restart', rl.KEY_R),
+                ('new_map', rl.KEY_N)) if rl.is_key_down(key)}
             pan = (0, 0)
             if rl.is_mouse_button_down(rl.MOUSE_BUTTON_RIGHT):
                 delta = rl.get_mouse_delta()
@@ -102,6 +151,17 @@ def run(game, assets, title='Top-down game', max_frames=None, fullscreen=True, s
                 x = pixel_position(item['x'], camera['x'], scale) + item['width'] / 2
                 y = pixel_position(item['y'], camera['y'], scale) + item['height'] / 2
                 rotation = item.get('rotation', 0)
+                if 'neighbors' in item:
+                    size = int(item['width'])
+                    sx, sy, sw, sh = source
+                    for left, top, width, height in rounded_tile_rects(
+                            size, item['neighbors'], item.get('quadrants', 15)):
+                        rl.draw_texture_pro(texture,
+                            rl.Rectangle(sx + sw * left / size, sy + sh * top / size,
+                                         sw * width / size, sh * height / size),
+                            rl.Rectangle(x - size / 2 + left, y - size / 2 + top, width, height),
+                            rl.Vector2(0, 0), 0, rl.WHITE)
+                    continue
                 if item.get('trail_length', 0):
                     angle = radians(rotation - 90)
                     tail = rl.Vector2(x - cos(angle) * item['trail_length'], y - sin(angle) * item['trail_length'])

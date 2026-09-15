@@ -16,6 +16,8 @@ class Tile:
     blocks_projectiles: bool = False
     speed_multiplier: float = 1.0
     background: str | tuple[str, ...] | None = None
+    rounded_edges: bool = False
+    edge_underlay: str | None = None
 
     def __post_init__(self):
         if not 0 < self.speed_multiplier <= 10:
@@ -56,6 +58,9 @@ class TileMap:
             raise ValueError('Map dimensions and tile size must be positive integers')
         self.width, self.height, self.tile_size = width, height, tile_size
         self.tiles = {tile.name: tile for tile in tiles}
+        for tile in self.tiles.values():
+            if tile.edge_underlay is not None and tile.edge_underlay not in self.tiles:
+                raise ValueError(f'Unknown edge underlay: {tile.edge_underlay}')
         if fill not in self.tiles:
             raise KeyError(fill)
         self.rows = [[fill for _ in range(width)] for _ in range(height)]
@@ -99,6 +104,9 @@ class TileMap:
     def asset_at(self, cell, *, background=False):
         tile = self.definition(cell)
         assets = tile.background if background else tile.asset
+        return self._variant_at(cell, assets)
+
+    def _variant_at(self, cell, assets):
         if isinstance(assets, tuple):
             x, y = cell
             return assets[self._variation[y][x] % len(assets)]
@@ -111,8 +119,34 @@ class TileMap:
             if background:
                 yield {'asset': background, 'x': x * size,
                        'y': y * size, 'width': size, 'height': size}
-            yield {'asset': self.asset_at((x, y)), 'x': x * size,
-                   'y': y * size, 'width': size, 'height': size}
+            item = {'asset': self.asset_at((x, y)), 'x': x * size,
+                    'y': y * size, 'width': size, 'height': size}
+            tile = self.definition((x, y))
+            if tile.rounded_edges:
+                # Clockwise from north, including diagonals. Query the whole map
+                # so shorelines do not change at the camera's visible boundary.
+                neighbors = tuple(self[x + dx, y + dy]
+                    if 0 <= x + dx < self.width and 0 <= y + dy < self.height else None
+                    for dx, dy in
+                    ((0, -1), (1, -1), (1, 0), (1, 1),
+                     (0, 1), (-1, 1), (-1, 0), (-1, -1)))
+                item['neighbors'] = sum(1 << index for index, name in enumerate(neighbors)
+                    if name == tile.name or name is not None
+                    and self.tiles[name].edge_underlay == tile.name)
+                if tile.edge_underlay is not None:
+                    underlay_mask = sum(1 << index for index, name in enumerate(neighbors)
+                                        if name == tile.edge_underlay)
+                    if underlay_mask:
+                        # Continue the bank beneath only the quarters touching it.
+                        # Other shores keep their normal grass background.
+                        # The masks cover the three neighbors of NW, NE, SE, SW.
+                        quadrants = sum(1 << index for index, mask in enumerate((193, 7, 28, 112))
+                                        if underlay_mask & mask)
+                        yield {**item,
+                               'asset': self._variant_at((x, y), self.tiles[tile.edge_underlay].asset),
+                               'neighbors': item['neighbors'] | underlay_mask,
+                               'quadrants': quadrants}
+            yield item
 
 
 def overlaps(a, b):

@@ -215,3 +215,27 @@ rules regardless of its appearance. `background` accepts the same variant tuple;
 this lets a pickup use the grass that belongs beneath that cell. `asset_at(cell)`
 returns the selected image name, while `definition(cell)` returns the tile type.
 `Tile.asset_names` exposes every foreground/background variant for host loading.
+
+## Connected terrain edges
+
+Use `Tile('water', 'water', blocks_actors=True, background=grass_variants,
+rounded_edges=True)` to round exposed water edges over grass in the desktop host.
+The map compares all eight neighbors by tile name, including cells outside the
+camera view, and treats out-of-map neighbors as exposed edges. Each visible rounded
+tile includes a `neighbors` bit mask, clockwise from north through northwest.
+Changing a tile updates its neighbors' appearance on the next snapshot.
+
+The raylib host clips the existing texture into cached pixel-aligned rectangles:
+outer corners curve inward, exposed sides have a small inset, and missing diagonal
+neighbors produce concave corners. Connected edges and interior tiles stay filled.
+Provide a background asset to fill the exposed corners. Tile identity, actor
+collision and projectile rules still use the full square cell.
+
+For adjoining rounded materials, set `edge_underlay='mud'` on the water tile,
+where `mud` is another registered tile name. Mud then connects through neighboring
+water edges, and water draws a clipped mud underlay only in quarters touching mud.
+Water retains its own rounded outline; unrelated grassy shores retain their normal
+background. The underlay uses the mud tile's artwork and the current cell's stable
+variant selection. Partial underlay snapshots carry `quadrants` bits in NW, NE,
+SE, SW order. These layers prevent background-colored seams at shared boundaries
+without changing either material's terrain rules.

@@ -1,6 +1,7 @@
 """Tank battle authors rules; the framework owns collision and interactions."""
 from random import Random
 from framework import Actor, Camera, SpriteAsset, Tile, TileMap, World
+from .terrain import ENEMY_CELLS, PLAYER_CELL, populate
 
 
 class Brick(Tile):
@@ -74,52 +75,39 @@ class Tank(Actor):
 
 
 class TankBattle:
-    controls_hint = 'Arrows: drive   Space: fire   R: restart   Esc: quit'
+    controls_hint = 'Arrows: drive   Space: fire   R: restart   N: new map   Esc: quit'
     asset_definitions = ASSETS
 
-    def __init__(self, seed=12):
-        self.seed = seed
+    def __init__(self, seed=None):
+        self.seed = seed = Random().getrandbits(32) if seed is None else seed
         tiles = [Tile('ground', 'ground'), Tile('grass', GRASS_VARIANTS),
-                 Tile('water', 'water', blocks_actors=True),
-                 Tile('mud', 'mud', speed_multiplier=0.4),
+                 Tile('water', 'water', blocks_actors=True,
+                      background=GRASS_VARIANTS, rounded_edges=True, edge_underlay='mud'),
+                 Tile('mud', 'mud', speed_multiplier=0.4,
+                      background=GRASS_VARIANTS, rounded_edges=True),
                  Brick('brick', 'brick', blocks_actors=True, blocks_projectiles=True),
                  Repair('repair', 'repair', background=GRASS_VARIANTS)]
         terrain = TileMap(64, 40, 48, tiles, 'grass', seed=seed)
-        # Open routes around brick bunkers; water and mud demonstrate different rules.
-        for y in range(2, 15):
-            for x in (5, 6, 11, 12, 18, 19):
-                if y not in (5, 6, 11, 12):
-                    terrain[x, y] = 'brick'
-        for y in range(7, 10):
-            for x in range(8, 11):
-                terrain[x, y] = 'water'
-            for x in range(14, 18):
-                terrain[x, y] = 'mud'
-        terrain[3, 12] = terrain[21, 4] = 'repair'
-        # Extend the arena with traversable lanes between terrain demonstrations.
-        for ox, oy in ((26, 0), (0, 18), (26, 18), (48, 18)):
-            for y in range(2, 14):
-                for x in (5, 6, 11, 12):
-                    if y not in (5, 6, 11, 12) and ox + x < terrain.width:
-                        terrain[ox + x, oy + y] = 'brick'
-            for y in range(7, 10):
-                for x in range(8, 11):
-                    terrain[ox + x, oy + y] = 'water'
-            terrain[ox + 3, oy + 12] = 'repair'
+        populate(terrain, seed)
         self.world = World(terrain, impact_asset='explosion')
-        self.player = self.world.add(Tank(2 * 48 + 5, 14 * 48 + 5, 'player'))
+        self.player = self.world.add(Tank(PLAYER_CELL[0] * 48 + 5, PLAYER_CELL[1] * 48 + 5, 'player'))
         rng = Random(seed)
-        for x, y in ((2, 2), (9, 2), (15, 2), (22, 2)):
+        # Twelve clear starting cells spread across the whole scrolling arena.
+        for x, y in ENEMY_CELLS:
             self.world.add(Tank(x * 48 + 5, y * 48 + 5, 'enemy', rng))
         self.camera = Camera(960, 600, zoom=2)
         self.camera.follow(self.player, smoothing=4)
         self._first_frame = True
         self.restart_held = False
+        self.new_map_held = False
 
     def step(self, keys, dt, pan=(0, 0), viewport=(960, 600), center=False):
-        if 'restart' in keys and not self.restart_held:
+        if 'new_map' in keys and not self.new_map_held:
+            self.__init__()
+        elif 'restart' in keys and not self.restart_held:
             self.__init__(self.seed)
         self.restart_held = 'restart' in keys
+        self.new_map_held = 'new_map' in keys
         self.player.controls = keys
         enemies = sum(actor.team == 'enemy' for actor in self.world.actors)
         if self.player.alive and enemies:

@@ -83,6 +83,20 @@ viewports. The tank renderer was checked in a short automatically closing window
 `test_tile_variants.py` verifies seeded appearance diversity, stable redraws,
 background consistency, tile replacement and unchanged movement behavior.
 
+`test_rounded_tiles.py` checks connected water masks, offscreen neighbors, map
+edges, live tile replacement, matching grass underlays, rounded 2 × 2 lakes,
+seamless shared edges, isolated and concave corners, and unchanged collision rules.
+It also checks mud–water joins without grass seams, unchanged water outlines,
+underlays confined to touching quarters, offscreen updates and invalid underlays.
+A desktop renderer smoke check also covers lakes, channels and inward corners.
+The mud–water join was visually checked with shared shores and three-material corners.
+
+`test_tank_terrain.py` checks 64 map seeds for substantial connected lakes,
+no one-cell water strands, clear tank spawns, connected open land and reachable
+repairs. It also checks seed replay, terrain restoration on restart, fresh-map
+generation and held-key handling. A desktop overview smoke check uses the actual
+generated map and rounded shoreline renderer.
+
 `test_alien_invaders.py` exercises the short example through the shared simulation:
 bounded ship movement, stationary aliens, one shot per press, missed-shot cleanup,
 clearing the row through actual hits, empty Game defaults and playfield fitting.
