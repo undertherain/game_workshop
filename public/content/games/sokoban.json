@@ -75,5 +75,10 @@
     "sokoban-pushing",
     "sokoban-goals",
     "sokoban-variation"
-  ]
+  ],
+  "museumStory": {
+    "title": "A tiny room with a big puzzle inside.",
+    "text": "Every crate has a place to go. You can push a crate, but you cannot pull it back, so the space around it matters as much as the goal. A tempting move can block your next one. Pause, picture a few moves ahead, and use Undo to try another idea.",
+    "prompt": "What if you moved one wall or one goal? Could a small change make a completely different puzzle?"
+  }
 }

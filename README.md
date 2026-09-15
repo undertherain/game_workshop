@@ -142,27 +142,33 @@ the visible Python; Run applies the choice. Those appearance choices carry into
 other meadow lessons. Drafts, the last lesson and appearance choices are saved in
 this browser, with an in-memory fallback if storage is unavailable.
 
-Use **Golden Classics** at any point, or choose a game from the map after the
+Use **Game workshop** at any point, or choose a game from the map after the
 foundations. **First commands** returns to your current lesson. Workshop drafts
 remain intact when switching layouts. Autocomplete currently belongs to the
 introductory cells only.
 
 In the game workshop:
 
-**Golden Classics** opens a game museum from the title screen or top bar. Choose
-Brick breaker, Platformer, Sky Patrol or Sokoban; Pip is present with an introduction to the
-goal, controls and rules, plus typed questions and optional voice. Xonix and Asteroids
-are planned exhibits. This first museum covers mechanics; historical encyclopedia
-articles are not included yet.
+**Game workshop** opens a gallery of four playable games: Brick breaker, Platformer,
+Sky Patrol and Sokoban. Each card previews the actual game artwork. Xonix and
+Asteroids appear in a small coming-later note. Selecting a card zooms into its game
+and offers three paths:
 
-Each playable exhibit offers **Learn to build it** for the existing four exercises,
-or **Take the complete game** to open a working game with controls, its main mechanic
-and a scoring or completion rule supplied. Complete games start playing immediately and allow free editing.
-Their drafts are saved separately from lesson drafts; reset restores the complete
-program and Undo recovers edits. Export playable game ZIP includes the current complete
-game draft, just as it includes the current exercise draft in lessons. Choose
-**Back to museum** to change games or paths. Museum and game paths have shareable URLs,
-such as `/#museum/breaker` and `/#workshop/breaker/complete`.
+- **Learn the story** reveals a short introduction to the game’s central idea and
+  Pip’s typed and optional voice guide. These are mechanics stories, not historical articles.
+- **Try exercises** opens the existing four-step Python build path.
+- **Try customizing** opens the complete game, ready to play and edit.
+
+Pip stays out of the gallery and path chooser. The selected-game preview has an
+optional animation button for a short recorded gameplay loop, independent of Python
+startup. Reduced-motion preferences disable preview animation and zoom transitions.
+The gallery becomes a vertical card list on narrow screens.
+
+Complete-game drafts remain separate from exercise drafts; reset restores the complete
+program and Undo recovers edits. Export playable game ZIP includes the current draft.
+**Back to game** returns to the selected game’s three paths; **All games** returns to
+the gallery. Routes retain `/#museum`, `/#museum/breaker` and
+`/#workshop/breaker/complete`, including refresh and browser Back/Forward support.
 
 Pip's workshop greeting follows the selected exercise, including a restored fourth
 exercise. Changing exercise clears the previous conversation and edit suggestion.

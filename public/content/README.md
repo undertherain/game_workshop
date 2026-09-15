@@ -110,6 +110,8 @@ and speech bubbles. This choice is independent of the lesson ID and layout.
 - `games/<game>.json` holds the game's display metadata, introduction, idea prompts,
   pocket guide and ordered `lessons` IDs. `museumIntro` introduces its goal, controls
   and rules; `complete` is an array of Python lines for its finished playable version.
+  Optional `museumStory: {title, text, prompt}` supplies the selected game’s short
+  mechanics story and a customization question; omitted stories use `museumIntro`.
   Complete versions must pass all three game behavior checks.
 - `game-lessons/<id>.json` holds **one** exercise: `id`, `title`, `description`, `hint`.
 - An optional `guide` object provides editor guidance: `function` names the Python

@@ -68,5 +68,10 @@
     "    target.hide()",
     "    world.score += 10"
   ],
-  "museumIntro": "Move your launcher with the arrow keys and press Space to fire at the falling robots. Intercept all eight to finish. The interesting choice is when to move and when to shoot; slower falling robots give you more time."
+  "museumIntro": "Move your launcher with the arrow keys and press Space to fire at the falling robots. Intercept all eight to finish. The interesting choice is when to move and when to shoot; slower falling robots give you more time.",
+  "museumStory": {
+    "title": "Look up. Find your moment.",
+    "text": "Robots drift down from the sky while your launcher moves along the ground. A spark takes time to travel, so aiming means thinking about where a robot will be next. Movement, timing and one fire button turn a simple scene into a game of anticipation.",
+    "prompt": "What if your launcher moved faster? Could you catch a robot on the other side in time?"
+  }
 }

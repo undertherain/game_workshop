@@ -73,5 +73,10 @@
     "    world.score += 1",
     "    star.hide()"
   ],
-  "museumIntro": "Use the arrow keys to run and Space to jump. Collect all seven stars by reaching the platforms. Jump strength and gravity work together: change one and see which paths you can reach."
+  "museumIntro": "Use the arrow keys to run and Space to jump. Collect all seven stars by reaching the platforms. Jump strength and gravity work together: change one and see which paths you can reach.",
+  "museumStory": {
+    "title": "A little jump becomes an adventure.",
+    "text": "A star is just out of reach. A platform gives you a way up. Suddenly, moving and jumping become a puzzle about where to go next. Gravity brings the fox back down; a well-timed jump turns the next ledge into a stepping stone.",
+    "prompt": "What if your fox could jump higher? Which stars could you reach in a different way?"
+  }
 }

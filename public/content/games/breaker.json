@@ -74,5 +74,10 @@
     "    brick.hide()",
     "    world.score += 10"
   ],
-  "museumIntro": "Move the paddle with the arrow keys and keep the ball bouncing until every brick disappears. Where the ball meets the paddle changes its direction. Try a wider paddle for an easier game or a faster ball for a challenge."
+  "museumIntro": "Move the paddle with the arrow keys and keep the ball bouncing until every brick disappears. Where the ball meets the paddle changes its direction. Try a wider paddle for an easier game or a faster ball for a challenge.",
+  "museumStory": {
+    "title": "One ball. A whole wall of possibilities.",
+    "text": "A ball travels in a straight line—until something gets in its way. A wall sends it back. A brick disappears. Your paddle turns a near miss into another chance. That tiny loop of aim, bounce and try again is the heart of a brick breaker.",
+    "prompt": "What if the paddle were twice as wide? Would every bounce become easier to aim?"
+  }
 }

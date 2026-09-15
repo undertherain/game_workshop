@@ -9,11 +9,11 @@ const palettes = {
 };
 export const initialState = { player: { x:80,y:430,facing:1,costume:'fox',on_ground:true },world:{sky:'peach',score:0},stars:[[145,400],[230,312],[292,312],[435,232],[498,232],[655,312],[715,312]].map(([x,y])=>({x,y,visible:true})),platforms:[[0,430,840],[195,345,125],[400,265,130],[620,345,125]],collected:0,won:false,ticks:0 };
 
-export function createScene(canvas) {
+export function createScene(canvas, onInvalidate = () => {}) {
   const ctx = canvas.getContext('2d');
   let previous = initialState, state = initialState, changedAt = 0, lastCollected = 0;
   let particles = [], backgroundKey, background;
-  const forest = createForest(() => { backgroundKey = null; });
+  const forest = createForest(() => { backgroundKey = null; onInvalidate(); });
   const ellipse = (x,y,rx,ry,color) => { ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill(); };
   const shape = (points,color) => {ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();};
   function star(x,y,r,color,rotation=0){const pts=[];for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2+rotation;pts.push([x+Math.cos(a)*(i%2?r*.45:r),y+Math.sin(a)*(i%2?r*.45:r)]);}shape(pts,color);}

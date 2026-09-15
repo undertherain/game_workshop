@@ -154,7 +154,8 @@ editable early cells. Guided cells retain grey supplied lines and a cream editab
 line. A subtle green focus cue replaces the browser’s default textarea outline.
 
 
-`museum.js` renders Golden Classics exhibits and Pip's museum panel. It shares the
+`museum.js` renders the Game workshop gallery, selected-game path chooser and
+expandable story/Pip panel; `museum.css` owns this responsive layout. It shares the
 existing game tutor and opt-in voice transport with an explicit `museum` activity;
 the backend receives the complete program as context, while museum guidance explains
 play and rules without code line references. Navigation cancels pending chat and voice.
@@ -169,3 +170,12 @@ layouts. `sokoban-scene.js` draws its snapshots without implementing puzzle rule
 uses four directions, Undo and Next puzzle. Its lesson starters and complete source
 live in the same content structure as the other games. Grid movement has separate
 progress evidence; paddle/launcher movement is not automatically supplied to it.
+
+
+`game-previews.js` draws gallery and selected-game previews through `scene.js`.
+`content/game-previews.json` contains short recordings of the complete programs,
+generated with `python3 scripts/build-game-previews.py` from the project root.
+Regenerate after changing complete programs, initial worlds or snapshot formats.
+Animation is opt-in, respects reduced motion, and stops outside the museum or while
+the tab is hidden. No Python worker is needed for browsing. Card selection has a
+short zoom transition; the existing museum routes now distinguish gallery and detail.

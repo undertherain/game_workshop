@@ -331,12 +331,12 @@ function renderMap() {
     article.append(icon, title, description, concepts);
     const note = document.createElement('p'); note.className = 'library-recommendation';
     note.textContent = game.available ? movementOffer(progress.get(), game.id) ? 'Movement checked in another game. Optional controls are available for an untouched starter.' : game.recommendation : 'Planned game · not playable yet'; article.append(note);
-    if (game.available) { const button = document.createElement('button'); button.className = 'primary'; button.textContent = 'Explore with Pip →'; button.onclick = () => openMuseum(game.id); article.append(button); }
+    if (game.available) { const button = document.createElement('button'); button.className = 'primary'; button.textContent = 'Explore game →'; button.onclick = () => openMuseum(game.id); article.append(button); }
     $('game-library-cards').append(article);
   }
 }
-const museum = createMuseum((id, complete) => openWorkshop(id, complete));
-function openMuseum(id) { updateRoute('#museum'+(id?'/'+id:'')); setMode('museum'); museum.show(id); $('museum-title').focus(); }
+const museum = createMuseum((id, complete) => openWorkshop(id, complete), id => openMuseum(id));
+function openMuseum(id) { updateRoute('#museum'+(id?'/'+id:'')); setMode('museum'); museum.show(id); }
 function setMode(mode) {
   museum.hide();window.workshop?.cancelQuestion();
   stopPipVoice();
@@ -346,7 +346,7 @@ function setMode(mode) {
   document.body.dataset.mode = mode;
   $('title-screen').hidden = mode !== 'home'; $('museum').hidden = mode !== 'museum';
   $('lessons').hidden = mode !== 'lessons'; $('workshop-main').hidden = mode !== 'workshop'; $('learning-map').hidden = mode !== 'map';
-  $('mode-toggle').textContent = mode === 'lessons' ? 'Golden Classics ↗' : '← First commands';
+  $('mode-toggle').textContent = mode === 'lessons' ? 'Game workshop ↗' : '← First commands';
   $('map-toggle').setAttribute('aria-pressed', String(mode === 'map'));
   window.scrollTo(0, 0);
 }
