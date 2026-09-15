@@ -356,7 +356,10 @@ The live voice prompt contains the learning-through-games goal, conversation gui
 current activity focus and runtime capabilities, and a compact curriculum outline.
 The backend tutor holds the current lesson details, code, progress and ordered lesson
 summaries with exact slide distances. It answers programming and curriculum questions
-in spoken prose; typed chat keeps its separate structured response format. Full content
+with concise explanations and exact short Python examples; typed chat keeps its separate structured response format. Completed
+voice-tutor answers containing code appear in chat as **Written answer**, preserving syntax such as
+`str(3)` separately from speech captions. Pip is instructed to pronounce `str` as
+the letters “S T R” or call it the string function. Full content
 for every lesson is not packed into the live prompt, and no curriculum search tool is
 currently installed.
 

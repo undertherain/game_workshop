@@ -27,7 +27,9 @@ export async function initializeAIAccess() {
     if (!response.ok) throw Error('AI access is temporarily unavailable.');
     const state = await response.json();
     const label = state.access === 'byok' ? 'Your key connected' : state.mode === 'ai' ? 'Demo AI enabled' : 'Built-in guide';
-    summary.textContent = label + (state.remaining ? ` · ${state.remaining.chats} chats and ${state.remaining.voiceCalls} voice calls remaining${state.access === 'byok' ? ' today (UTC)' : ''}. Voice calls last up to ${state.voiceSeconds} seconds.` : '. Games and lessons are available without an API key.');
+    summary.textContent = label + (state.usageLimited === false
+      ? `. No app request limits for local AI. Voice calls last up to ${state.voiceSeconds} seconds.`
+      : state.remaining ? ` · ${state.remaining.chats} chats and ${state.remaining.voiceCalls} voice calls remaining${state.access === 'byok' ? ' today (UTC)' : ''}. Voice calls last up to ${state.voiceSeconds} seconds.` : '. Games and lessons are available without an API key.');
     if (state.expiresAt) summary.textContent += ` Access ends ${new Date(state.expiresAt).toLocaleString()}.`;
     if (state.access === 'invite') summary.textContent += ' This allowance is shared by everyone using your invite link.';
     if (state.mode === 'ai' && !state.voiceAvailable) summary.textContent += ' Voice is unavailable for this connection; typed AI is available.';
@@ -50,7 +52,8 @@ export async function initializeAIAccess() {
       const result = await response.json();
       if (!response.ok) throw Error(result.error || 'Could not update AI access.');
       if (body?.type === 'invite') { invite = null; inviteButton.hidden = true; }
-      status.textContent = method === 'DELETE' ? 'Disconnected. Your games and lesson drafts are still here.' : 'Connected. You can close this panel and ask Pip a question.';
+      status.textContent = method === 'DELETE' ? 'Disconnected. Your games and lesson drafts are still here.' : 'Connected. You can ask Pip a question.';
+      if (body?.type === 'byok') dialog.close();
     } catch (error) { status.textContent = error.message; }
     finally { setBusy(false); await refresh().catch(error => { status.textContent = error.message; }); }
   }

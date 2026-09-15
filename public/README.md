@@ -19,10 +19,19 @@ the asset's generation prompt and scope.
 
 Return to the [prototype README](../README.md).
 
+`submission-slide.html` is a static 16:9 opening slide for the submission video,
+using the existing forest artwork. Open `/submission-slide.html` on the local
+server, or open the file directly. Press **F** or double-click for fullscreen;
+Escape exits fullscreen. It scales to fit the screen with letterboxing and uses
+no external services. A checked 1920×1080 still is available at
+[`docs/submission/opening-slide.png`](../docs/submission/opening-slide.png).
+
 `ai-access.js` initializes the global **AI access** dialog before lesson routing.
 It removes invite fragments from the URL, redeems a reusable invite on an explicit
 activation click, and submits personal keys to `/api/access` without storing them in
 browser storage. It displays remaining allowance, session expiry, and disconnect.
+The dialog closes automatically after a successful **Use my key** submission;
+failed connections keep it open with the error visible.
 `ai-access.css` styles the dialog. All authorization and quota enforcement lives on
 the server; browser state never grants shared-key access. `pip-voice.js` also ends
 calls at the returned time limit and requests `/api/voice-stop`; the independently
@@ -152,7 +161,12 @@ before completion. Page departure uses `pagehide` plus `visibilitychange`, follo
 the [browser lifecycle guidance](https://developer.mozilla.org/en-US/docs/Web/API/Window/pagehide_event);
 no unload handler or automatic voice restart is installed.
 `voice-captions.js` groups independent speaker streams into the existing chat bubbles;
-each panel updates its shared in-memory history as speech arrives. `voice-tutor.mjs` builds the server-owned GPT-Live
+it also displays completed delegated answers containing backtick-delimited code
+in a separate plain-text Written answer message, keeping the surrounding explanation. It preserves Python punctuation
+without guessing from speech. Only `response.output_text.done` is allowed through
+the data channel for backend replies; reasoning, tools and other backend events are excluded. Examples
+share the existing conversation history and never edit or run code.
+Each panel updates its shared in-memory history as speech arrives. `voice-tutor.mjs` builds the server-owned GPT-Live
 configuration and delegates coding questions to the existing tutor with canonical
 activity context. `/api/voice` exchanges SDP without exposing the API key.
 

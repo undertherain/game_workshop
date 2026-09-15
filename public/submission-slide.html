@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ee">
+  <title>Little Makers · Submission intro</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; }
+    body { display: grid; place-items: center; background: #172c26; color: #294c3d; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .slide { position: relative; width: min(100vw, 177.777778vh); aspect-ratio: 16 / 9; overflow: hidden; container-type: inline-size; background: #f7f5ee; }
+    .copy { position: absolute; inset: 0 40% 0 0; padding: 4.5cqw 0 3.5cqw 5.5cqw; z-index: 1; }
+    .eyebrow { display: flex; align-items: center; gap: .85cqw; margin: 0 0 3.6cqw; font-size: 1.05cqw; font-weight: 650; letter-spacing: .17cqw; text-transform: uppercase; }
+    .mark { display: grid; place-items: center; width: 2.5cqw; height: 2.5cqw; border-radius: .7cqw; background: #315b46; color: #e5e9bd; font-size: 2.1cqw; line-height: 1; }
+    h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 6.6cqw; line-height: 1.1; font-weight: 400; letter-spacing: -.34cqw; }
+    .tagline { margin: 2.05cqw 0 2.8cqw; font-size: 3.65cqw; line-height: 1.16; letter-spacing: -.15cqw; font-weight: 450; }
+    .tagline span { color: #7b8653; }
+    .outline { display: grid; gap: 1cqw; list-style: none; margin: 0; padding: 0; font-size: 1.52cqw; line-height: 1.45; color: #536052; }
+    .outline li { display: flex; align-items: center; gap: 1cqw; }
+    .outline li::before { content: ""; width: .4cqw; height: .4cqw; flex: none; border-radius: 50%; background: #8b9d68; }
+    .footer { position: absolute; bottom: 3.3cqw; left: 5.5cqw; margin: 0; font-size: 1cqw; letter-spacing: .16cqw; font-weight: 650; color: #7a8470; }
+    .world { position: absolute; inset: 0 0 0 60%; background: #284d47; overflow: hidden; }
+    .world img { width: 100%; height: 100%; object-fit: cover; object-position: 59% center; }
+    .world::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #102e2010 35%, #102e20a8 100%); }
+    .code-card { position: absolute; z-index: 1; left: 3cqw; right: 3cqw; bottom: 6.5cqw; padding: 1.5cqw 1.8cqw 1.8cqw; border: 1px solid #fff9e65c; border-radius: 1cqw; background: #fbf8ee; box-shadow: 0 1.1cqw 3cqw #0a211e38; transform: rotate(-3deg); }
+    .code-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1.1cqw; margin-bottom: 1.3cqw; border-bottom: 1px solid #dce0d0; font-size: .88cqw; color: #7a8470; letter-spacing: .09cqw; }
+    .dots { display: flex; gap: .35cqw; }
+    .dots i { display: block; width: .48cqw; height: .48cqw; background: #bdc9ad; border-radius: 50%; }
+    code { display: block; font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 2.4cqw; letter-spacing: -.12cqw; }
+    .number { color: #96759a; }
+    .world-caption { position: absolute; z-index: 1; bottom: 3.3cqw; left: 3cqw; right: 3cqw; margin: 0; color: #f8f5df; font-size: 1.2cqw; text-align: center; letter-spacing: .025cqw; }
+    @media print { @page { size: 16in 9in; margin: 0; } body { background: #f7f5ee; } .slide { width: 100vw; } }
+  </style>
+</head>
+<body>
+  <main class="slide" aria-label="Little Makers project overview">
+    <section class="copy">
+      <p class="eyebrow"><span class="mark" aria-hidden="true">✳</span> A Python game workshop for kids</p>
+      <h1>Little Makers</h1>
+      <p class="tagline">Learn Python.<br><span>Make it play.</span></p>
+      <ul class="outline">
+        <li>Bite-size Python lessons</li>
+        <li>Six games to build &amp; customize</li>
+        <li>Pip, an AI tutor you can talk to</li>
+      </ul>
+    </section>
+    <p class="footer">PLAY · LEARN · MAKE</p>
+    <aside class="world" aria-label="Forest game artwork and a Python example">
+      <img src="assets/forest/background.png" alt="A sunlit pixel-art forest framing distant mountains">
+      <div class="code-card">
+        <div class="code-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>YOUR FIRST LEAP</span><span>PYTHON</span></div>
+        <code>fox.jump(<span class="number">100</span>)</code>
+      </div>
+      <p class="world-caption">Small discoveries. Your own games.</p>
+    </aside>
+  </main>
+  <script>
+    // F or double-click presents the slide without browser chrome.
+    async function toggleFullscreen() {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+      } catch { /* Browser fullscreen remains available through its own menu. */ }
+    }
+    document.addEventListener('keydown', event => {
+      if (event.key.toLowerCase() === 'f' && !event.ctrlKey && !event.metaKey && !event.altKey && !event.repeat) {
+        event.preventDefault();
+        toggleFullscreen();
+      }
+    });
+    document.addEventListener('dblclick', toggleFullscreen);
+  </script>
+</body>
+</html>

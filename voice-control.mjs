@@ -15,11 +15,11 @@ export function createVoiceControl({ access, env = process.env, fetchImpl = fetc
     });
     if (!response.ok && ![404, 410].includes(response.status)) throw new AccessError(503, 'Voice could not be ended yet. Please try again.');
   }
-  const available = session => session?.kind === 'local' || hostedReady;
+  const available = session => session?.kind === 'local' || session?.local === true || hostedReady;
   async function arm(session, liveId) {
     if (typeof liveId !== 'string' || !liveId || liveId.length > 200) throw new AccessError(502, 'Voice returned an invalid session.');
     const seconds = Math.max(1, Math.min(access.config.voiceSeconds, Math.floor((session.expires - now()) / 1000)));
-    if (session.kind === 'local') {
+    if (session.kind === 'local' || session.local === true) {
       const timer = scheduleLocal(() => hangup(liveId, session.apiKey).catch(() => {}), seconds * 1000);
       timer.unref?.();
       return { maxSeconds: seconds };
@@ -63,7 +63,7 @@ export function createVoiceControl({ access, env = process.env, fetchImpl = fetc
     await close(digest(secret), null, true);
   }
   async function stopActive(session) {
-    if (!session || session.kind === 'local') return;
+    if (!session || session.kind === 'local' || session.local === true) return;
     const id = await access.store.get(`active-call:${session.principal}`);
     if (id) await close(id, session.principal);
   }

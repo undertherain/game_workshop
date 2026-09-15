@@ -63,7 +63,7 @@ also revoke the demo project's key in OpenAI; account-level enforcement is separ
 | --- | --- |
 | Each invite link, shared across all its visitors and its lifetime | 50 chat requests; 3 voice calls |
 | Whole demo, across all invites and dates | 500 chat requests; 30 voice calls |
-| Each personal key, per UTC day | 200 chat requests; 10 voice calls |
+| Each hosted personal key, per UTC day | 200 chat requests; 10 voice calls |
 | Each invite or personal key | 6 AI requests per fixed minute |
 | Shared demo / personal-key traffic, separately | 30 AI requests per fixed minute |
 | Voice | 120-second scheduled cutoff; one start per identity per 150 seconds |
@@ -71,7 +71,10 @@ also revoke the demo project's key in OpenAI; account-level enforcement is separ
 | Typed and delegated responses | At most 1,800 output tokens per response |
 
 The configurable values are in `.env.example`. Setting a quota to zero disables
-that category. Byte and curriculum-validation limits bound incoming requests;
+that category for hosted sessions. Temporary localhost personal-key sessions and
+the explicit local AI shortcut have no chat/voice request counters, per-minute AI
+limits or voice-start cooldowns. The per-call voice duration still applies.
+Byte and curriculum-validation limits bound incoming requests;
 model choices and voice data-channel permissions are server-owned. Browser clients
 can close a voice session but cannot change its delegated model, prompt, tools or
 token settings. Provider requests never follow redirects with credentials.
@@ -130,9 +133,16 @@ hangup; the scheduled cutoff remains the independent fallback.
 
 Set `WORKSHOP_LOCAL_AI=1` explicitly to use the shared key on an actual loopback
 request without an invite. This shortcut is disabled on Vercel and for public
-origins. It uses local counters and a process timer for voice; it is not the hosted
-security configuration. Ordinary localhost development without that option uses
-the same invite/personal-key access rules (with HTTP cookies for localhost only).
+origins. It uses a process timer for voice; it is not the hosted
+security configuration. On actual loopback requests, personal keys also work without
+Redis or a session secret: the server creates an encrypted in-memory session with
+a temporary secret. Sessions clear when the server restarts. Local AI requests are
+not counted or subject to retry cooldowns, so testing the microphone cannot exhaust
+an app allowance;
+voice uses the same process timer as the local shortcut. This does not automatically
+enable the shared server key. Public requests and Vercel still require the hosted
+configuration, and a failing configured store never falls back to local storage.
+Localhost uses HTTP cookies; hosted sessions require HTTPS.
 
 `npm test` covers reusable redemption, cookie/origin checks, revocation, expiry,
 key isolation, quota exhaustion, simultaneous reservations, store failure, queue

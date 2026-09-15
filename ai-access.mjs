@@ -38,6 +38,15 @@ export function createAccess({ env = process.env, store = configuredStore(env), 
   const localExpires = now() + 86400000;
   const key = config.secret ? Buffer.from(config.secret, 'hex') : null;
   const ready = Boolean(store && key);
+  // A separate encrypted, process-lived store serves only actual loopback requests.
+  // Never use it to recover from a configured hosted store failing.
+  const localAccess = !ready && env.VERCEL !== '1' ? createAccess({
+    env, store: localStore, config: { ...config, secret: randomBytes(32).toString('hex') }, now,
+  }) : null;
+  function localSessions(req, origin) {
+    return localAccess && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) &&
+      ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+  }
   function encrypt(value) {
     const iv = randomBytes(12), cipher = createCipheriv('aes-256-gcm', key, iv);
     return Buffer.concat([iv, cipher.update(JSON.stringify(value)), cipher.final(), cipher.getAuthTag()]).toString('base64url');
@@ -65,6 +74,10 @@ export function createAccess({ env = process.env, store = configuredStore(env), 
   }
   async function resolve(req, origin, serverKey) {
     const id = sessionId(req, origin);
+    if (id && localSessions(req, origin)) {
+      const session = await localAccess.resolve(req, origin, serverKey);
+      return session ? { ...session, local: true } : null;
+    }
     if (id) {
       if (!ready) throw new AccessError(503, 'AI access is not configured. The built-in guide is still available.');
       const raw = await store.get(`session:${id}`);
@@ -86,17 +99,19 @@ export function createAccess({ env = process.env, store = configuredStore(env), 
   async function status(req, origin, serverKey, voiceAvailable) {
     let session, error;
     try { session = await resolve(req, origin, serverKey); } catch (e) { error = e instanceof AccessError ? e.message : 'AI access is temporarily unavailable.'; }
-    const result = { mode: session ? 'ai' : 'examples', access: session?.kind || 'none', canDisconnect: Boolean(sessionId(req, origin)), byokAvailable: ready, voiceAvailable: Boolean(session && voiceAvailable), ...(error ? { error } : {}) };
+    const result = { mode: session ? 'ai' : 'examples', access: session?.kind || 'none', canDisconnect: Boolean(sessionId(req, origin)), byokAvailable: ready || Boolean(localSessions(req, origin)), voiceAvailable: Boolean(session && (session.local || voiceAvailable)), ...(error ? { error } : {}) };
     if (session) {
+      result.expiresAt = new Date(session.expires).toISOString(); result.voiceSeconds = config.voiceSeconds;
+      if (uncappedLocal(session)) return { ...result, usageLimited: false };
       const usage = quotaEntries(session, 'chat')[0], voiceUsage = quotaEntries(session, 'voice')[0];
       try {
         result.remaining = { chats: Math.max(0, usage.limit - Number(await session.store.get(usage.key) || 0)),
           voiceCalls: Math.max(0, voiceUsage.limit - Number(await session.store.get(voiceUsage.key) || 0)) };
-        result.expiresAt = new Date(session.expires).toISOString(); result.voiceSeconds = config.voiceSeconds;
       } catch { return { ...result, mode: 'examples', error: 'AI access is temporarily unavailable.' }; }
     }
     return result;
   }
+  function uncappedLocal(session) { return session.local === true || session.kind === 'local'; }
   function quotaEntries(session, kind) {
     const personal = session.kind === 'byok', day = Math.floor(now() / 86400000), minute = Math.floor(now() / 60000);
     const principal = personal ? `byok:${session.principal}:${day}` : `invite:${session.principal}`;
@@ -112,11 +127,15 @@ export function createAccess({ env = process.env, store = configuredStore(env), 
   }
   async function reserve(session, kind) {
     if (kind === 'voice' && !config.voiceSeconds) throw new AccessError(403, 'Voice is disabled. You can still type to Pip.');
+    // Mic retries on a local connection must not consume a daily allowance or
+    // leave a cooldown behind after a failed/cancelled setup.
+    if (uncappedLocal(session)) return;
     const denied = await session.store.reserve(quotaEntries(session, kind));
     if (denied) throw new AccessError(429, denied === 1 ? 'Your AI allowance is used up. You can still use the built-in guide.' :
       denied === 2 && session.kind !== 'byok' ? 'The demo AI allowance is used up. You can enter your own key or use the built-in guide.' : 'AI request limit reached. Please wait a little before trying again.');
   }
   async function connect(req, res, origin, input, serverKey) {
+    if (localSessions(req, origin)) return localAccess.connect(req, res, origin, input, serverKey);
     if (!origin.startsWith('https:') && !(/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) &&
       ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress))) {
       throw new AccessError(403, 'AI connections require HTTPS.');
@@ -147,6 +166,7 @@ export function createAccess({ env = process.env, store = configuredStore(env), 
     return { ok: true, access: session.kind };
   }
   async function disconnect(req, res, origin) {
+    if (localSessions(req, origin)) return localAccess.disconnect(req, res, origin);
     const id = sessionId(req, origin);
     if (id && store) await store.delete(`session:${id}`);
     cookie(res, origin, '', 0);

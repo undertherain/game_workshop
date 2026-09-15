@@ -20,6 +20,10 @@ test('voice configuration uses canonical context and cannot be overridden by the
   assert.match(payload.session.delegation.responses.instructions, /fox.jump/);
   assert.match(payload.session.delegation.responses.instructions, /slidesFromCurrent/);
   assert.equal(payload.session.delegation.responses.tools, undefined);
+  assert.deepEqual(payload.session.client.data_channel.allowed_server_events.filter(event => event.type === 'response.event'), [
+    { type: 'response.event', response_event: 'response.output_text.done' },
+  ]);
+  assert.match(payload.session.instructions, /ess tee ar/);
   const history = [{ role: 'user', content: 'Where is fox defined?' }, { role: 'assistant', content: 'The workshop supplies it.' }];
   const continued = voiceSession({ ...offer, context: { ...offer.context, history } }, 'gpt-5.4-mini');
   assert.deepEqual(continued.session.input.map(item => [item.role, item.content[0].text]), history.map(item => [item.role, item.content]));
@@ -46,6 +50,27 @@ test('overlapping voice streams update existing chat entries and a new call keep
   assert.equal(chat.length, 3);
   createVoiceCaptions(createMessage)(pip('Welcome back.', 0, 400));
   assert.equal(chat.length, 4); assert.equal(chat[0].content, 'Where is fox from?');
+});
+
+test('voice shows exact completed code examples without rewriting captions or exposing other backend events', () => {
+  const chat = [];
+  const receive = createVoiceCaptions(role => content => chat.push({ role, content }));
+  const answer = (text, item_id = 'answer1') => ({ type: 'response.event', delegation_id: 'delegation1',
+    event: { type: 'response.output_text.done', item_id, content_index: 0, text } });
+  const code = answer('Use `str(3)` to turn 3 into `"3"`. Try `str(3)`.');
+  receive({ type: 'response.event', event: { type: 'response.reasoning_text.done', text: '`private`' } });
+  receive({ type: 'response.event', event: { type: 'response.output_text.delta', delta: '`str(' } });
+  receive(answer('You can convert an integer to a string.', 'no-code'));
+  assert.equal(chat.length, 0);
+  receive(code); receive(code);
+  assert.deepEqual(chat, [{ role: 'assistant', content: 'Written answer\nUse str(3) to turn 3 into "3". Try str(3).' }]);
+  receive({ type: 'session.output_transcript.delta', delta: 'Call S T R with three.', start_ms: 0, end_ms: 1000 });
+  assert.equal(chat[1].content, 'Call S T R with three.');
+  receive(answer('Use `fox.say(str(3))`.', 'answer2'));
+  assert.equal(chat[2].content, 'Written answer\nUse fox.say(str(3)).');
+  receive(answer('```python\nstr(3)\n```', 'fenced'));
+  receive(answer('`' + 'x'.repeat(1001) + '`', 'oversize'));
+  assert.equal(chat.length, 3);
 });
 
 test('voice endpoint protects credentials, validates requests and recovers after upstream errors', async () => {

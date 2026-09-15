@@ -11,6 +11,102 @@ const secret = 'a'.repeat(64), personalKey = 'sk-personal-' + 'x'.repeat(32);
 const lesson = { lessonId: 'command', code: 'fox.jump()', question: 'How do I jump?' };
 const offer = { kind: 'lesson', context: lesson, sdp: 'v=0\r\n' };
 const origin = 'https://game.example';
+
+test('localhost personal keys retain isolation and expiry without request counts or mic retry cooldowns', async () => {
+  let time = Date.now();
+  const access = createAccess({ env: {}, now: () => time });
+  const localOrigin = 'http://localhost:4179';
+  const req = { headers: {}, socket: { remoteAddress: '127.0.0.1' } };
+  let cookie;
+  const res = { setHeader(name, value) { cookie = value.split(';')[0]; } };
+  assert.equal((await access.status(req, localOrigin, 'shared', false)).byokAvailable, true);
+  assert.equal(await access.resolve(req, localOrigin, 'shared'), null);
+  await assert.rejects(access.connect(req, res, localOrigin, { type: 'byok', key: 'invalid' }), /valid OpenAI/);
+  await access.connect(req, res, localOrigin, { type: 'byok', key: personalKey });
+  req.headers.cookie = cookie;
+  const session = await access.resolve(req, localOrigin, 'shared');
+  assert.equal(session.kind, 'byok');
+  assert.equal(session.local, true);
+  assert.equal(session.apiKey, personalKey);
+  assert.doesNotMatch(JSON.stringify([...session.store.values]), new RegExp(personalKey));
+  // Exceed the hosted daily limits without advancing time: local mic testing
+  // must also bypass per-minute and voice-start cooldowns.
+  for (let i = 0; i < 250; i++) await access.reserve(session, 'chat');
+  for (let i = 0; i < 20; i++) await access.reserve(session, 'voice');
+  const state = await access.status(req, localOrigin, 'shared', false);
+  assert.equal(state.access, 'byok');
+  assert.equal(state.voiceAvailable, true);
+  assert.equal(state.usageLimited, false);
+  assert.equal(state.remaining, undefined);
+  assert.equal([...session.store.values.keys()].some(key => /^(usage:|rate:|voice-window:)/.test(key)), false);
+  await access.disconnect(req, res, localOrigin);
+  await assert.rejects(access.resolve(req, localOrigin, 'shared'), /expired/);
+  req.headers.cookie = '';
+  await access.connect(req, res, localOrigin, { type: 'byok', key: personalKey });
+  req.headers.cookie = cookie;
+  assert.equal((await access.status(req, localOrigin, 'shared', false)).usageLimited, false);
+  await assert.rejects(createAccess({ env: {} }).resolve(req, localOrigin, 'shared'), /expired/);
+  time += 8 * 3600000;
+  await assert.rejects(access.resolve(req, localOrigin, 'shared'), /expired/);
+});
+
+test('failed local microphone setups can immediately retry beyond the hosted voice allowance', async t => {
+  const access = createAccess({ env: {} });
+  let attempts = 0;
+  const fetchImpl = async (url, options) => {
+    assert.equal(options.headers.Authorization, `Bearer ${personalKey}`);
+    attempts++;
+    return attempts <= 12 ? new Response('', { status: 503 })
+      : Response.json({ session: { id: 'live_test' }, transport: { sdp: 'answer' } });
+  };
+  const voiceControl = createVoiceControl({ access, env: {}, fetchImpl, scheduleLocal: () => ({}) });
+  const server = createServer({ access, voiceControl, fetchImpl, localAi: false, apiKey: 'unused-shared-key' });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const headers = { Origin: base, 'Content-Type': 'application/json' };
+  const connection = await fetch(base + '/api/access', {
+    method: 'POST', headers, body: JSON.stringify({ type: 'byok', key: personalKey }),
+  });
+  assert.equal(connection.status, 200);
+  headers.Cookie = connection.headers.get('set-cookie').split(';')[0];
+  for (let i = 0; i < 13; i++) {
+    const response = await fetch(base + '/api/voice', { method: 'POST', headers, body: JSON.stringify(offer) });
+    assert.equal(response.status, i < 12 ? 502 : 201);
+    await response.json();
+  }
+  assert.equal(attempts, 13);
+});
+
+test('temporary personal sessions never enable public, remote or Vercel access', async () => {
+  for (const [env, address, requestOrigin] of [
+    [{}, '127.0.0.1', origin], [{}, '192.0.2.1', 'http://localhost:4179'],
+    [{ VERCEL: '1' }, '127.0.0.1', 'http://localhost:4179'],
+  ]) {
+    const access = createAccess({ env });
+    const req = { headers: {}, socket: { remoteAddress: address } };
+    assert.equal((await access.status(req, requestOrigin, 'shared', false)).byokAvailable, false);
+    await assert.rejects(access.connect(req, {}, requestOrigin, { type: 'byok', key: personalKey }));
+  }
+});
+
+test('temporary personal voice uses a local cutoff and supports disconnect without Redis', async () => {
+  const access = createAccess({ env: {} });
+  let callback, delay;
+  const calls = [];
+  const control = createVoiceControl({ access, env: {},
+    scheduleLocal(fn, ms) { callback = fn; delay = ms; return {}; },
+    fetchImpl: async (url, options) => { calls.push({ url, options }); return new Response('', { status: 200 }); },
+  });
+  const session = { kind: 'byok', local: true, apiKey: personalKey, expires: Date.now() + 3600000 };
+  assert.equal(control.available(session), true);
+  assert.deepEqual(await control.arm(session, 'live_test'), { maxSeconds: 120 });
+  assert.equal(delay, 120000);
+  await callback();
+  assert.equal(calls[0].options.headers.Authorization, `Bearer ${personalKey}`);
+  await control.stopActive(session);
+});
+
 async function fixture(t, limits = {}, hostedVoice = false) {
   let time = Date.now();
   const now = () => time;
