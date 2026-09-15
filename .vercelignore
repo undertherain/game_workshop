@@ -1,0 +1,10 @@
+.git/
+.env
+.env.*
+.agents/
+.codex/
+AGENTS.md
+tests/
+examples/
+**/__pycache__/
+*.log

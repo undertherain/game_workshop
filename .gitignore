@@ -16,6 +16,9 @@ __pycache__/
 .cache/
 coverage/
 dist/
+.vercel/
+public/vendor/
+public/framework/
 *.log
 
 # Editor and operating-system files

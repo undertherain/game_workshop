@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "node",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "env": {
+    "WORKSHOP_LOAD_DOTENV": "0",
+    "WORKSHOP_PUBLIC_ORIGINS": "https://game.blackbird.pw,https://game-workshop-xi.vercel.app"
+  },
+  "functions": {
+    "server.mjs": {
+      "maxDuration": 60,
+      "includeFiles": "{public/**,framework/*.py,node_modules/pyodide/**}",
+      "excludeFiles": "{.env,.env.*,**/__pycache__/**,tests/**,examples/**,.agents/**,.codex/**}"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
+    },
+    {
+      "source": "/vendor/pyodide/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    }
+  ]
+}

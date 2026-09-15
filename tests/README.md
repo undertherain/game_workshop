@@ -7,6 +7,10 @@ are performed separately against the running local prototype.
 
 Return to the [prototype README](../README.md).
 
+`server-config.test.mjs` covers loopback and hosted startup settings, exact Vercel
+hostnames, public HTTPS API requests, rejected foreign origins/forwarded-header
+spoofing, private file isolation, and a streamed game ZIP above 4.5 MB.
+
 `test_workshop_framework.py` verifies independent game instances, snapshot detachment,
 repeatable input replay, restart and teaching-check isolation for all three templates.
 `export-game.test.mjs` validates the export endpoint and extracts each ZIP into a

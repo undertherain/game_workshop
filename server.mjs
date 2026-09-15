@@ -1,7 +1,10 @@
 import { lessonInstructions, validateLessonInput, lessonExample } from './lesson-tutor.mjs';
 import { voiceSession } from './voice-tutor.mjs';
 import { exportGame, validateExport, frameworkFiles } from './export-game.mjs';
+import { serverConfig } from './server-config.mjs';
 import http from 'node:http';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -10,7 +13,7 @@ import { instructions, arcadeInstructions, schema, validateInput, validateReply,
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 // Match load_dotenv's upward discovery. Never send environment contents to the browser.
-if (process.env.WORKSHOP_LOAD_DOTENV !== '0') {
+if (process.env.VERCEL !== '1' && process.env.WORKSHOP_LOAD_DOTENV !== '0') {
   let dir = root;
   while (true) {
     const candidate = path.join(dir, '.env');
@@ -27,28 +30,33 @@ function json(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
-export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-5.4-mini', fetchImpl = fetch } = {}) {
+export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-5.4-mini', fetchImpl = fetch, config = serverConfig() } = {}) {
   let busy = false;
   return http.createServer(async (req, res) => {
     try {
       const host = req.headers.host || '';
-      if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return json(res, 403, { error: 'Local connections only.' });
-      const url = new URL(req.url, 'http://' + host);
+      const origin = config.requestOrigin(host);
+      if (!origin) return json(res, 403, { error: 'This workshop address is not enabled.' });
+      const url = new URL(req.url, origin);
       if (url.pathname === '/api/status' && req.method === 'GET') return json(res, 200, { mode: apiKey ? 'ai' : 'examples' });
       if (url.pathname === '/api/export' && req.method === 'POST') {
-        if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         const chunks = []; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 150000) return json(res, 413, { error: 'That game is too large.' }); chunks.push(chunk); }
         let input;
         try { input = validateExport(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch (error) { return json(res, 400, { error: error.message }); }
         const archive = await exportGame(input);
-        res.writeHead(200, { 'Content-Type': 'application/zip', 'Content-Length': archive.length,
+        res.writeHead(200, { 'Content-Type': 'application/zip',
           'Content-Disposition': `attachment; filename="little-makers-${input.template}.zip"`, 'Cache-Control': 'no-store' });
-        return res.end(archive);
+        // Stream the ZIP so it can exceed Vercel's buffered response limit.
+        await pipeline(Readable.from((function* () {
+          for (let offset = 0; offset < archive.length; offset += 64 * 1024) yield archive.subarray(offset, offset + 64 * 1024);
+        })()), res);
+        return;
       }
       if (url.pathname === '/api/voice' && req.method === 'POST') {
-        if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         let raw = ''; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 100000) return json(res, 413, { error: 'Voice context is too large.' }); raw += chunk; }
@@ -79,7 +87,7 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       }
       if (['/api/help', '/api/lesson-help'].includes(url.pathname) && req.method === 'POST') {
         const isLesson = url.pathname === '/api/lesson-help';
-        if (req.headers.origin && req.headers.origin !== 'http://' + host) return json(res, 403, { error: 'Please use the workshop tab.' });
+        if (req.headers.origin && req.headers.origin !== origin) return json(res, 403, { error: 'Please use the workshop tab.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected JSON.' });
         let raw = ''; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 60000) return json(res, 413, { error: 'That question is too large.' }); raw += chunk; }
@@ -128,11 +136,15 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
         'Content-Length': body.length, 'X-Content-Type-Options': 'nosniff',
         'Cache-Control': vendor ? 'public, max-age=86400' : 'no-cache' });
       res.end(req.method === 'HEAD' ? undefined : body);
-    } catch (error) { json(res, error.code === 'ENOENT' ? 404 : 500, { error: 'Could not load that resource.' }); }
+    } catch (error) {
+      if (res.headersSent || res.destroyed) { res.destroy(); return; }
+      json(res, error.code === 'ENOENT' ? 404 : 500, { error: 'Could not load that resource.' });
+    }
   });
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const port = Number(process.env.WORKSHOP_PORT || 4179);
-  createServer().listen(port, '127.0.0.1', () => console.log(`Little Makers: http://localhost:${port} · helper: ${process.env.OPENAI_API_KEY ? 'AI connected' : 'built-in examples'}`));
+// Vercel imports the entrypoint and captures listen(); local tests only import the factory.
+if (process.env.VERCEL === '1' || (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))) {
+  const config = serverConfig();
+  createServer({ config }).listen(config.port, config.bindHost, () => console.log(`Little Makers listening on ${config.bindHost}:${config.port} · helper: ${process.env.OPENAI_API_KEY ? 'AI connected' : 'built-in examples'}`));
 }

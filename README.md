@@ -32,6 +32,13 @@ Optionally set
 `node --env-file=/absolute/path/to/file server.mjs`. Keys stay on the server.
 Without a key the interface explicitly offers built-in guided examples, not AI chat.
 
+## Deploy
+
+See the [Vercel deployment guide](docs/deployment.md) for GitHub import settings,
+public host configuration, `game.blackbird.pw` DNS/HTTPS and launch checks.
+`npm run build` prepares the browser Python assets for static hosting. Local
+development still uses `npm start`; no build is required locally.
+
 ## Try
 
 The title screen pairs a forest-game illustration with two starting paths: learning
