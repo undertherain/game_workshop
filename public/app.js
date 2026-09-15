@@ -303,8 +303,22 @@ $('reset-code').onclick=()=>{
   $('editor-guide-focus').click();
   $('line-note').textContent='Starting code restored. Undo brings your previous code back.';
 };
-$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+function closeDownloads(restoreFocus = false) {
+  $('game-downloads').open = false;
+  if (restoreFocus) $('game-download-toggle').focus();
+}
+$('game-downloads').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { event.preventDefault(); closeDownloads(true); }
+});
+$('game-downloads').addEventListener('focusout', event => {
+  if (event.relatedTarget && !$('game-downloads').contains(event.relatedTarget)) closeDownloads();
+});
+document.addEventListener('pointerdown', event => {
+  if ($('game-downloads').open && !$('game-downloads').contains(event.target)) closeDownloads();
+});
+$('download').onclick=()=>{closeDownloads(true);$('export-status').textContent='Python code downloaded as my_game.py.';const url=URL.createObjectURL(new Blob([editor.value],{type:'text/x-python'}));const a=document.createElement('a');a.href=url;a.download='my_game.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('export-game').onclick=async()=>{
+  closeDownloads(true);
   const button=$('export-game'),status=$('export-status');
   const template=templateId,source=editor.value;
   button.disabled=true;status.textContent='Packing your game…';
@@ -460,6 +474,7 @@ try {
   let initial='breaker';try{initial=localStorage.getItem('little-makers-active-template')||initial;}catch{}
   await selectTemplate(templates[initial]?initial:'breaker');
   $('export-game').disabled=false;
+  $('download').disabled=false;
   const status=await(await fetch('/api/status')).json();
   $('helper-mode').textContent=status.mode==='ai'?'Your AI coding companion · you make the changes':'Built-in examples · live AI is not connected';
   $('helper-badge').textContent=status.mode==='ai'?'AI helper':'Examples';

@@ -9,6 +9,9 @@ import { progress, movementOffer } from './progress.js';
 import { restoreProvidedLines, allowsLessonEdit, editableRange } from './lesson-editing.js';
 import { resolveLesson, migrateDraft, lessonPosition, lessonChapters, editorHelp, canRecordPractice, requiresQuizAnswer } from './lesson-model.js';
 const $ = id => document.getElementById(id);
+const titleScene = createScene($('title-world'), () => titleScene.draw(0));
+titleScene.update({ ...initialState, player: { ...initialState.player, x: 252, y: 345 } });
+titleScene.draw(0);
 const input = $('lesson-code'), canvas = $('lesson-game'), scene = createScene(canvas), ctx = canvas.getContext('2d');
 let hasLastLesson = false;
 let index = 0, drafts = {}, worker, ready = false, busy = false, timer, requestPending = false;
@@ -338,6 +341,7 @@ function renderMap() {
 const museum = createMuseum((id, complete) => openWorkshop(id, complete), id => openMuseum(id));
 function openMuseum(id) { updateRoute('#museum'+(id?'/'+id:'')); setMode('museum'); museum.show(id); }
 function setMode(mode) {
+  $('game-downloads').open = false;
   museum.hide();window.workshop?.cancelQuestion();
   stopPipVoice();
   dismissEditHint();
@@ -353,8 +357,10 @@ function setMode(mode) {
 function openHome() {
   updateRoute('');
   setMode('home');
-  $('resume-lesson').textContent = hasLastLesson ? `Last lesson: ${current().title}` : `Start with: ${lessons[0].title}. No Python experience needed.`;
-  $('title-continue').textContent = hasLastLesson ? 'Continue to last lesson →' : 'Start your first lesson →';
+  $('title-learn-label').textContent = hasLastLesson ? 'WELCOME BACK' : 'NEW TO CODING? START HERE';
+  $('title-learn-heading').textContent = hasLastLesson ? 'Keep your ideas growing' : 'Learn a little Python';
+  $('resume-lesson').textContent = hasLastLesson ? `Pick up where you left off: ${current().title}.` : 'Give your fox its first instruction, then discover what comes next. No experience needed.';
+  $('title-continue-label').textContent = hasLastLesson ? 'Continue to last lesson →' : 'Start your first lesson →';
   $('title-screen-heading').focus({ preventScroll: true });
 }
 function openMap() { updateRoute('#map'); setMode('map'); renderMap(); $('map-title').focus(); }

@@ -34,8 +34,10 @@ Without a key the interface explicitly offers built-in guided examples, not AI c
 
 ## Try
 
-The title screen introduces the workshop, links to the Study map, and offers
-Continue to last lesson (or Start your first lesson for a new browser). Clicking
+The title screen pairs a forest-game illustration with two starting paths: learning
+Python and exploring the game gallery. Returning learners see their saved lesson
+and Continue to last lesson; new learners see Start your first lesson. The learning
+map is a secondary link below those paths. Clicking
 the Little Makers logo returns here from any activity. Returning keeps lesson
 drafts and the last visited lesson. Each lesson has a shareable URL such as
 `/#lesson/greeting`; refreshing keeps that lesson open. Browser Back/Forward follows
@@ -165,7 +167,7 @@ startup. Reduced-motion preferences disable preview animation and zoom transitio
 The gallery becomes a vertical card list on narrow screens.
 
 Complete-game drafts remain separate from exercise drafts; reset restores the complete
-program and Undo recovers edits. Export playable game ZIP includes the current draft.
+program and Undo recovers edits. Download → Playable game includes the current draft.
 **Back to game** returns to the selected game’s three paths; **All games** returns to
 the gallery. Routes retain `/#museum`, `/#museum/breaker` and
 `/#workshop/breaker/complete`, including refresh and browser Back/Forward support.
@@ -200,8 +202,8 @@ Older shared paddle drafts remain stored separately.
 6. **Reset code** restores the starter and stops playback. In Platformer and Paratroopers it returns to
    the first exercise; **Undo edit** recovers the previous code and exercise. Intro
    lessons reset only their own code and offer **Undo reset**. Learning progress is
-   kept. Use **Save Python** to save just your source, or **Export playable game** for
-   a complete offline game ZIP. Ctrl/Cmd+Enter runs code. On touch devices,
+   kept. Use **Download → Playable game** for a complete offline game ZIP,
+   including the Python source. **Python code only** is a secondary download option. Ctrl/Cmd+Enter runs code. On touch devices,
    on-screen controls supply the same inputs once the child has implemented them.
 
 ### Build a crate puzzle with Sokoban
@@ -230,7 +232,8 @@ original complete platformer sample.
 
 ## Export and play independently
 
-In any of the four game workshops, click **Export playable game** below the editor.
+In any of the four game workshops, choose **Download → Playable game** beside
+the game title. The menu also offers **Python code only** for a source-only file.
 Extract the ZIP, then run `python3 play.py` from that folder (Windows: `py play.py`).
 The launcher opens the game in your browser. Keep its terminal open while playing;
 Ctrl+C stops the local server. Python 3 must already be installed, but no Node,
@@ -245,7 +248,7 @@ folder with any static HTTP host; subfolder hosting is supported. Opening `index
 directly with `file://` does not work.
 
 These are standalone browser bundles. Native desktop executable packaging is not
-implemented. **Save Python** still downloads source only. Introductory lesson programs
+implemented. **Download → Python code only** downloads source only. Introductory lesson programs
 are not game exports.
 
 ## Slide tutor

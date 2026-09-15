@@ -27,7 +27,7 @@ access and callbacks still work. See the [framework note](../docs/framework-nort
 for scope and the proposed browser/standalone backend boundary.
 
 `standalone/` contains the exported player, responsive controls and standard-library
-Python launcher. **Export playable game** sends the selected template and exact
+Python launcher. **Download → Playable game** sends the selected template and exact
 editor draft to `/api/export`; the server packages an allowlisted set of files,
 including this same worker and scene renderer, all runtime dependencies and artwork.
 The player loads `game.json` and `my_game.py` relative to its own URL, so extracted
@@ -179,3 +179,18 @@ Regenerate after changing complete programs, initial worlds or snapshot formats.
 Animation is opt-in, respects reduced motion, and stops outside the museum or while
 the tab is hidden. No Python worker is needed for browsing. Card selection has a
 short zoom transition; the existing museum routes now distinguish gallery and detail.
+
+
+`title-screen.css` styles the home introduction, forest illustration, two starting
+paths and secondary map link. `lessons.js` draws the illustration once through the
+shared scene renderer and redraws when forest artwork arrives; it starts no game
+worker or animation for the title screen. The Python card adapts to the saved lesson,
+using the existing navigation and draft storage. Each starting panel is a single
+native button, with whole-card hover/focus feedback and Enter/Space activation.
+The layout stacks on small screens.
+
+
+The game heading has one **Download** menu, with the complete playable ZIP first
+and **Python code only** as a secondary option. Download feedback appears below the
+heading when needed. The menu supports keyboard use, Escape, outside clicks and
+focus leaving the menu; navigation closes it. The editor has no separate export row.

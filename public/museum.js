@@ -82,7 +82,7 @@ export function createMuseum(openGame, navigate) {
     $('museum-preview-play').textContent = play ? 'Ⅱ Pause preview' : '▶ Animate preview';
   };
   const available = games.filter(game => game.available);
-  $('museum-count').textContent = `${available.length} games · endless little experiments`;
+  $('museum-count').textContent = `${available.length} playable games`;
   $('museum-coming').textContent = 'On the horizon: ' + games.filter(game => !game.available).map(game => game.title).join(' & ') + ' · coming later';
   for (const [index, game] of available.entries()) {
     const card = document.createElement('button'); card.className = 'museum-card';

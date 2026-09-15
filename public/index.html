@@ -10,21 +10,34 @@
   <link rel="stylesheet" href="/lessons.css">
   <link rel="stylesheet" href="/pip-pointer.css">
   <link rel="stylesheet" href="/museum.css">
+  <link rel="stylesheet" href="/title-screen.css">
 </head>
 <body data-mode="home">
   <header class="topbar">
     <a id="home-link" class="brand" href="/" aria-label="Little Makers title screen"><span class="brand-mark">✳</span> little makers<span class="brand-note">a game-making playground</span></a>
-    <div class="header-actions"><button id="museum-toggle" disabled>Game workshop</button><button id="map-toggle" disabled>Learning map</button><button id="mode-toggle" disabled>Open game workshop ↗</button><span id="save-status">Saved in this browser</span><button id="download" class="quiet">↓ Save Python</button></div>
+    <div class="header-actions"><button id="museum-toggle" disabled>Game workshop</button><button id="map-toggle" disabled>Learning map</button><button id="mode-toggle" disabled>Open game workshop ↗</button><span id="save-status">Saved in this browser</span></div>
   </header>
   <main id="title-screen" aria-labelledby="title-screen-heading">
-    <p class="eyebrow">LEARN PYTHON · MAKE GAMES</p>
-    <h1 id="title-screen-heading" tabindex="-1">Little Makers</h1>
-    <p class="title-intro">Learn Python by making things happen.</p>
-    <p class="title-description">Start with a fox that follows your instructions. Read a short explanation, try some code, and see what changes. Then use what you’ve learned to build a game.</p>
-    <div class="title-actions">
-      <section class="title-choice"><h2>Pick up where you left off</h2><p id="resume-lesson">Your first Python instruction.</p><button id="title-continue" class="primary" disabled>Continue to last lesson →</button></section>
-      <section class="title-choice"><h2>Find a game. Make it yours.</h2><p>Explore the classics, discover their rules, then build your own twist.</p><button id="title-museum" class="primary" disabled>Game workshop →</button></section><section class="title-choice"><h2>Choose what to learn</h2><p>Explore Python basics, try drawing, or open a game workshop. You can visit any lesson.</p><button id="title-map" class="quiet" disabled>Study map →</button></section>
+    <div class="title-hero">
+      <div class="title-copy">
+        <p class="eyebrow">A GAME-MAKING PLAYGROUND</p>
+        <h1 id="title-screen-heading" tabindex="-1">A little code.<br><em>A world of <br>your own.</em></h1>
+        <p class="title-intro">Learn Python. Bring your ideas to life.</p>
+        <p class="title-description">Make a fox jump, build a game, or change the rules. Start small. See what you can make.</p>
+      </div>
+      <figure class="title-world">
+        <div class="title-world-frame"><canvas id="title-world" width="840" height="480" role="img" aria-label="A pixel-art fox explores a forest of floating platforms and golden stars."></canvas><span class="title-world-label">A WORLD YOU CAN MAKE YOURS</span></div>
+        <figcaption class="title-code-note"><span class="title-code-spark" aria-hidden="true">✧</span><div><span>It starts with a little instruction.</span><code><span>fox</span>.jump<span>()</span></code></div><span class="title-code-arrow" aria-hidden="true">↗</span></figcaption>
+        <span class="title-world-star" aria-hidden="true">✳</span>
+      </figure>
     </div>
+    <div class="title-path-heading"><h2>Where will your curiosity take you?</h2><span>Two ways in. Your pace.</span></div>
+    <div class="title-actions">
+      <button id="title-continue" type="button" class="title-choice title-learn" aria-labelledby="title-learn-heading title-continue-label" aria-describedby="resume-lesson" disabled><span class="title-choice-copy"><span id="title-learn-label" class="eyebrow">NEW TO CODING? START HERE</span><strong id="title-learn-heading" class="title-choice-title">Learn a little Python</strong><span id="resume-lesson" class="title-choice-description">Give your fox its first instruction, then discover what comes next.</span></span><span id="title-continue-label" class="title-choice-link">Start your first lesson →</span><span class="title-choice-mark" aria-hidden="true">&lt;/&gt;</span></button>
+      <button id="title-museum" type="button" class="title-choice title-games" aria-labelledby="title-games-heading" aria-describedby="title-games-description" disabled><span class="title-choice-copy"><span class="eyebrow">LEARN THROUGH PLAY</span><strong id="title-games-heading" class="title-choice-title">Find a game. Make it yours.</strong><span id="title-games-description" class="title-choice-description">Explore the classics. Discover their rules, build them step by step, or try your own twist.</span></span><span class="title-choice-link">Explore games →</span><span class="title-choice-mark" aria-hidden="true">✳</span></button>
+    </div>
+    <div class="title-map-link"><p>Prefer to see the whole adventure?</p><button id="title-map" class="quiet" disabled>Explore the learning map <span aria-hidden="true">↗</span></button></div>
+    <footer class="title-footer"><span>Small steps. Room to experiment.</span><span>Made for the “can I make a game?” kind of curious.</span></footer>
   </main>
   <main id="learning-map" hidden aria-labelledby="map-title">
     <div class="intro"><div><p class="eyebrow">LITTLE MAKERS · YOUR LEARNING MAP</p><h1 id="map-title" tabindex="-1">Small discoveries. <em>Your own games.</em></h1><p>Follow the foundations, take a drawing detour, or pick a game to build.</p></div></div>
@@ -36,9 +49,9 @@
   <main id="museum" hidden aria-labelledby="museum-title">
     <section id="museum-gallery">
       <div class="museum-heading"><div><p class="eyebrow">THE GOLDEN CLASSICS COLLECTION</p>
-      <h1 id="museum-title" tabindex="-1">Small games.<br><em>Big possibilities.</em></h1>
-      <p class="museum-lead">Pick a world. Discover what makes it tick. Make it yours.</p></div>
-      <div class="collection-stamp" aria-hidden="true"><span>PLAY · LEARN · MAKE</span><strong>✳</strong><span>YOUR NEXT CREATION</span></div></div>
+      <h1 id="museum-title" tabindex="-1">Classic game museum</h1>
+      <p class="museum-lead">Explore classic games, learn to build them with Python, or use a complete game as the starting point for your own.</p></div>
+      <div class="collection-stamp" aria-hidden="true"><span>PLAY · LEARN · MAKE</span><strong>✳</strong><span>THE GAME COLLECTION</span></div></div>
       <div class="gallery-topline"><h2>Choose your game</h2><span id="museum-count"></span></div>
       <div id="museum-cards"></div>
       <p id="museum-coming" class="museum-coming"></p>
@@ -106,7 +119,8 @@
   </aside>
   </div>
   <main id="workshop-main" hidden>
-    <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><button id="browse-games" class="quiet">← Back to game</button></div>
+    <div class="workshop-heading"><h1 id="selected-game">Game workshop</h1><div class="workshop-actions"><button id="browse-games" class="quiet">← Back to game</button><details id="game-downloads"><summary id="game-download-toggle">↓ Download <span aria-hidden="true">⌄</span></summary><div class="game-download-options"><button id="export-game" disabled><strong>Playable game <span>.zip</span></strong><small>Game, artwork, and Python code</small></button><button id="download" disabled><strong>Python code only <span>.py</span></strong><small>Just your code, without the game player</small></button></div></details></div></div>
+    <p id="export-status" role="status"></p>
     <section id="transfer-offer" class="transfer-offer" hidden><strong>A familiar skill, a new game</strong><p id="transfer-message"></p><details><summary>See the controls that will be included</summary><pre id="transfer-preview"></pre></details><div><button id="transfer-use" class="primary">Include controls · try the next mechanic</button><button id="transfer-practice" class="quiet">I’ll practise controls again</button></div></section>
     <section id="build-path" class="build-path" aria-label="Your guided build"><div id="build-steps" class="build-steps"></div><div class="build-detail"><div><strong id="step-title"></strong><p id="step-description"></p><p id="exercise-result" role="status"></p></div><div class="step-actions"><button id="guide-step" class="quiet">Give me a hint ↗</button><button id="check-step" class="small-primary">Check my step ✓</button><button id="next-step" class="quiet">Next →</button></div></div></section>
     <div class="workspace">
@@ -129,7 +143,6 @@
         <div class="panel-heading"><div><span class="code-icon">&lt;/&gt;</span><strong id="code-title">Your game’s rules</strong></div><span class="language-badge">Python</span></div>
         <div class="file-tab"><span>◦ my_game.py</span><span id="code-state">Ready to explore</span></div>
         <div class="run-bar"><div class="code-edit-actions"><button id="undo" class="quiet" disabled>↶ Undo edit</button><button id="reset-code" class="quiet" disabled title="Restore the starting code for this exercise">↺ Reset code</button></div><button id="run" aria-pressed="false" class="primary" disabled>▶ Run my code</button></div>
-        <div class="export-bar"><button id="export-game" class="quiet" disabled>↓ Export playable game ZIP</button><span id="export-status" role="status">Whole game + artwork + runtime · launch with Python 3</span></div>
         <div id="editor-guide" class="editor-guide" hidden><div><strong>Your turn</strong><p id="editor-guide-message"></p></div><button id="editor-guide-unlock" type="button" hidden>Edit whole file</button><button id="editor-guide-focus" type="button">Write here ↗</button></div>
         <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><div class="code-scroll"><pre id="syntax" aria-hidden="true"></pre><textarea id="editor" aria-describedby="editor-guide-message" aria-label="Your Python game code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
         <div id="line-note" class="line-note">✧ Start with a number. See what happens.</div>

@@ -4,7 +4,7 @@
 #museum-title { font-size: clamp(48px, 5.8vw, 78px); line-height: 1.03; letter-spacing: -3px; margin: 16px 0 20px; }
 #museum-title em { color: #8a6748; font-weight: 400; }
 #museum-title:focus, #museum-game-title:focus, #museum-story-title:focus { outline: none; }
-.museum-lead { color: #627469; font-size: 16px; line-height: 1.7; margin: 0; }
+.museum-lead { max-width: 680px; color: #627469; font-size: 16px; line-height: 1.7; margin: 0; }
 .collection-stamp { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 172px; height: 172px; border: 1px solid #c9d1bc; border-radius: 50%; background: radial-gradient(circle, #e6ebd7, transparent 72%); transform: rotate(12deg); flex-shrink: 0; margin-right: 28px; }
 .collection-stamp span { font-size: 9px; letter-spacing: 2px; }.collection-stamp strong { font-size: 78px; line-height: 1.3; font-weight: 400; color: #6a8056; }
 .gallery-topline { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 24px; }
