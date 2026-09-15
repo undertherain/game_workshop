@@ -1,0 +1,6 @@
+/* Pip's speech pointer sits above existing guidance without intercepting edits. */
+.pip-code-pointer { position:absolute; z-index:2; pointer-events:none; border-radius:4px; background:#d7b5f12e; box-shadow:inset 2px 0 #9667b5; }
+.pip-code-pointer > span { position:absolute; left:0; top:50%; transform:translateY(-50%); color:#79449d; font:11px/1 system-ui; text-shadow:0 0 7px #c9a3e9; animation:pip-sparkle 1.8s ease-in-out infinite; }
+.pip-pointer-mirror { position:absolute; left:0; top:0; height:0; overflow:hidden; visibility:hidden; pointer-events:none; box-sizing:border-box; border:0; margin:0; }
+@keyframes pip-sparkle { 50% { opacity:.6; text-shadow:0 0 11px #ae75d6; } }
+@media(prefers-reduced-motion:reduce) { .pip-code-pointer > span { animation:none; } }

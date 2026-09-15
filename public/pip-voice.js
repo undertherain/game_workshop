@@ -1,5 +1,6 @@
 // Adapted from Projects/AI/Voice/demos/web: Live WebRTC, captions and graceful close.
 import { createVoiceCaptions } from './voice-captions.js';
+import { createCodePointer, createSpokenPointer } from './pip-pointer.js';
 let activeCall;
 export function stopPipVoice(reason = 'Voice ended. Microphone off.') { activeCall?.stop(reason); }
 
@@ -19,6 +20,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   let call;
 
   function finish(current, message) {
+    current.spokenPointer?.clear(); current.pointer?.destroy();
     clearTimeout(current.timer); clearTimeout(current.closeTimer);
     clearInterval(current.contextTimer);
     current.controller.abort();
@@ -35,6 +37,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   function stop(current, message) {
     if (current.closing || call !== current) return;
     current.closing = true;
+    current.spokenPointer?.clear(); current.pointer?.destroy();
     current.stream?.getTracks().forEach(track => track.stop());
     audio.pause(); audio.srcObject = null;
     clearTimeout(current.timer);
@@ -60,6 +63,11 @@ export function createPipVoice(container, kind, getContext, createMessage) {
     const alive = () => call === current && !current.closing;
     try {
       const context = getContext();
+      const editor = document.getElementById(kind === 'lesson' ? 'lesson-code' : 'editor');
+      if (editor?.getClientRects().length && context.code?.trim()) {
+        current.pointer = createCodePointer(editor);
+        current.spokenPointer = createSpokenPointer(context.code, line => current.pointer.show(line), () => current.pointer.clear());
+      }
       const contextVersion = value => JSON.stringify([value.lessonId, value.template, value.exercise?.index, value.code, value.runningCode, value.feedback, value.error]);
       const version = contextVersion(context);
       current.contextTimer = setInterval(() => {
@@ -92,7 +100,11 @@ export function createPipVoice(container, kind, getContext, createMessage) {
           talk.textContent = 'End voice'; mute.hidden = false;
           status.textContent = 'Listening · speak to Pip. You can interrupt.';
         } else if (event.type === 'error') stop(current, 'Pip’s voice encountered a problem. Please reconnect.');
-        else current.caption(event);
+        else {
+          if (version !== contextVersion(getContext())) { stop(current, 'Activity changed. Start voice again to share the updated code and feedback.'); return; }
+          current.spokenPointer?.receive(event);
+          current.caption(event);
+        }
       };
       channel.onclose = () => { if (alive()) finish(current, 'Voice connection closed. Microphone off.'); };
       await peer.setLocalDescription(await peer.createOffer());

@@ -97,6 +97,17 @@ each panel updates its shared in-memory history as speech arrives. `voice-tutor.
 configuration and delegates coding questions to the existing tutor with canonical
 activity context. `/api/voice` exchanges SDP without exposing the API key.
 
+`pip-pointer.js` reads explicit spoken line references from assistant captions and
+draws a separate overlay in the active editor. The voice tutor receives canonical
+numbered editor lines, including blank lines; only existing nonblank targets can
+be highlighted. English number words through 99 and digits are supported after
+“line”; digits also work after “ligne”, “línea”, “linha”, “lijn”, “Zeile” and
+“wiersz”. Other phrasings may produce no pointer. References split across captions
+are buffered, and learner captions clear the pointer without moving it. Timing
+follows caption arrival rather than a word-level audio clock. A hidden text mirror
+measures wrapping and responsive fonts; the overlay never changes code or selection.
+`pip-pointer.css` provides the sparkle and respects reduced-motion preferences.
+
 Introductory editors use a cream background for editable code, including fully
 editable early cells. Guided cells retain grey supplied lines and a cream editable
 line. A subtle green focus cue replaces the browser’s default textarea outline.

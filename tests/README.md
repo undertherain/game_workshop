@@ -73,3 +73,10 @@ mobile width, plus spoken messages in the main chat, history sent on reconnect, 
 restoring spoken messages after navigating away and back. A real microphone conversation and live delegated tutor reply still
 need end-to-end testing in this app; the earlier Voice playground smoke test does
 not establish those behaviors here.
+
+`pip-pointer.test.mjs` covers fragmented spoken references, invalid/blank targets,
+interruption and stale output, timeout cleanup, and canonical numbered voice context.
+An isolated Chromium check with simulated voice events verified pointer movement
+in both editors, guided-line alignment at desktop/mobile sizes, focus and selection
+preservation, game-editor scrolling, reading slides, edits, and voice-stop cleanup.
+Live microphone-to-highlight timing still needs a real conversation.

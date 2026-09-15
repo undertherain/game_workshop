@@ -217,6 +217,13 @@ stays on the server. The UI identifies Pip as an AI voice. Sessions request
 chat's in-memory history, including across voice calls, and clear on reload.
 Nearby speech fragments are grouped for display; these are not authoritative turn boundaries.
 
+As Pip names an editor line aloud, a purple sparkle and soft highlight point to it
+in either editor. The pointer follows arriving captions, so timing is approximate.
+It leaves focus, selection and code untouched, and scrolls within the editor when
+the named line is out of view. It clears on learner speech captions, code or activity
+changes, voice ending, or eight seconds without output captions. Reading slides
+have no editor pointer. Restart the server and reload after updating this feature.
+
 Pip receives a snapshot of the current lesson or game, code, feedback, progress and
 recent typed and spoken conversation. Voice offers explanations only. Changing activity,
 changing code or run feedback, or leaving the tab ends voice; start it again to share
