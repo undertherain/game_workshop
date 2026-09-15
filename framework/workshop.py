@@ -140,11 +140,23 @@ class Ball:
 
 class Cannon:
     def __init__(self, game):
-        self.x, self.speed, self._game = 420, 5, game
+        self.angle, self.turn_speed, self._game = 0, 2, game
+
+    @property
+    def x(self):
+        return 420
+
+    def aim(self):
+        self.angle = max(-75, min(75, self.angle))
 
     def fire(self):
         if self._game.cooldown <= 0:
-            self._game.sparks.append({"x": self.x, "y": 401})
+            self._game.validate()
+            self.aim()
+            radians = math.radians(self.angle)
+            dx, dy = math.sin(radians), -math.cos(radians)
+            self._game.sparks.append({"x": self.x + dx * 28, "y": 410 + dy * 28,
+                                      "vx": dx * 7, "vy": dy * 7})
             self._game.cooldown = 12
 
 
@@ -162,7 +174,8 @@ class ArcadeGame:
             self.items = [Brick(x=83+c*98, y=87+r*29, width=88, height=19, row=r)
                           for r in range(4) for c in range(7)]
         else:
-            self.items = [Item(x=75+i*95, y=-55-(i%4)*85, drift=0.2 if i%2 else -0.2)
+            self.items = [Item(x=75+i*95, y=-55-(i%4)*85, drift=0.2 if i%2 else -0.2,
+                               parachute=True, vy=0, canopy_sway=math.sin(i)*3)
                           for i in range(8)]
         self.scope = {"world": self.world, "keyboard": self.keyboard,
                       "paddle": self.paddle, "ball": self.ball, "cannon": self.cannon}
@@ -192,11 +205,13 @@ class ArcadeGame:
                 raise ValueError("Try a ball speed between -15 and 15 so it can find the bricks")
         elif not 0 < self.world.fall_speed <= 5:
             raise ValueError("Try a world.fall_speed greater than 0 and up to 5")
+        if self.kind == "paratroopers":
+            self.cannon.aim()
 
     def snapshot(self):
         self.validate()
         return {"kind": self.kind, "world": vars(self.world), "paddle": vars(self.paddle),
-                "ball": vars(self.ball), "cannon": {"x": self.cannon.x, "speed": self.cannon.speed},
+                "ball": vars(self.ball), "cannon": {"x": self.cannon.x, "angle": self.cannon.angle, "turn_speed": self.cannon.turn_speed},
                 "items": [vars(i) for i in self.items], "sparks": self.sparks,
                 "hits": self.hits, "misses": self.misses, "bounces": self.bounces,
                 "collected": sum(not i.visible for i in self.items), "won": all(not i.visible for i in self.items),
@@ -244,28 +259,48 @@ class ArcadeGame:
             ball.x, ball.y, ball.vy = paddle.x, 375, -max(2, abs(ball.vy))
 
     def step_patrol(self):
-        self.cannon.x = max(30, min(810, self.cannon.x))
         self.cooldown -= 1
-        for target in self.items:
+        for index, target in enumerate(self.items):
             if not target.visible:
                 continue
-            target.y += self.world.fall_speed
+            target.canopy_sway = math.sin(self.ticks / 30 + index) * 3
+            if target.parachute:
+                target.y += self.world.fall_speed
+            else:
+                target.vy = min(8, target.vy + 0.18)
+                target.y += target.vy
             target.x += target.drift
             if target.x < 35 or target.x > 805:
                 target.drift *= -1
             if target.y > 416:
-                self.misses += 1
-                target.y = -60
+                if target.parachute:
+                    self.misses += 1
+                    target.y = -60
+                else:
+                    target.y = 416
+                    self.scope["on_hit"](target)
+                    target.hide()
+                    self.hits += 1
         remaining = []
         for spark in self.sparks:
-            spark["y"] -= 7
-            hit = next((target for target in self.items if target.visible and
-                        abs(spark["x"]-target.x) < 22 and abs(spark["y"]-target.y) < 23), None)
-            if hit:
-                self.scope["on_hit"](hit)
-                self.hits += 1
-            elif spark["y"] > -20:
-                remaining.append(spark)
+            spark["x"] += spark["vx"]
+            spark["y"] += spark["vy"]
+            for target in self.items:
+                if not target.visible:
+                    continue
+                dx, dy = spark["x"] - target.x, spark["y"] - target.y
+                # Robot body and canopy are separate, with a small spark-radius margin.
+                if abs(dx) <= 16 and -9 <= dy <= 23:
+                    self.scope["on_hit"](target)
+                    self.hits += 1
+                    break
+                if target.parachute and dy <= -25 and (dx-target.canopy_sway)**2 + (dy+28)**2 <= 27**2:
+                    target.parachute = False
+                    target.vy = self.world.fall_speed
+                    break
+            else:
+                if spark["y"] > -20 and -20 < spark["x"] < 860:
+                    remaining.append(spark)
         self.sparks = remaining
 
 

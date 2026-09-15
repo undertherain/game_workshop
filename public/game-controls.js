@@ -13,6 +13,7 @@ export function gameKey(template, event) {
   } else if (['Space', 'ArrowUp', 'KeyW'].includes(event.code)) return 'jump';
 }
 export function gameControls(template) {
+  if (template === 'paratroopers') return '← → / A D: aim · Space: fire';
   if (template === 'asteroids') return '← → / A D: turn · ↑ / W: thrust · Space: fire';
   return template === 'sokoban' ? 'Arrow keys / WASD · U: undo · N: next puzzle' : '← → or A/D to move · Space: '+({platformer:'jump',breaker:'reset ball',paratroopers:'fire',invaders:'fire'}[template] || 'action');
 }
@@ -21,6 +22,6 @@ export function configureGameControls(template, root = document) {
   for (const button of root.querySelectorAll('[data-grid-control]')) button.hidden = template !== 'sokoban';
   for (const button of root.querySelectorAll('[data-flight-control]')) button.hidden = template !== 'asteroids';
   for (const direction of ['left', 'right']) for (const button of root.querySelectorAll(`[data-key="${direction}"]`)) {
-    button.setAttribute('aria-label', `${template === 'asteroids' ? 'Turn' : 'Move'} ${direction}`);
+    button.setAttribute('aria-label', `${template === 'asteroids' ? 'Turn' : template === 'paratroopers' ? 'Aim' : 'Move'} ${direction}`);
   }
 }

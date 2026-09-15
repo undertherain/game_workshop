@@ -17,7 +17,7 @@ class WorkshopFrameworkTests(unittest.TestCase):
         if kind == 'breaker':
             return (PUBLIC / 'examples/breaker_framework.py').read_text()
         return (PUBLIC / 'paratroopers.py').read_text().replace(
-            '    pass', '    if keyboard.right:\n        cannon.x += cannon.speed\n    if keyboard.fire:\n        cannon.fire()')
+            '    pass', '    if keyboard.right:\n        cannon.angle += cannon.turn_speed\n    if keyboard.fire:\n        cannon.fire()')
 
     def test_sessions_and_checks_cannot_change_another_game(self):
         for kind in WorkshopGame.kinds:

@@ -109,12 +109,13 @@ Right-key condition where pass is now. Preserve existing Left movement. Second: 
 Third: score. Fourth: variation.`,
   paratroopers: `Selected game: Sky Patrol, a Paratroopers-style launcher intercepting parachuting robots.
 No player, Actor, world.gravity, paddle, ball, or on_collect. Objects already exist:
-cannon (x=420,speed=5) and world (score=0,fall_speed=.7,sky="mint").
-def update(): runs 60Hz. keyboard.left/right held keys move cannon.x by cannon.speed.
+cannon (fixed x=420,angle=0,turn_speed=2) and world (score=0,fall_speed=.7,sky="mint").
+def update(): runs 60Hz. keyboard.left/right held keys decrease/increase cannon.angle by cannon.turn_speed. Zero aims straight up; angles clamp to -75 (left) through 75 (right). The base stays fixed.
 keyboard.fire is true on first Space/W/Up press, not on hold. if keyboard.fire: cannon.fire() launches a spark.
-cannon.fire() has a 12-tick cooldown. The engine moves sparks upward and detects robot hits.
-def on_hit(target): target.hide() removes it; world.score += n adds points. Choose positive points freely.
-world.fall_speed must be >0 and <=5. Sky peach/lavender/mint/night. Eight robots recycle from the top if missed.
+cannon.fire() has a 12-tick cooldown. The engine moves sparks along the firing angle and detects robot hits.
+A canopy hit removes the parachute and the visible robot accelerates downward. It does not score immediately.
+def on_hit(target): called on a body hit or when a robot without its parachute reaches the ground. target.hide() removes it; world.score += n adds points. Choose positive points freely. The engine removes crashed robots after this callback so landing scores only once.
+world.fall_speed must be >0 and <=5. Sky peach/lavender/mint/night. Eight robots with intact parachutes recycle from the top if missed.
 Win when all eight are intercepted; no lives/game-over. No new sprites or sound API.
 First exercise: arrow keys where pass is now. Second: fire button. Third: score. Fourth: variation.`,
 };
@@ -181,7 +182,7 @@ export function guidedExample({ question, code, template='platformer', exercise,
     const step = exercise?.index || 0;
     const who = template === 'breaker' ? 'paddle' : template === 'paratroopers' ? 'cannon' : 'player';
     const hints = [
-      template === 'breaker' ? 'Left already works: its rule makes paddle.x smaller. Add a matching keyboard.right condition that makes paddle.x bigger.' : `Inside update(), check keyboard.right before making ${who}.x bigger. Then add the matching left-key rule.`,
+      template === 'breaker' ? 'Left already works: its rule makes paddle.x smaller. Add a matching keyboard.right condition that makes paddle.x bigger.' : template === 'paratroopers' ? 'Inside update(), decrease cannon.angle by cannon.turn_speed for Left and increase it for Right. The base stays fixed.' : `Inside update(), check keyboard.right before making ${who}.x bigger. Then add the matching left-key rule.`,
       template === 'breaker' ? 'Inside on_paddle(), ball.x minus paddle.x tells you which side was hit. Use that to choose ball.vx and keep the upward bounce.' : template === 'paratroopers' ? 'Inside update(), keyboard.fire tells you Space was pressed. Call cannon.fire() inside that condition.' : 'Inside update(), check keyboard.jump and player.on_ground. A negative player.vy gives an upward push.',
       'Inside your last event function, add a positive number to world.score. Keep the hide() call so the object disappears.',
       'Try changing a speed or choose a different world.sky: "peach", "lavender", "mint", or "night".',

@@ -68,13 +68,15 @@ export function createScene(canvas, onInvalidate = () => {}) {
       ctx.fillStyle='#e7e8d680';ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillText('Every bounce is a new chance.',420,462);
     }else{
       for(const [index,target] of state.items.entries())if(target.visible){
-        const {x,y}=target,sway=Math.sin(time*.002+index)*3;
-        ctx.save();ctx.translate(x,y);ctx.strokeStyle='#6b897c';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-23+sway,-28);ctx.lineTo(-7,0);ctx.moveTo(23+sway,-28);ctx.lineTo(7,0);ctx.moveTo(sway,-29);ctx.lineTo(0,0);ctx.stroke();
-        ctx.fillStyle=index%2?'#e2b791':'#adc7b0';ctx.beginPath();ctx.arc(sway,-28,24,Math.PI,0);ctx.closePath();ctx.fill();ctx.strokeStyle='#fff7e54d';ctx.beginPath();ctx.ellipse(sway,-28,10,24,0,Math.PI,0);ctx.stroke();
+        const {x,y}=target,sway=target.canopy_sway??0;
+        ctx.save();ctx.translate(x,y);
+        if(target.parachute!==false){ctx.strokeStyle='#6b897c';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-23+sway,-28);ctx.lineTo(-7,0);ctx.moveTo(23+sway,-28);ctx.lineTo(7,0);ctx.moveTo(sway,-29);ctx.lineTo(0,0);ctx.stroke();
+        ctx.fillStyle=index%2?'#e2b791':'#adc7b0';ctx.beginPath();ctx.arc(sway,-28,24,Math.PI,0);ctx.closePath();ctx.fill();ctx.strokeStyle='#fff7e54d';ctx.beginPath();ctx.ellipse(sway,-28,10,24,0,Math.PI,0);ctx.stroke();}
+        if(target.parachute===false){ctx.strokeStyle='#fff7e580';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-7,-18);ctx.lineTo(-7,-31);ctx.moveTo(7,-23);ctx.lineTo(7,-38);ctx.stroke();}
         ctx.fillStyle='#627f7a';ctx.beginPath();ctx.roundRect(-13,-6,26,20,5);ctx.fill();ctx.fillStyle='#dbe3bd';ctx.beginPath();ctx.roundRect(-9,-2,18,8,3);ctx.fill();ellipse(-4,2,2,2,'#496b68');ellipse(4,2,2,2,'#496b68');ctx.fillStyle='#6b8980';ctx.fillRect(-9,14,5,6);ctx.fillRect(4,14,5,6);ctx.restore();
       }
-      for(const spark of state.sparks){ellipse(spark.x,spark.y,7,12,'#ffe8a433');ellipse(spark.x,spark.y,3,7,'#fff0b3');}
-      const x=state.cannon.x;ellipse(x,431,26,5,'#1e473033');ctx.fillStyle='#527c72';ctx.beginPath();ctx.roundRect(x-22,415,44,14,7);ctx.fill();ellipse(x-13,427,7,7,'#395c54');ellipse(x+13,427,7,7,'#395c54');ctx.fillStyle='#749d8c';ctx.beginPath();ctx.roundRect(x-15,405,30,15,6);ctx.fill();ctx.fillStyle='#486e65';ctx.beginPath();ctx.roundRect(x-5,388,10,22,3);ctx.fill();ctx.fillStyle='#d9c596';ctx.fillRect(x-5,390,10,4);
+      for(const spark of state.sparks){ctx.save();ctx.translate(spark.x,spark.y);ctx.rotate(Math.atan2(spark.vx??0,-(spark.vy??-7)));ellipse(0,0,7,12,'#ffe8a433');ellipse(0,0,3,7,'#fff0b3');ctx.restore();}
+      const x=state.cannon.x;ellipse(x,431,26,5,'#1e473033');ctx.fillStyle='#527c72';ctx.beginPath();ctx.roundRect(x-22,415,44,14,7);ctx.fill();ellipse(x-13,427,7,7,'#395c54');ellipse(x+13,427,7,7,'#395c54');ctx.fillStyle='#749d8c';ctx.beginPath();ctx.roundRect(x-15,405,30,15,6);ctx.fill();ctx.fillStyle='#486e65';ctx.beginPath();ctx.save();ctx.translate(x,410);ctx.rotate((state.cannon.angle??0)*Math.PI/180);ctx.roundRect(-5,-28,10,30,3);ctx.fill();ctx.fillStyle='#d9c596';ctx.fillRect(-5,-26,10,4);ctx.restore();ellipse(x,410,7,7,'#749d8c');
     }
   }
   function character(x,y,t){

@@ -251,6 +251,23 @@ Custom rooms validate dimensions and tile counts; they are not automatically che
 for solvability. Complete versions and custom puzzle drafts export with the same
 renderer, controls and runtime as the workshop.
 
+### Sky Patrol (Paratroopers)
+
+The cannon stays fixed at the center. Left/Right or A/D tilts its barrel; Space
+fires along that angle. `cannon.angle` is measured in degrees from straight up,
+with negative angles pointing left and positive angles right, limited to −75°…75°.
+`cannon.turn_speed` sets degrees per simulation tick (default 2). Shots keep their
+firing direction. The first exercise teaches aiming and records rotation practice.
+Horizontal movement from another game is not offered as cannon controls.
+
+Hit a parachute to tear it away: the robot stays visible and accelerates downward.
+It counts as intercepted when it reaches the ground, using the same scoring rule
+as a direct robot hit. You can also shoot the falling robot before it lands.
+Robots with intact parachutes still return from the top when missed.
+
+This version uses separate Sky Patrol draft storage so the new controls load on
+return. Older sliding-launcher drafts remain stored under their original keys.
+
 ### Space Invaders and Asteroids
 
 **Space Invaders** adapts the existing Alien invaders example: the same `Game`,

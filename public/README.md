@@ -190,7 +190,7 @@ layouts. `sokoban-scene.js` draws its snapshots without implementing puzzle rule
 `game-controls.js` maps input for both the workshop and exported player; Sokoban
 uses four directions, Undo and Next puzzle. Its lesson starters and complete source
 live in the same content structure as the other games. Grid movement has separate
-progress evidence; paddle/launcher movement is not automatically supplied to it.
+progress evidence; horizontal movement is not automatically supplied to it.
 
 
 `game-previews.js` draws gallery and selected-game previews through `scene.js`.
@@ -258,3 +258,12 @@ Exercises menu still lets learners choose any exercise.
 `app.js` keeps a newly selected game's canvas hidden until its own Python state
 arrives. Python readiness alone does not dismiss the loading overlay, and the draw
 loop skips the default or previous game's scene during selection and startup.
+
+Sky Patrol draws a fixed cannon with a barrel rotated by `cannon.angle`, and sparks
+rotated to their velocity. Aiming uses rotation evidence and separate v2 draft keys;
+older sliding-launcher drafts remain stored. Keyboard/touch labels and the recorded
+preview use the same aiming controls as the exported game.
+
+Sky Patrol snapshots distinguish intact parachutes from falling robots. The canopy
+and ropes disappear after a canopy hit, with fall streaks behind the dropping robot.
+Canopy sway comes from Python so its collision shape matches the drawing.

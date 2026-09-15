@@ -17,7 +17,7 @@ const unlockedExercises = new Set();
 let assisted = false, suppliedControls = false;
 let templateId='breaker', stepIndex=0, sourceCache={}, exerciseFeedback=null, completeMode=false, conversationActivity=null;
 let renderedTemplate = null;
-const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
+const gameStorageKey = () => 'little-makers-exercises-'+(templateId==='paratroopers'?'v2-':'v1-')+templateId;
 const hasStepStarter = () => completeMode || !!templates[templateId].starters?.[stepIndex];
 const storageKey = () => completeMode ? gameStorageKey()+'-complete' : hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
 const stepDrafts = new Map();

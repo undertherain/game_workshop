@@ -212,3 +212,12 @@ An isolated Chromium check verifies the compact editor toolbar stays on one row 
 1280, 900, 390 and 320 pixels wide. It covers exercise-menu navigation with Next
 hidden, reset/undo, real Python Run/Stop and Check, check feedback placement,
 Hint with a simulated tutor reply, and complete-game and second-game layouts.
+
+Sky Patrol runtime checks cover the fixed base, tilt limits, release/restart, angled
+shot origins and hits, unchanged shot direction after re-aiming, held-fire behavior,
+miss cleanup and invalid angles. Control checks cover aiming labels, tutor hints
+and exclusion from horizontal movement transfer.
+
+Parachute-hit checks distinguish canopy, body and rope gaps; verify accelerated
+falling, landing and midair interception without duplicate points; and cover intact
+misses, removed-canopy misses, final-crash victory and restart.

@@ -1,11 +1,11 @@
 {
   "id": "paratroopers-mechanic",
   "title": "Build the fire button",
-  "description": "Make Space send a spark up toward the robots.",
+  "description": "Make Space send a spark along the barrel toward the robots.",
   "hint": "Help me add firing with keyboard.fire and cannon.fire() inside update. One small edit, please.",
   "guide": {
     "function": "update",
-    "instruction": "Add the Space-key firing rule inside update(), alongside your movement rules.",
-    "review": "Add the Space-key firing rule inside update(), alongside your movement rules."
+    "instruction": "Add the Space-key firing rule inside update(), alongside your aiming rules.",
+    "review": "Add the Space-key firing rule inside update(), alongside your aiming rules."
   }
 }

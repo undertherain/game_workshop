@@ -24,7 +24,7 @@ for kind in catalog['templates']:
         elif kind == 'platformer':
             keys = {'right': tick < 80, 'jump': 12 < tick < 65 or tick > 90}
         elif kind == 'paratroopers':
-            keys = {'right': tick < 35, 'left': 35 <= tick < 95, 'fire': tick % 8 == 0}
+            keys = {'right': tick < 35, 'left': 35 <= tick < 95, 'jump': tick % 8 == 0}
         elif kind == 'invaders':
             keys = {'right': tick < 25, 'left': 25 <= tick < 75, 'jump': tick % 12 == 0}
         elif kind == 'asteroids':

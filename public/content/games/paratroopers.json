@@ -7,7 +7,7 @@
   "controls": "fire",
   "action": "Fire ↑",
   "placeholder": "I want my sky patrol to…",
-  "intro": "The robots and landscape are ready. You write the launcher’s controls: start by connecting the arrow keys inside update(), where pass is now.",
+  "intro": "The robots and landscape are ready. Your cannon stays in place. Write its aiming controls inside update(), where pass is now.",
   "ideas": [
     [
       "Add firing ↑",
@@ -24,12 +24,16 @@
   ],
   "guide": [
     [
-      "cannon.speed",
-      "How quickly your launcher moves."
+      "cannon.angle",
+      "Aim in degrees: 0 is straight up; negative aims left, positive aims right."
+    ],
+    [
+      "cannon.turn_speed",
+      "How quickly your cannon tilts."
     ],
     [
       "cannon.fire()",
-      "Sends one spark upward."
+      "Sends one spark in the direction of the barrel."
     ],
     [
       "keyboard.fire",
@@ -41,7 +45,7 @@
     ],
     [
       "def on_hit(target):",
-      "Your rule when a spark hits a robot."
+      "Your rule for a direct robot hit or a crash after losing its parachute."
     ]
   ],
   "lessons": [
@@ -52,15 +56,15 @@
   ],
   "complete": [
     "# Intercept the falling robots.",
-    "cannon.speed = 5",
+    "cannon.turn_speed = 2",
     "world.fall_speed = 0.7",
     "world.sky = \"mint\"",
     "",
     "def update():",
     "    if keyboard.left:",
-    "        cannon.x -= cannon.speed",
+    "        cannon.angle -= cannon.turn_speed",
     "    if keyboard.right:",
-    "        cannon.x += cannon.speed",
+    "        cannon.angle += cannon.turn_speed",
     "    if keyboard.fire:",
     "        cannon.fire()",
     "",
@@ -68,11 +72,11 @@
     "    target.hide()",
     "    world.score += 10"
   ],
-  "museumIntro": "Move your launcher with the arrow keys and press Space to fire at the falling robots. Intercept all eight to finish. The interesting choice is when to move and when to shoot; slower falling robots give you more time.",
+  "museumIntro": "Tilt your fixed cannon with Left/Right or A/D and press Space to fire at the falling robots. Intercept all eight to finish. Aim ahead of a robot so your shot meets it; slower falling robots give you more time. Hit a parachute to make its robot fall faster; it counts as intercepted when it hits the ground. A direct robot hit intercepts it immediately.",
   "museumStory": {
     "title": "Early 1980s: defending one patch of sky",
     "text": "Games of this type appeared on early home computers. Sabotage, made by Mark Allen for the Apple II in 1981, was followed by Greg Kuperberg’s Paratrooper for the IBM PC in 1982. The player aimed from a fixed position while aircraft and parachutes crossed the screen.\n\nSky Patrol adapts that setup with parachuting robots. It gives you a compact way to explore aiming, the path of a shot and what happens when two moving objects meet.",
-    "prompt": "What if your launcher moved faster? Could you catch a robot on the other side in time?",
+    "prompt": "What if your cannon tilted faster? Would it be easier to aim at a robot on the other side?",
     "sources": [
       {
         "title": "Thomer Gil · Paratrooper and its origins",

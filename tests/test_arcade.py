@@ -1,4 +1,5 @@
 import json
+import math
 from pathlib import Path
 import unittest
 
@@ -19,8 +20,9 @@ class ArcadeTests(unittest.TestCase):
 
     def movement(self, source, kind):
         who = {"platformer": "player", "breaker": "paddle", "paratroopers": "cannon"}[kind]
-        right = f"    if keyboard.right:\n        {who}.x += {who}.speed"
-        left = "" if kind == "breaker" else f"\n    if keyboard.left:\n        {who}.x -= {who}.speed"
+        position, speed = ("angle", "turn_speed") if kind == "paratroopers" else ("x", "speed")
+        right = f"    if keyboard.right:\n        {who}.{position} += {who}.{speed}"
+        left = "" if kind == "breaker" else f"\n    if keyboard.left:\n        {who}.{position} -= {who}.{speed}"
         return source.replace("    pass", right + left)
 
     def test_prepared_breaker_exercises_only_omit_the_target_mechanic(self):
@@ -89,6 +91,126 @@ class ArcadeTests(unittest.TestCase):
         game.step({"jump": True})
         self.assertEqual(game.world.score, 5)
         self.assertFalse(game.items[0].visible)
+
+    def patrol(self):
+        source = "\n".join(json.loads((ROOT / "content/games/paratroopers.json").read_text())["complete"])
+        self.runtime["_load_selected"](source, "paratroopers")
+        return self.runtime["_arcade"]
+
+    def test_patrol_fixed_base_tilt_limits_release_and_restart(self):
+        game = self.patrol()
+        for direction, limit in (("right", 75), ("left", -75)):
+            for _ in range(80):
+                game.step({direction: True})
+                self.assertEqual(game.cannon.x, 420)
+            self.assertEqual(game.cannon.angle, limit)
+            game.step({})
+            self.assertEqual(game.cannon.angle, limit)
+        self.assertEqual(self.patrol().cannon.angle, 0)
+
+    def test_patrol_angled_shots_hit_and_keep_their_original_direction(self):
+        for angle in (-55, 0, 55):
+            game = self.patrol()
+            game.cannon.angle = angle
+            dx, dy = math.sin(math.radians(angle)), -math.cos(math.radians(angle))
+            target = game.items[0]
+            target.x, target.y, target.drift = 420 + dx * 105, 410 + dy * 105, 0
+            game.step({"jump": True})
+            shot = game.sparks[0]
+            self.assertAlmostEqual(shot["x"], 420 + dx * 42)
+            self.assertAlmostEqual(shot["y"], 410 + dy * 42)
+            self.assertAlmostEqual(math.hypot(shot["vx"], shot["vy"]), 7)
+            game.cannon.angle = -angle
+            for _ in range(6):
+                game.step({"jump": True})
+            self.assertFalse(target.visible)
+            self.assertEqual(game.world.score, 10)
+            self.assertEqual(game.hits, 1)
+            self.assertFalse(game.sparks)  # Holding fire does not emit more shots.
+
+    def test_patrol_missed_shots_leave_screen_and_invalid_angles_fail(self):
+        game = self.patrol()
+        game.cannon.angle = 75
+        for target in game.items:
+            target.hide()
+        game.step({"jump": True})
+        for _ in range(80):
+            game.step({})
+        self.assertFalse(game.sparks)
+        game.cannon.angle = float("nan")
+        with self.assertRaisesRegex(ValueError, "cannon.angle"):
+            game.cannon.fire()
+
+    def cut_parachute(self, game):
+        target = game.items[0]
+        target.x, target.y, target.drift = 300, 200, 0
+        # A shot from the side reaches the canopy without crossing the robot.
+        game.sparks.append({"x": 273, "y": 165, "vx": 7, "vy": 0})
+        game.step({})
+        return target
+
+    def test_patrol_canopy_hit_falls_then_scores_once_at_ground(self):
+        game = self.patrol()
+        target = self.cut_parachute(game)
+        self.assertFalse(target.parachute)
+        self.assertTrue(target.visible)
+        self.assertFalse(game.sparks)
+        self.assertEqual((game.world.score, game.hits, game.misses), (0, 0, 0))
+        before_y, before_vy = target.y, target.vy
+        game.step({})
+        self.assertGreater(target.vy, before_vy)
+        self.assertGreater(target.y - before_y, 2 * game.world.fall_speed)
+        snapshot = game.snapshot()["items"][0]
+        self.assertFalse(snapshot["parachute"])
+        for _ in range(80):
+            game.step({})
+        self.assertFalse(target.visible)
+        self.assertEqual((game.world.score, game.hits, game.misses), (10, 1, 0))
+        self.assertEqual(game.snapshot()["collected"], 1)
+
+    def test_patrol_falling_body_can_be_hit_without_double_scoring(self):
+        game = self.patrol()
+        target = self.cut_parachute(game)
+        game.sparks.append({"x": target.x, "y": target.y + 8, "vx": 0, "vy": -7})
+        game.step({})
+        self.assertFalse(target.visible)
+        for _ in range(80):
+            game.step({})
+        self.assertEqual((game.world.score, game.hits), (10, 1))
+
+    def test_patrol_shots_miss_ropes_and_removed_canopies(self):
+        game = self.patrol()
+        target = game.items[0]
+        target.x, target.y, target.drift = 300, 200, 0
+        # Between the body and canopy: ropes are not a hit zone.
+        game.sparks.append({"x": 300, "y": 183, "vx": 0, "vy": 0})
+        game.step({})
+        self.assertTrue(target.parachute)
+        self.assertTrue(target.visible)
+        self.assertEqual(len(game.sparks), 1)
+        game.sparks.clear()
+        self.cut_parachute(game)
+        game.sparks.append({"x": target.x, "y": target.y - 40, "vx": 0, "vy": 0})
+        game.step({})
+        self.assertEqual(len(game.sparks), 1)
+        self.assertEqual(game.world.score, 0)
+
+    def test_patrol_intact_misses_recycle_and_last_crash_wins(self):
+        game = self.patrol()
+        target = game.items[0]
+        target.y = 416
+        game.step({})
+        self.assertTrue(target.visible and target.parachute)
+        self.assertLess(target.y, 0)
+        self.assertEqual((game.misses, game.world.score), (1, 0))
+        for other in game.items[1:]:
+            other.hide()
+        target.parachute, target.y, target.vy = False, 412, 8
+        game.step({})
+        self.assertTrue(game.snapshot()["won"])
+        self.assertEqual(game.world.score, 10)
+        restarted = self.patrol()
+        self.assertTrue(all(item.parachute and item.visible for item in restarted.items))
 
     def test_framework_example_passes_existing_behavior_checks(self):
         source = (ROOT / "examples/breaker_framework.py").read_text()

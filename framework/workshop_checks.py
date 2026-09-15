@@ -20,7 +20,18 @@ def check_exercise(source, kind, step):
         def tick(**keys):
             return game.step(keys)
 
-        if step == 0:
+        if step == 0 and kind == "paratroopers":
+            cannon = _arcade.cannon
+            cannon.angle = 0
+            tick()
+            still = cannon.angle == 0
+            tick(right=True)
+            right = cannon.angle > 0
+            cannon.angle = 0
+            tick(left=True)
+            passed = still and right and cannon.angle < 0 and cannon.x == 420
+            message = "Both arrow keys tilt the cannon, and it holds its aim when released." if passed else "Inside update(), decrease cannon.angle by cannon.turn_speed for Left and increase it for Right."
+        elif step == 0:
             who = _scope["player"] if kind == "platformer" else _arcade.paddle if kind == "breaker" else _arcade.cannon
             who.x = 420
             start = who.x

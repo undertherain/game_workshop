@@ -37,6 +37,23 @@ in pixels per second. Workshop templates have not been rewritten as top-down wor
 and their exports use the browser host rather than raylib. This keeps the two APIs
 explicit while making workshop simulations reusable outside the teaching interface.
 
+## Sky Patrol cannon
+
+The cannon has a fixed, read-only `x` of 420. Learner rules change `cannon.angle`
+by `cannon.turn_speed` (default 2 degrees per 60 Hz tick). Angle 0 points up;
+negative angles point left, positive right; the engine clamps to −75°…75°.
+`cannon.fire()` emits a spark from the barrel tip at that angle, traveling seven
+pixels per tick with fixed `vx`/`vy`. Space is press-triggered, with a 12-tick
+cooldown. Snapshots expose position, angle and turn speed for the shared renderer.
+
+Canopy collisions remove `target.parachute` and start accelerated falling (`vy`),
+while body collisions call `on_hit(target)` immediately. A falling robot calls
+`on_hit(target)` once on reaching the ground and is then removed by the engine.
+This preserves the learner's scoring rule and prevents repeated landing points.
+Canopy hits consume the spark without awarding points or incrementing interceptions.
+Snapshots include `parachute`, `vy` and simulation-owned `canopy_sway`; the renderer
+uses the same canopy position as collision detection.
+
 ## Sokoban: build a room and its rules
 
 `WorkshopGame(source, 'sokoban')` supplies `board`, `player` and `world`.

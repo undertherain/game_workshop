@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { gameKey } from '../public/game-controls.js';
+import { gameKey, gameControls, configureGameControls } from '../public/game-controls.js';
 import { movementOffer } from '../public/progress.js';
 import { templates } from '../public/templates.js';
 import { guidedExample, validateInput } from '../tutor.mjs';
@@ -16,6 +16,18 @@ test('Sokoban directions and undo do not change the existing arcade bindings', (
 
 test('arcade movement evidence does not supply unrelated Sokoban controls', () => {
   assert.equal(movementOffer({records:[{skill:'movement',evidence:'checked',source:'game:breaker'}]},'sokoban'),null);
+});
+
+test('Sky Patrol labels and hints teach aiming without horizontal movement transfer', () => {
+  assert.match(gameControls('paratroopers'), /aim/);
+  assert.equal(movementOffer({records:[{skill:'movement',evidence:'checked',source:'game:breaker'}]},'paratroopers'),null);
+  const labels = [];
+  configureGameControls('paratroopers', {querySelectorAll(selector) {
+    return selector.startsWith('[data-key=') ? [{setAttribute(_, value) {labels.push(value);}}] : [];
+  }});
+  assert.deepEqual(labels, ['Aim left', 'Aim right']);
+  const hint = guidedExample(validateInput({template:'paratroopers',question:'Help with controls',code:'',exercise:{index:0}}));
+  assert.match(hint.message, /cannon.angle/);
 });
 
 test('Sokoban tutor and voice receive current building exercise and its API', () => {

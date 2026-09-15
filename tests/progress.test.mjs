@@ -32,9 +32,9 @@ test('tutor receives bounded evidence, with no unsupported mastery claims', () =
   const input = validateInput({ question: 'What next?', code: '', progress: { records } });
   assert.deepEqual(input.progress.records, [records[0]]);
 });
-test('included controls pass actual movement checks in all three games and preserve other rules', async () => {
+test('included controls pass actual movement checks in both horizontal games and preserve other rules', async () => {
   const sources = {};
-  for (const id of ['breaker', 'platformer', 'paratroopers']) {
+  for (const id of ['breaker', 'platformer']) {
     const source = await readFile(new URL(`../public/${id}.py`, import.meta.url), 'utf8');
     sources[id] = movementStarter(source, id);
     assert.ok(sources[id].includes(source.slice(source.indexOf('\n#', source.indexOf('def update():')))));

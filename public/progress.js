@@ -38,7 +38,7 @@ export function movementStarter(source, template) {
     if (start < 0 || end < 0) throw Error('Could not locate ship controls.');
     return source.slice(0, start) + 'def move_ship():\n    if keyboard.left:\n        ship.x -= ship.speed\n    if keyboard.right:\n        ship.x += ship.speed\n' + source.slice(end);
   }
-  const who = { platformer: 'player', breaker: 'paddle', paratroopers: 'cannon' }[template];
+  const who = { platformer: 'player', breaker: 'paddle' }[template];
   if (!who) throw Error('Unknown game');
   const start = source.indexOf('def update():');
   const end = source.indexOf('\n#', start);
