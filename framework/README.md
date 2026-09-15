@@ -29,7 +29,7 @@ execution is for trusted code; browser hosts run learner code in a terminable wo
 games unchanged. The browser loads the modules declared in
 `public/framework-files.json`; the server serves only those framework files.
 **Export playable game** bundles that same package, worker and Canvas renderer with
-the current draft. See [export instructions](../README.md#export-and-play-independently).
+the current draft. See [export instructions](../docs/game-workshop.md#export-and-play-independently).
 
 `WorkshopGame` preserves the template callback API and tick-based movement. The
 `Game`/`World` primitives below are a separate top-down authoring API with movement
@@ -132,8 +132,7 @@ The framework owns movement, map boundaries, collision, tile contacts, projectil
 and cameras. Games define tile types and actor behavior. `topdown.py` has no raylib
 imports; `raylib_host.py` translates input and draws snapshots.
 
-Run the [tank battle](../examples/tank_battle/README.md) or the preserved
-[pine-tree explorer](../examples/tank_world/README.md) from the repository root.
+Run the [tank battle](../examples/tank_battle/README.md) from the repository root.
 
 ## Tiles and interactions
 

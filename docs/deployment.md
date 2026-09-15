@@ -27,7 +27,7 @@ handler, keeps raw request streams, and enables response streaming because game
 ZIPs exceed Vercel's 4.5 MB buffered-response limit. Environment files and local
 caches are excluded from the artifact; generated output is excluded from Git.
 
-See [demo AI access](demo-access.md) for the server environment, reusable judge
+See [demo AI access](demo-access.md) for the server environment, reusable demo
 invites, personal keys, 24-hour invite expiry, total/per-invite request allowances
 and scheduled voice hangup. The shared key is only available to authenticated
 invites; setting `OPENAI_API_KEY` alone does not enable public AI. Missing or failed

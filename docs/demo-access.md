@@ -4,7 +4,7 @@ The server key is never sent to the browser. Every paid chat and voice setup
 resolves an authenticated session before selecting a key and reserving allowance.
 Anonymous visitors receive the built-in guide and can still run lessons and games.
 
-## Configure tomorrow's demo
+## Configure a hosted demo
 
 1. Use a key belonging to the dedicated OpenAI demo project. Configure its hard
    spend limit separately in OpenAI. The app limits below count requests, not dollars.
@@ -15,7 +15,7 @@ Anonymous visitors receive the built-in guide and can still run lessons and game
    it in the server environment. It is an AES-256-GCM encryption key, not an OpenAI
    credential. Set the dedicated `OPENAI_API_KEY` there too.
 4. Set `WORKSHOP_DEMO_EXPIRES_AT` to an explicit closing time including timezone,
-   for example `2026-09-17T00:00:00+09:00` for the end of September 16 in Japan.
+   for example `2026-09-17T00:00:00+09:00`.
    Without a future closing time, shared demo AI is disabled.
 5. For voice, set `QSTASH_TOKEN`, the QStash API URL shown for your account in
    `QSTASH_URL`, and `WORKSHOP_VOICE_CALLBACK_URL` to the deployed public

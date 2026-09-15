@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 Status: long-term direction from discussion; proposed, not implemented or committed scope.
-This idea stands independently of the hackathon.
+This idea stands independently of the current prototype.
 
 ## Destination
 
@@ -128,7 +128,7 @@ fixed templates alone would not meet that north star.
 
 ## Language remains open
 
-Alex questioned whether Python is the right choice for this longer-term system.
+It is an open question whether Python is the right choice for this longer-term system.
 Python is the current prototype language, not a commitment for the eventual
 framework. Preserve the code-first authoring and learning-continuity goals while
 evaluating language choices against runtime and sharing targets, editor integration,
@@ -185,14 +185,14 @@ The choice of language remains open and should account for both targets.
 
 ## Local framework slice: tank world
 
-Implemented experiment, 2026-09-13: [Tank world](../examples/tank_world/README.md)
-reimplements the local `test_pyray` terrain explorer with raylib rendering through
-`pyray`. Current development focus is the standalone version.
+Implemented experiment, 2026-09-13: a local top-down terrain explorer rendered
+with raylib through `pyray`. The explorer itself is not included in this repository;
+the [tank battle](../examples/tank_battle/README.md) example is its successor.
 
 `framework/topdown.py` provides named `Tile` definitions, a rectangular `TileMap`
 indexed by `(x, y)`, bounded `Actor` movement, a clamped `Camera` and `World`
-snapshots containing only visible tiles and actors. `examples/tank_world/game.py`
-owns seeded terrain generation and movement rules. It has no graphics dependency;
+snapshots containing only visible tiles and actors. Games own seeded terrain
+generation and movement rules. The module has no graphics dependency;
 `framework/raylib_host.py` owns windowing, input, textures and drawing.
 Movement uses pixels per second and elapsed time capped at 0.1 seconds per frame.
 
@@ -216,15 +216,14 @@ Idea added 2026-09-12: learners could eventually publish their games directly fr
 the platform so other people can play them. The longer-term journey becomes
 learn → build an original game → finish it → publish and share it.
 
-Alex described the aspiration as “like Roblox — but honest”: a shorthand for a
+The aspiration was described as “like Roblox — but honest”: a shorthand for a
 creation-and-publishing platform, with the meaning of “honest” still to be worked
 out rather than a decided business model or policy. Keep this possibility in mind
 when designing portable game projects and the browser/standalone backend boundary.
 
-This is explicitly outside hackathon scope, not an implementation task or delivery
-commitment. Hosting, discovery, accounts and any commercial model remain undecided.
+This is explicitly outside the prototype's scope, not an implementation task or
+delivery commitment. Hosting, discovery, accounts and any commercial model remain undecided.
 
-Historical [learning-path proposal](/home/blackbird/Projects/Coaching/professional_projects/hackathon_projects/2026-09-11_openai_100h_game_builder/notes/gameplay/game_workshop_learning_path.md).
-This project now holds the working framework direction; the original discussion
-copy remains in the historical planning notes.
+This project now holds the working framework direction; the original
+learning-path proposal remains in the historical planning notes outside this repository.
 Return to the [project README](../README.md).

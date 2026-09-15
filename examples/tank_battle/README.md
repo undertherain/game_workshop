@@ -1,7 +1,6 @@
 # Tank battle
 
 A local tank game built to exercise the [top-down framework](../../framework/README.md).
-The pine-tree explorer remains separately available as `examples.tank_world`.
 
 From the repository root (Python 3 with `raylib==5.5.0.4`):
 
