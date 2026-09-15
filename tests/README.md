@@ -80,3 +80,13 @@ An isolated Chromium check with simulated voice events verified pointer movement
 in both editors, guided-line alignment at desktop/mobile sizes, focus and selection
 preservation, game-editor scrolling, reading slides, edits, and voice-stop cleanup.
 Live microphone-to-highlight timing still needs a real conversation.
+
+`voice-lifecycle.test.mjs` runs the browser voice controller with controlled media
+and transport promises. It verifies explicit Talk startup, immediate navigation
+cleanup, pagehide/visibility cleanup during graceful shutdown, late permission and
+connection results, switching panels, remote audio release, close acknowledgement/
+timeout, failure recovery, and no automatic restart on return. The voice endpoint
+test also verifies that cancelling a browser request aborts pending upstream setup
+and permits a fresh connection. An isolated Chromium check using simulated microphone
+and WebRTC verified real Next/Back/map navigation, page departure, returning with
+capture off, stale callbacks, late permission, and reconnecting via Talk.

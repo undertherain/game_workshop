@@ -92,6 +92,15 @@ provides the AI transport and offline slide guide. The sidebar stacks below slid
 on narrow screens.
 
 `pip-voice.js` supplies shared opt-in WebRTC controls, mute and graceful shutdown.
+Only the Talk button requests microphone access. Navigation and page lifecycle stops
+release tracks, audio, the data channel, peer connection, request and timers immediately;
+only the explicit End voice action waits briefly for a close acknowledgement. A later
+navigation stop also finishes that wait immediately. Cleanup is idempotent, and late
+permission results or transport callbacks cannot revive a cancelled call or change a
+new call. `server.mjs` aborts upstream voice setup when its browser response closes
+before completion. Page departure uses `pagehide` plus `visibilitychange`, following
+the [browser lifecycle guidance](https://developer.mozilla.org/en-US/docs/Web/API/Window/pagehide_event);
+no unload handler or automatic voice restart is installed.
 `voice-captions.js` groups independent speaker streams into the existing chat bubbles;
 each panel updates its shared in-memory history as speech arrives. `voice-tutor.mjs` builds the server-owned GPT-Live
 configuration and delegates coding questions to the existing tutor with canonical

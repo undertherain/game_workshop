@@ -73,3 +73,30 @@ test('voice endpoint protects credentials, validates requests and recovers after
     assert.equal(response.status, 503);
   } finally { await new Promise(resolve => offline.close(resolve)); }
 });
+
+test('abandoning voice setup cancels the upstream request and frees the next Talk attempt', { timeout: 5000 }, async () => {
+  let markStarted, markCancelled, calls = 0;
+  const started = new Promise(resolve => { markStarted = resolve; });
+  const cancelled = new Promise(resolve => { markCancelled = resolve; });
+  const server = createServer({ apiKey: 'test-key', fetchImpl: async (url, options) => {
+    if (++calls > 1) return Response.json({ transport: { sdp: 'fresh answer' } });
+    markStarted();
+    return new Promise((resolve, reject) => {
+      options.signal.addEventListener('abort', () => { markCancelled(); reject(options.signal.reason); }, { once: true });
+    });
+  } });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${server.address().port}/api/voice`;
+  const controller = new AbortController();
+  const request = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(offer) };
+  try {
+    const first = fetch(url, { ...request, signal: controller.signal });
+    await started; controller.abort();
+    await assert.rejects(first, { name: 'AbortError' });
+    await cancelled;
+    const second = await fetch(url, request);
+    assert.equal(second.status, 201);
+    assert.equal((await second.json()).transport.sdp, 'fresh answer');
+    assert.equal(calls, 2);
+  } finally { controller.abort(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
+});

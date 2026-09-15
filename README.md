@@ -229,7 +229,14 @@ recent typed and spoken conversation. Voice offers explanations only. Changing a
 changing code or run feedback, or leaving the tab ends voice; start it again to share
 the new context. Mute disables microphone transmission while keeping Pip audible.
 End voice releases the microphone immediately and waits up to five seconds for
-session-close confirmation. Sending a typed question ends voice and continues the
+session-close confirmation. Moving between slides, opening the map or another game,
+hiding the tab, and leaving the page close the microphone, audio playback and voice
+connection immediately, including a call already waiting for confirmation. Returning
+never restarts capture: press Talk to Pip to open a fresh call. Cancelling while
+connecting aborts setup; a microphone stream granted after cancellation is stopped
+as soon as it arrives. The server also cancels pending voice setup when the browser
+disconnects, so an abandoned request does not hold up the next Talk attempt.
+Sending a typed question ends voice and continues the
 same chat. Lesson conversations, including spoken messages, remain available when
 returning to that slide during the current visit. Pip is given explicit facts about
 the supplied character and lesson runtime so it can explain where `fox` comes from.

@@ -20,12 +20,23 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   let call;
 
   function finish(current, message) {
+    if (current.finished) return;
+    current.finished = true;
+    current.closing = true;
     current.spokenPointer?.clear(); current.pointer?.destroy();
     clearTimeout(current.timer); clearTimeout(current.closeTimer);
     clearInterval(current.contextTimer);
     current.controller.abort();
     current.stream?.getTracks().forEach(track => track.stop());
-    current.peer?.close();
+    current.remoteStream?.getTracks().forEach(track => track.stop());
+    if (current.channel) {
+      current.channel.onmessage = current.channel.onclose = current.channel.onerror = null;
+      current.channel.close();
+    }
+    if (current.peer) {
+      current.peer.ontrack = current.peer.onconnectionstatechange = null;
+      current.peer.close();
+    }
     if (call !== current) return;
     audio.pause(); audio.srcObject = null;
     call = null;
@@ -34,23 +45,36 @@ export function createPipVoice(container, kind, getContext, createMessage) {
     mute.hidden = true; mute.setAttribute('aria-pressed', 'false'); mute.textContent = 'Mute mic';
     status.textContent = message;
   }
-  function stop(current, message) {
-    if (current.closing || call !== current) return;
+  function stop(current, message, waitForConfirmation = false) {
+    if (current.finished || call !== current) return;
+    if (current.closing) {
+      if (!waitForConfirmation) finish(current, message);
+      return;
+    }
     current.closing = true;
     current.spokenPointer?.clear(); current.pointer?.destroy();
     current.stream?.getTracks().forEach(track => track.stop());
+    current.remoteStream?.getTracks().forEach(track => track.stop());
     audio.pause(); audio.srcObject = null;
     clearTimeout(current.timer);
+    clearInterval(current.contextTimer);
+    current.controller.abort();
     if (current.ready && current.channel?.readyState === 'open') {
-      talk.disabled = true; mute.hidden = true; status.textContent = 'Ending voice · microphone off…';
-      current.endMessage = message;
-      current.closeTimer = setTimeout(() => finish(current, 'Microphone off. Voice connection closed without final confirmation.'), 5000);
-      try { current.channel.send(JSON.stringify({ type: 'session.close' })); return; } catch { /* Release failed transport below. */ }
+      if (waitForConfirmation) {
+        talk.disabled = true; mute.hidden = true; status.textContent = 'Ending voice · microphone off…';
+        current.endMessage = message;
+        current.closeTimer = setTimeout(() => finish(current, 'Microphone off. Voice connection closed without final confirmation.'), 5000);
+      }
+      try {
+        current.channel.send(JSON.stringify({ type: 'session.close' }));
+        if (waitForConfirmation) return;
+      } catch { /* Release failed transport below. */ }
     }
     finish(current, message);
   }
   async function start() {
     stopPipVoice();
+    if (document.hidden) return;
     if (!navigator.mediaDevices?.getUserMedia || !globalThis.RTCPeerConnection) {
       status.textContent = 'Voice needs a microphone-capable browser on localhost or HTTPS.'; return;
     }
@@ -82,8 +106,9 @@ export function createPipVoice(container, kind, getContext, createMessage) {
         track.addEventListener('ended', () => { if (alive()) stop(current, 'Microphone disconnected. Try connecting again.'); });
       }
       peer.ontrack = event => {
-        if (!alive()) return;
-        audio.srcObject = event.streams[0] || new MediaStream([event.track]);
+        if (!alive()) { event.track.stop(); return; }
+        current.remoteStream = event.streams[0] || new MediaStream([event.track]);
+        audio.srcObject = current.remoteStream;
         audio.play().catch(() => { if (alive()) stop(current, 'Audio playback was blocked. Press Talk to Pip to try again.'); });
       };
       peer.onconnectionstatechange = () => {
@@ -106,8 +131,11 @@ export function createPipVoice(container, kind, getContext, createMessage) {
           current.caption(event);
         }
       };
-      channel.onclose = () => { if (alive()) finish(current, 'Voice connection closed. Microphone off.'); };
-      await peer.setLocalDescription(await peer.createOffer());
+      channel.onclose = () => { if (call === current) finish(current, current.endMessage || 'Voice connection closed. Microphone off.'); };
+      channel.onerror = () => { if (call === current) finish(current, 'Voice connection failed. Microphone off; you can reconnect.'); };
+      const offer = await peer.createOffer();
+      if (!alive()) return;
+      await peer.setLocalDescription(offer);
       if (!alive()) return;
       await waitForIce(peer, current.controller.signal);
       if (!alive()) return;
@@ -121,7 +149,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
       if (alive()) finish(current, error.name === 'NotAllowedError' ? 'Microphone access was not allowed. You can still type to Pip.' : error.name === 'NotFoundError' ? 'No microphone found. Connect one or type to Pip.' : error.message);
     }
   }
-  talk.addEventListener('click', () => call ? stop(call, 'Voice ended. Microphone off.') : start());
+  talk.addEventListener('click', () => call ? stop(call, 'Voice ended. Microphone off.', true) : start());
   mute.addEventListener('click', () => {
     if (!call?.ready || call.closing) return;
     call.muted = !call.muted;

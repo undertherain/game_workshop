@@ -42,19 +42,27 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
         let payload;
         try { payload = voiceSession(JSON.parse(raw), model); } catch (error) { return json(res, 400, { error: error.message }); }
         if (!apiKey) return json(res, 503, { error: 'Voice needs OPENAI_API_KEY on the server. You can still use the built-in guide.' });
+        if (res.destroyed) return;
         if (busy) return json(res, 429, { error: 'Pip is connecting or answering another question. Try again in a moment.' });
         busy = true;
+        const connection = new AbortController();
+        const cancelConnection = () => { if (!res.writableEnded) connection.abort(); };
+        res.once('close', cancelConnection);
+        const connectionTimer = setTimeout(() => connection.abort(), 30000);
         try {
           const response = await fetchImpl('https://api.openai.com/v1/live/sessions', {
             method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout(30000), body: JSON.stringify(payload),
+            signal: connection.signal, body: JSON.stringify(payload),
           });
           if (!response.ok) return json(res, 502, { error: `Voice connection returned ${response.status}. Check GPT-Live access and try again.` });
           const result = await response.json();
           if (typeof result.transport?.sdp !== 'string' || !result.transport.sdp) throw Error('Missing answer');
           return json(res, 201, { transport: { type: 'webrtc', sdp: result.transport.sdp } });
-        } catch { return json(res, 502, { error: 'Voice could not connect. Please try again.' }); }
-        finally { busy = false; }
+        } catch {
+          if (!res.destroyed) json(res, 502, { error: 'Voice could not connect. Please try again.' });
+          return;
+        }
+        finally { clearTimeout(connectionTimer); res.removeListener('close', cancelConnection); busy = false; }
       }
       if (['/api/help', '/api/lesson-help'].includes(url.pathname) && req.method === 'POST') {
         const isLesson = url.pathname === '/api/lesson-help';
