@@ -1,10 +1,12 @@
 // Adapted from Projects/AI/Voice/demos/web: Live WebRTC, captions and graceful close.
 import { createVoiceCaptions } from './voice-captions.js';
 import { createCodePointer, createSpokenPointer } from './pip-pointer.js';
+import { createPipAvatar } from './pip-avatar.js';
 let activeCall;
 export function stopPipVoice(reason = 'Voice ended. Microphone off.') { activeCall?.stop(reason); }
 
 export function createPipVoice(container, kind, getContext, createMessage) {
+  const avatar = createPipAvatar(container);
   const panel = document.createElement('div');
   panel.className = 'pip-voice';
   panel.innerHTML = `<div class="pip-voice-controls"><button type="button" class="pip-talk" aria-pressed="false">Talk to Pip</button><button type="button" class="pip-mute" hidden aria-pressed="false">Mute mic</button></div><p class="pip-voice-status" role="status">AI voice · your microphone is off.</p><audio autoplay></audio>`;
@@ -23,6 +25,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
     if (current.finished) return;
     current.finished = true;
     current.closing = true;
+    current.stopAvatarAudio?.();
     current.spokenPointer?.clear(); current.pointer?.destroy();
     clearTimeout(current.timer); clearTimeout(current.closeTimer);
     clearInterval(current.contextTimer);
@@ -38,6 +41,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
       current.peer.close();
     }
     if (call !== current) return;
+    avatar.setVoiceState('idle');
     audio.pause(); audio.srcObject = null;
     call = null;
     if (activeCall === current) activeCall = null;
@@ -52,6 +56,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
       return;
     }
     current.closing = true;
+    current.stopAvatarAudio?.(); avatar.setVoiceState('idle');
     current.spokenPointer?.clear(); current.pointer?.destroy();
     current.stream?.getTracks().forEach(track => track.stop());
     current.remoteStream?.getTracks().forEach(track => track.stop());
@@ -81,6 +86,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
     const current = { controller: new AbortController(), caption: createVoiceCaptions(createMessage) };
     current.stop = message => stop(current, message);
     call = activeCall = current;
+    avatar.setVoiceState('thinking');
     talk.textContent = 'Cancel voice'; talk.setAttribute('aria-pressed', 'true');
     status.textContent = 'Connecting · allow microphone access to talk to Pip.';
     current.timer = setTimeout(() => stop(current, 'Voice took too long to connect. Try again.'), 55000);
@@ -108,6 +114,8 @@ export function createPipVoice(container, kind, getContext, createMessage) {
       peer.ontrack = event => {
         if (!alive()) { event.track.stop(); return; }
         current.remoteStream = event.streams[0] || new MediaStream([event.track]);
+        current.stopAvatarAudio?.();
+        current.stopAvatarAudio = avatar.watchAudio(current.remoteStream);
         audio.srcObject = current.remoteStream;
         audio.play().catch(() => { if (alive()) stop(current, 'Audio playback was blocked. Press Talk to Pip to try again.'); });
       };
@@ -122,6 +130,7 @@ export function createPipVoice(container, kind, getContext, createMessage) {
         if (!alive()) return;
         if (event.type === 'session.started') {
           current.ready = true; clearTimeout(current.timer);
+          avatar.setVoiceState('listening');
           talk.textContent = 'End voice'; mute.hidden = false;
           status.textContent = 'Listening · speak to Pip. You can interrupt.';
         } else if (event.type === 'error') stop(current, 'Pip’s voice encountered a problem. Please reconnect.');
@@ -153,11 +162,12 @@ export function createPipVoice(container, kind, getContext, createMessage) {
   mute.addEventListener('click', () => {
     if (!call?.ready || call.closing) return;
     call.muted = !call.muted;
+    avatar.setVoiceState(call.muted ? 'idle' : 'listening');
     call.stream.getAudioTracks().forEach(track => { track.enabled = !call.muted; });
     mute.setAttribute('aria-pressed', String(call.muted)); mute.textContent = call.muted ? 'Unmute mic' : 'Mute mic';
     status.textContent = call.muted ? 'Microphone muted · Pip can still speak.' : 'Listening · speak to Pip. You can interrupt.';
   });
-  return { stop: reason => { if (call) stop(call, reason || 'Activity changed. Start voice again for the updated context.'); } };
+  return { setThinking: value => avatar.setThinking(value), stop: reason => { if (call) stop(call, reason || 'Activity changed. Start voice again for the updated context.'); } };
 }
 
 function waitForIce(peer, signal) {

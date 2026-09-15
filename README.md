@@ -309,7 +309,12 @@ change or run code. Restart the server after updating tutor code or lesson conte
 
 ## Voice with Pip
 
-Both Pip panels offer **Talk to Pip**, **Mute mic** and **End voice**. Spoken messages
+Pip appears as a small leaf-topped forest sprite in the lesson, game and museum
+tutor panels. It blinks, looks thoughtful while a reply is pending, and adopts a
+listening pose during voice. Its mouth reacts to outgoing voice audio when browser
+audio analysis is available. Reduced-motion preferences keep the expressions static.
+
+The Pip panels offer **Talk to Pip**, **Mute mic** and **End voice**. Spoken messages
 stream into the same chat as typed messages. Voice uses `gpt-live-1` with the Marin voice; coding questions delegate to
 the existing `OPENAI_MODEL` tutor (default `gpt-5.4-mini`). The server needs
 `OPENAI_API_KEY` with access to GPT-Live. Restart the server and reload the page

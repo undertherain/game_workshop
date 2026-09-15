@@ -124,6 +124,14 @@ input; the backend snapshot omits the placeholder question and duplicate history
 leaving the spoken conversation to supply the actual request.
 
 `pip-voice.js` supplies shared opt-in WebRTC controls, mute and graceful shutdown.
+`pip-avatar.js` and `pip-avatar.css` provide Pip's original SVG forest sprite in
+the lesson, workshop and museum tutor headings. Pip blinks at rest, looks upward
+while a typed reply or voice connection is pending, and tilts toward the learner
+when voice is listening. A local Web Audio analyser measures outgoing voice for
+mouth movement; the existing audio element remains the only playback path. Analysis
+stops and its AudioContext closes when voice ends, including cancellation and
+navigation. If analysis is unavailable, voice still works. Reduced-motion settings
+disable blinking, wing motion and transitions and use a fixed speaking mouth.
 Only the Talk button requests microphone access. Navigation and page lifecycle stops
 release tracks, audio, the data channel, peer connection, request and timers immediately;
 only the explicit End voice action waits briefly for a close acknowledgement. A later

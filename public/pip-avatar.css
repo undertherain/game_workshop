@@ -1,0 +1,34 @@
+.helper-heading .pip-avatar {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  margin: -5px 0 -5px -5px;
+  background: none;
+  border-radius: 0;
+}
+.pip-avatar svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pip-avatar .pip-character { transform-origin: 50px 65px; transition: transform .25s ease; }
+.pip-avatar .pip-eyes { transform-origin: 50px 53px; animation: pip-blink 6.4s infinite; }
+.pip-avatar .pip-face { transition: transform .25s ease; }
+.pip-avatar .pip-halo { transition: fill .3s ease; }
+.pip-avatar .pip-mouth, .pip-avatar .pip-thought { opacity: 0; }
+.pip-avatar .pip-mouth { transform-origin: 50px 65px; transform: scaleY(var(--pip-mouth-open, .5)); }
+.pip-avatar[data-state="listening"] .pip-character { transform: rotate(-7deg); }
+.pip-avatar[data-state="listening"] .pip-halo { fill: #dce9cb; }
+.pip-avatar[data-state="thinking"] .pip-face { transform: translate(1px, -3px); }
+.pip-avatar[data-state="thinking"] .pip-thought { opacity: 1; animation: pip-ponder 1.8s ease-in-out infinite; }
+.pip-avatar[data-state="speaking"] .pip-mouth { opacity: 1; }
+.pip-avatar[data-state="speaking"] .pip-smile { opacity: 0; }
+.pip-avatar[data-state="speaking"] .pip-halo { fill: #f6eab7; }
+.pip-avatar[data-state="speaking"] .pip-wing-left { transform-origin: 32px 62px; animation: pip-wing .5s ease-in-out infinite alternate; }
+.pip-avatar[data-state="speaking"] .pip-wing-right { transform-origin: 68px 62px; animation: pip-wing .5s ease-in-out infinite alternate-reverse; }
+@keyframes pip-blink { 0%, 43%, 47%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.1); } }
+@keyframes pip-ponder { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+@keyframes pip-wing { from { transform: rotate(-5deg); } to { transform: rotate(6deg); } }
+@media (max-width: 480px) {
+  .helper-heading .pip-avatar { width: 60px; height: 60px; flex-basis: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pip-avatar *, .pip-avatar[data-state] * { animation: none; transition: none; }
+  .pip-avatar .pip-mouth { transform: none; }
+}

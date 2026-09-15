@@ -21,7 +21,7 @@ const gameStorageKey = () => 'little-makers-exercises-v1-'+templateId;
 const hasStepStarter = () => completeMode || !!templates[templateId].starters?.[stepIndex];
 const storageKey = () => completeMode ? gameStorageKey()+'-complete' : hasStepStarter() ? gameStorageKey()+'-exercise-'+stepIndex : gameStorageKey();
 const stepDrafts = new Map();
-createPipVoice($('ask-form').parentElement, 'game', () => ({
+const pipVoice = createPipVoice($('ask-form').parentElement, 'game', () => ({
   code: editor.value, runningCode, template: templateId, error: currentError,
   selected: editor.value.slice(editor.selectionStart, editor.selectionEnd),
   selectedLine: editor.value.slice(0, editor.selectionStart).split('\n').length,
@@ -258,7 +258,7 @@ function appendMessage(role,text,experiment=''){
   if(experiment){const extra=document.createElement('p');extra.className='experiment';extra.textContent=experiment;element.append(extra);}
   $('conversation').append(element);$('conversation').scrollTop=$('conversation').scrollHeight;return element;
 }
-function setAsking(value){asking=value;$('ask').disabled=value;$('guide-step').disabled=value;document.querySelectorAll('.ideas button,.template-choice').forEach(b=>b.disabled=value);$('ask').textContent=value?'…':'↑';}
+function setAsking(value){asking=value;pipVoice.setThinking(value);$('ask').disabled=value;$('guide-step').disabled=value;document.querySelectorAll('.ideas button,.template-choice').forEach(b=>b.disabled=value);$('ask').textContent=value?'…':'↑';}
 function cancelQuestion(){questionController?.abort();questionController=null;setAsking(false);}
 async function ask(question,mode='chat') {
   if(asking||!question.trim())return;

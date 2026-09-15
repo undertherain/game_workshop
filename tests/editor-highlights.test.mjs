@@ -23,7 +23,7 @@ function editorHarness() {
     return elements.get(id);
   }
   const context = vm.createContext({
-    ...guidance, templates, initialState: {}, createScene: () => ({ update() {} }), createPipVoice() {}, stopPipVoice() {},
+    ...guidance, templates, initialState: {}, createScene: () => ({ update() {} }), createPipVoice: () => ({ setThinking() {} }), stopPipVoice() {},
     document: { getElementById: element, querySelectorAll: () => [], addEventListener() {}, createElement: () => element(Symbol()), createTextNode: text => ({ textContent: text }) },
     window: { addEventListener() {} },
     localStorage: { setItem() {} }, requestAnimationFrame() {}, clearTimeout() {}, setTimeout() { return 1; },

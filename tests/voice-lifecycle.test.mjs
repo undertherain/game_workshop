@@ -6,10 +6,12 @@ import { readFile } from 'node:fs/promises';
 // Run the browser controller with controlled media/transport promises and a tiny DOM.
 const source = (await readFile(new URL('../public/pip-voice.js', import.meta.url), 'utf8'))
   .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+const avatarSource = (await readFile(new URL('../public/pip-avatar.js', import.meta.url), 'utf8')).replace(/^export /gm, '');
 const settle = async () => { for (let i = 0; i < 15; i++) await Promise.resolve(); };
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 function harness() {
   class Element extends EventTarget {
+    dataset = {}; style = { setProperty() {} };
     children = new Map(); disabled = false; hidden = false; srcObject = null;
     append() {} setAttribute() {} pause() { this.paused = true; } play() { return Promise.resolve(); }
     querySelector(key) { if (!this.children.has(key)) this.children.set(key, new Element()); return this.children.get(key); }
@@ -41,13 +43,14 @@ function harness() {
   createVoiceCaptions: () => () => {}, createCodePointer: () => assert.fail('No visible editor in this fixture'),
   fetch: async (url, options) => { requests.push(options); return fetchWait ? fetchWait.promise : { ok: true, json: async () => ({ transport: { sdp: 'answer' } }) }; },
   });
-  vm.runInContext(source, context);
+  vm.runInContext(avatarSource + '\n' + source, context);
   const makePanel = () => {
     const startIndex = panels.length;
     const activity = { lessonId: 'sequence', code: 'fox.jump()' };
-    const control = context.createPipVoice(new Element(), 'lesson', () => activity, () => () => {});
+    const container = new Element();
+    const control = context.createPipVoice(container, 'lesson', () => activity, () => () => {});
     const panel = panels[startIndex];
-    return { control, activity, talk: panel.querySelector('.pip-talk'), mute: panel.querySelector('.pip-mute'), audio: panel.querySelector('audio') };
+    return { control, activity, avatar: container.querySelector('.pip-avatar'), talk: panel.querySelector('.pip-talk'), mute: panel.querySelector('.pip-mute'), audio: panel.querySelector('audio') };
   };
   const panel = makePanel();
   return { ...panel, makePanel, context, document, window, peers, tracks, requests, timers, makeStream,
@@ -62,7 +65,20 @@ function released(h, peer = h.peers.at(-1)) {
   assert.equal(h.audio.srcObject, null);
   assert.equal(h.talk.textContent, 'Talk to Pip'); assert.equal(h.talk.disabled, false);
   assert.equal(h.timers.size, 0);
+  assert.equal(h.avatar.dataset.state, 'idle');
 }
+
+test('Pip follows connecting, listening, mute, typed thinking and cancellation', async () => {
+  const h = harness(), pending = h.waitMedia();
+  await h.start(); assert.equal(h.avatar.dataset.state, 'thinking');
+  pending.resolve(h.makeStream()); await settle();
+  assert.equal(h.avatar.dataset.state, 'listening');
+  h.mute.click(); assert.equal(h.avatar.dataset.state, 'idle');
+  h.mute.click(); assert.equal(h.avatar.dataset.state, 'listening');
+  h.control.stop(); released(h);
+  h.control.setThinking(true); assert.equal(h.avatar.dataset.state, 'thinking');
+  h.control.setThinking(false); assert.equal(h.avatar.dataset.state, 'idle');
+});
 
 test('voice opens only on Talk, navigation closes immediately and Talk opens a fresh call', async () => {
   const h = harness(); assert.equal(h.tracks.length, 0);

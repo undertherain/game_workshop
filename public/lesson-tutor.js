@@ -27,6 +27,7 @@ export function createLessonTutor(getContext) {
     return entry;
   }
   function setBusy(busy) {
+    voice.setThinking(busy);
     $('lesson-tutor-form').querySelector('button').disabled = busy;
     for (const button of document.querySelectorAll('[data-lesson-question]')) button.disabled = busy;
     $('lesson-tutor-messages').setAttribute('aria-busy', String(busy));

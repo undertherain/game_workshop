@@ -95,8 +95,16 @@ in both editors, guided-line alignment at desktop/mobile sizes, focus and select
 preservation, game-editor scrolling, reading slides, edits, and voice-stop cleanup.
 Live microphone-to-highlight timing still needs a real conversation.
 
+`pip-avatar.test.mjs` checks outgoing audio versus silence, analysis resource cleanup,
+late audio startup after cancellation, and unavailable audio analysis.
+An isolated Chromium check verified all three tutor avatars, typed thinking,
+mouth movement with a generated audio signal, silence, mute, analysis cleanup,
+desktop/mobile layouts and reduced motion. Tutor replies and voice transport were
+simulated; a live conversation is still needed to assess speech animation timing.
+
 `voice-lifecycle.test.mjs` runs the browser voice controller with controlled media
-and transport promises. It verifies explicit Talk startup, immediate navigation
+and transport promises. It checks Pip's connecting, listening, mute and cancellation
+expressions, explicit Talk startup, immediate navigation
 cleanup, pagehide/visibility cleanup during graceful shutdown, late permission and
 connection results, switching panels, remote audio release, close acknowledgement/
 timeout, failure recovery, and no automatic restart on return. The voice endpoint

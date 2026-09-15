@@ -19,7 +19,7 @@ export function createMuseum(openGame, navigate) {
     const entry = { role, content: '' }, node = message(role, ''); history.push(entry);
     return content => { entry.content = content; node.textContent = content; };
   });
-  function cancel() { generation++; controller?.abort(); controller = null; voice.stop(); $('museum-form').querySelector('button').disabled = false; $('museum-status').textContent = ''; }
+  function cancel() { generation++; controller?.abort(); controller = null; voice.stop(); voice.setThinking(false); $('museum-form').querySelector('button').disabled = false; $('museum-status').textContent = ''; }
   function select(id) {
     cancel(); selected = id;
     history = []; $('museum-messages').replaceChildren(); $('museum-question').value = '';
@@ -53,6 +53,7 @@ export function createMuseum(openGame, navigate) {
     if (controller || !question.trim()) return;
     voice.stop(); const requestGeneration = generation, snapshot = context();
     const pending = new AbortController(); controller = pending;
+    voice.setThinking(true);
     const timeout = setTimeout(() => pending.abort(), 35000);
     message('user', question); history.push({ role: 'user', content: question });
     $('museum-form').querySelector('button').disabled = true; $('museum-status').textContent = 'Pip is thinking…';
@@ -64,7 +65,7 @@ export function createMuseum(openGame, navigate) {
       $('museum-question').value = ''; $('museum-status').textContent = '';
       $('museum-pip-mode').textContent = reply.mode === 'ai' ? 'AI museum guide' : 'Built-in museum guide · AI offline';
     } catch (error) { if (generation === requestGeneration) $('museum-status').textContent = error.name === 'AbortError' ? 'Pip took too long. Try again.' : error.message; }
-    finally { clearTimeout(timeout); if (generation === requestGeneration) { controller = null; $('museum-form').querySelector('button').disabled = false; } }
+    finally { clearTimeout(timeout); if (generation === requestGeneration) { controller = null; voice.setThinking(false); $('museum-form').querySelector('button').disabled = false; } }
   }
   $('museum-form').onsubmit = event => { event.preventDefault(); ask($('museum-question').value); };
   $('museum-explain').onclick = () => ask('Explain the goal, controls and the rules that make this game interesting.');
