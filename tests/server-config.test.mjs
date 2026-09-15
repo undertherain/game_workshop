@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { serverConfig } from '../server-config.mjs';
-import { createServer } from '../server.mjs';
+import handler, { createServer } from '../server.mjs';
 
 test('local startup stays on loopback; hosted startup uses PORT and explicit public origins', () => {
+  assert.equal(typeof handler, 'function', 'Vercel requires a default request handler');
   const local = serverConfig({});
   assert.equal(local.bindHost, '127.0.0.1');
   assert.equal(local.port, 4179);

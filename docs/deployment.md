@@ -7,22 +7,24 @@ Docker, Nginx and a database are not needed for this deployment.
 ## Import and configure
 
 Import the repository in Vercel. Use project name `game-workshop`, root directory
-`./`, and the **Node** framework preset. `vercel.json` supplies the build settings:
+`./`, and the **Other** framework preset. `vercel.json` supplies the build settings:
 
 - Node 22.x, selected by `package.json`.
 - Install: `npm ci`.
 - Build: `npm run build`.
-- Output directory: leave the Node preset default; do not override it.
-- Server entrypoint: `server.mjs`.
+- Output directory: leave the override disabled; the build emits `.vercel/output`.
+- API entrypoint: the default request handler exported by `server.mjs`.
 - Production branch: `master`.
 
-The build copies the locked Pyodide browser runtime and the allowlisted framework
-modules into generated `public/vendor/pyodide/` and `public/framework/` directories.
-These files are deployed as static assets, keeping the large WebAssembly download
-out of a function response. Generated assets, `.vercel/`, environment files and
-local caches are excluded from Git. The function also includes the files needed
-for curriculum loading and offline game exports. Export responses are streamed
-because their ZIPs exceed Vercel's 4.5 MB buffered-response limit.
+The build creates Vercel's explicit Build Output API directory: static browser
+files under `.vercel/output/static/` and one Node function bundle with aliases for
+the five API endpoints. It copies the locked Pyodide runtime and allowlisted Python
+framework into the static output, including on the first clean build. No framework
+autodetection or file tracing is needed. The function includes the files needed
+for curriculum loading and offline game exports. It exports a default request
+handler, keeps raw request streams, and enables response streaming because game
+ZIPs exceed Vercel's 4.5 MB buffered-response limit. Environment files and local
+caches are excluded from the artifact; generated output is excluded from Git.
 
 Leave `OPENAI_API_KEY` unset for the initial public deployment. The site then uses
 the built-in guide, and voice reports that it is unavailable. BYOK and judge
@@ -71,15 +73,14 @@ microphone access when voice is enabled later.
 host, set `WORKSHOP_BIND_HOST=0.0.0.0` and configure `WORKSHOP_PUBLIC_ORIGINS` with
 the browser's exact origin. `PORT` takes priority over `WORKSHOP_PORT`.
 Behind Nginx, preserve the original Host header and terminate HTTPS at Nginx.
-On Vercel, the entrypoint calls `listen()` when imported so Vercel can capture the
-server; its port is managed by the platform. Local `.env` discovery is disabled
-on Vercel.
+On Vercel, the platform invokes the exported handler directly; it does not need
+the local `listen()` path. Local `.env` discovery is disabled on Vercel.
 
 ## Updates
 
 Pushes to `master` trigger production deployments. Feature branches receive
 preview deployments. DNS does not need to change for each release.
 
-References: [Node server runtime](https://vercel.com/docs/functions/runtimes/node-js),
+References: [Build Output API](https://vercel.com/docs/build-output-api/primitives),
 [large response streaming](https://vercel.com/kb/guide/how-to-bypass-vercel-body-size-limit-serverless-functions),
 [custom domains](https://vercel.com/docs/domains/working-with-domains/add-a-domain).

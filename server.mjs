@@ -143,8 +143,10 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
   });
 }
 
-// Vercel imports the entrypoint and captures listen(); local tests only import the factory.
-if (process.env.VERCEL === '1' || (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))) {
+// Vercel invokes this raw Node request handler. Importing it never opens a port.
+export default createServer().listeners('request')[0];
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const config = serverConfig();
   createServer({ config }).listen(config.port, config.bindHost, () => console.log(`Little Makers listening on ${config.bindHost}:${config.port} · helper: ${process.env.OPENAI_API_KEY ? 'AI connected' : 'built-in examples'}`));
 }
