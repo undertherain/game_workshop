@@ -1,6 +1,7 @@
 import { drawSpace } from '/space-scene.js';
 import { createLessonDemos } from './lesson-demos.js';
 import { createPipDemo } from './pip-demo.js';
+import { createFinale } from './finale.js';
 
 const $ = id => document.getElementById(id);
 const slides = [...document.querySelectorAll('.slide')];
@@ -9,6 +10,7 @@ const states = {};
 const resets = new Set();
 const lessons = createLessonDemos();
 const pip = createPipDemo();
+const finale = createFinale();
 let index = 0, worker, ready = false, pending = false, timer, keys = {}, fireQueued = false, lastStep = 0;
 const mode = () => slides[index].dataset.demo;
 const clearKeys = () => { keys = {}; fireQueued = false; };
@@ -32,6 +34,7 @@ function showSlide() {
   index = found < 0 ? 0 : found;
   slides.forEach((slide, i) => { slide.hidden = i !== index; });
   pip.show();
+  finale.show(slides[index].id === 'tldr');
   $('slide-count').textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
   $('previous').disabled = index === 0;
   $('next').disabled = index === slides.length - 1;
@@ -161,6 +164,7 @@ document.querySelectorAll('[data-restart]').forEach(button => { button.onclick =
 }; });
 function frame(time) {
   lessons.frame(time);
+  finale.frame(time);
   const active = mode();
   if (!document.hidden && ready && !pending && time - lastStep >= 1000 / 30) {
     // Warm both demos on the opening slides; after that only the visible game steps.

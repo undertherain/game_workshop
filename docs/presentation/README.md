@@ -28,9 +28,12 @@ build also includes the presentation; this change does not deploy it.
   **Run Python** (or Enter in its one-line editor) reruns the code. The example
   buttons also prefill a matching question. **Send** asks by text; **Talk to Pip**
   opens voice only on a click. Speak the question after it connects.
+- The TL;DR finale loops six recorded game previews. **Pause previews** freezes
+  them; **Play previews** resumes. Reduced-motion preferences start them paused.
+  The two QR codes link to Little Makers and Typper.
 
 Slide links use hashes: `#intro`, `#meme`, `#framework`, `#code`, `#barebones`,
-`#full-game`, `#rendering`, `#python-basics`, `#fox`, `#robot`, `#puzzles`, `#pip`. The fixed 16:9 stage scales to the
+`#full-game`, `#rendering`, `#python-basics`, `#fox`, `#robot`, `#puzzles`, `#computer-graphics`, `#pip`, `#typper`, `#tldr`. The fixed 16:9 stage scales to the
 window; a landscape display is best.
 Python warms up on the opening slide. Games start when their slide is entered,
 pause when it is left or the tab is hidden, and resume on return. Both demos have
@@ -41,7 +44,7 @@ changes remain within this page and never overwrite workshop drafts.
 
 ## Edit
 
-`index.html` contains the twelve slides and copy; `deck.css` controls appearance.
+`index.html` contains the fifteen slides and copy; `deck.css` controls appearance.
 Add sections with the `slide` class and unique IDs before the footer to extend
 the narrative. Navigation and the slide counter derive from those sections.
 
@@ -77,6 +80,37 @@ answer to the presenter. Completion checks the executed robot path for coverage 
 the square perimeter and a return to the start facing right, rather than matching
 source text or accepting a robot that only rotates at the starting position.
 This presentation-only feedback does not record workshop learning progress.
+
+The computer graphics overview follows the programming puzzle, before Pip. Two
+inline SVG illustrations show a whole filled pixel and the eight-cell Bresenham
+line from (0, 0) to (7, 3), using the lesson's 8 × 5 coordinate model. The slide
+summarizes the implemented route: pixels and coordinates, lines with loops,
+Bresenham, the `line()` primitive, and moiré patterns. It is a static overview
+that adds no workers or API calls. Open it directly with `#computer-graphics`.
+
+The `#typper` slide introduces a separate project built in parallel during
+the hackathon: a Japanese typing arcade, connected to Little Makers through keyboard
+practice before coding. Its F/J warm-up, romaji orders and increasing difficulty
+are documented in `/home/blackbird/Projects_heavy/Games/typper/README.md`.
+`typper-gameplay.png` is a local copy of that project's `assets/social/typper.png`
+gameplay screenshot. The slide works without running Typper or accessing its site;
+an optional link opens <https://typper.ukeru.info/> in a new tab. It introduces no
+shared runtime or integration between the two projects.
+
+The closing `#tldr` slide summarizes the low-code Python framework with browser
+and native backends, the learning portal from hello world to complete games, and
+Pip. `finale.js` loops the existing `public/content/game-previews.json` snapshots
+through the real `scene.js` renderers for Space Invaders, Brick breaker, Platformer,
+Sky Patrol, Sokoban and Asteroids. These are recorded gameplay previews, not six
+additional live Python sessions. They load on the first visit, pause off-slide or
+when the document is hidden, and preserve manual pause on return.
+
+`qr-little-makers.png` and `qr-typper.png` encode exactly
+`https://game.blackbird.pw/` and `https://typper.ukeru.info/`. They are local PNGs
+generated with Python qrcode 8.2, medium error correction and a four-module white
+quiet zone. The displayed codes and labels are also clickable links. OpenCV decoded
+both originals and their rendered screenshots at 1600 × 900 and 1280 × 720.
+The QR generator is only an authoring tool; it is not a runtime dependency.
 
 ## Pip demo and voice
 

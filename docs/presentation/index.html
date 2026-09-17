@@ -153,8 +153,74 @@
       </div>
     </section>
 
+    <section id="computer-graphics" class="slide graphics-slide" aria-labelledby="graphics-title" hidden>
+      <p class="eyebrow">10 / COMPUTER GRAPHICS</p>
+      <h2 id="graphics-title">Computer graphics basics, too.</h2>
+      <p class="graphics-lead">A dedicated lesson block: from colouring one pixel to understanding how lines are drawn.</p>
+      <div class="graphics-cards">
+        <figure>
+          <h3>One pixel, one filled square</h3>
+          <svg viewBox="0 0 440 240" role="img" aria-label="One whole pixel cell at column 2, row 1 is filled. Coordinates start at zero in the top left, with x increasing right and y increasing down." xmlns="http://www.w3.org/2000/svg">
+              <rect x="100" y="44" width="240" height="150" fill="#162620"/>
+              <rect x="160" y="74" width="30" height="30" fill="#d4f58b"/>
+              <path d="M100 44V194 M130 44V194 M160 44V194 M190 44V194 M220 44V194 M250 44V194 M280 44V194 M310 44V194 M340 44V194 M100 44H340 M100 74H340 M100 104H340 M100 134H340 M100 164H340 M100 194H340" fill="none" stroke="#53634e" stroke-width="1"/>
+              <text x="115" y="34" text-anchor="middle">0</text>
+              <text x="145" y="34" text-anchor="middle">1</text>
+              <text x="175" y="34" text-anchor="middle">2</text>
+              <text x="205" y="34" text-anchor="middle">3</text>
+              <text x="235" y="34" text-anchor="middle">4</text>
+              <text x="265" y="34" text-anchor="middle">5</text>
+              <text x="295" y="34" text-anchor="middle">6</text>
+              <text x="325" y="34" text-anchor="middle">7</text>
+              <text x="85" y="64" text-anchor="middle">0</text>
+              <text x="85" y="94" text-anchor="middle">1</text>
+              <text x="85" y="124" text-anchor="middle">2</text>
+              <text x="85" y="154" text-anchor="middle">3</text>
+              <text x="85" y="184" text-anchor="middle">4</text>
+              <text x="220" y="13" text-anchor="middle">x →</text>
+              <text x="52" y="121" text-anchor="middle">y ↓</text>
+              <text x="220" y="222" text-anchor="middle">8 × 5 pixels · enlarged</text>
+              </svg>
+          <figcaption><code>pixel(2, 1)</code><span>Count right, then down.</span></figcaption>
+        </figure>
+        <figure>
+          <h3>A line is made of pixels</h3>
+          <svg viewBox="0 0 440 240" role="img" aria-label="Eight filled pixel cells form a staircase from pixel 0, 0 to pixel 7, 3, following Bresenham’s line algorithm." xmlns="http://www.w3.org/2000/svg">
+              <rect x="100" y="44" width="240" height="150" fill="#162620"/>
+              <rect x="100" y="44" width="30" height="30" fill="#d4f58b"/>
+              <rect x="130" y="44" width="30" height="30" fill="#d4f58b"/>
+              <rect x="160" y="74" width="30" height="30" fill="#d4f58b"/>
+              <rect x="190" y="74" width="30" height="30" fill="#d4f58b"/>
+              <rect x="220" y="104" width="30" height="30" fill="#d4f58b"/>
+              <rect x="250" y="104" width="30" height="30" fill="#d4f58b"/>
+              <rect x="280" y="134" width="30" height="30" fill="#d4f58b"/>
+              <rect x="310" y="134" width="30" height="30" fill="#d4f58b"/>
+              <path d="M100 44V194 M130 44V194 M160 44V194 M190 44V194 M220 44V194 M250 44V194 M280 44V194 M310 44V194 M340 44V194 M100 44H340 M100 74H340 M100 104H340 M100 134H340 M100 164H340 M100 194H340" fill="none" stroke="#53634e" stroke-width="1"/>
+              <text x="115" y="34" text-anchor="middle">0</text>
+              <text x="145" y="34" text-anchor="middle">1</text>
+              <text x="175" y="34" text-anchor="middle">2</text>
+              <text x="205" y="34" text-anchor="middle">3</text>
+              <text x="235" y="34" text-anchor="middle">4</text>
+              <text x="265" y="34" text-anchor="middle">5</text>
+              <text x="295" y="34" text-anchor="middle">6</text>
+              <text x="325" y="34" text-anchor="middle">7</text>
+              <text x="85" y="64" text-anchor="middle">0</text>
+              <text x="85" y="94" text-anchor="middle">1</text>
+              <text x="85" y="124" text-anchor="middle">2</text>
+              <text x="85" y="154" text-anchor="middle">3</text>
+              <text x="85" y="184" text-anchor="middle">4</text>
+              <text x="220" y="13" text-anchor="middle">x →</text>
+              <text x="52" y="121" text-anchor="middle">y ↓</text>
+              <text x="220" y="222" text-anchor="middle">8 × 5 pixels · enlarged</text>
+              </svg>
+          <figcaption><code>line(0, 0, 7, 3)</code><span>Explore the algorithm inside.</span></figcaption>
+        </figure>
+      </div>
+      <p class="graphics-route">Pixels &amp; coordinates <span>→</span> Lines with loops <span>→</span> Bresenham <span>→</span> <code>line()</code> <span>→</span> Moiré patterns</p>
+    </section>
+
     <section id="pip" class="slide lesson-slide" aria-labelledby="pip-title" hidden>
-      <p class="eyebrow">10 / AI TUTOR</p>
+      <p class="eyebrow">11 / AI TUTOR</p>
       <h2 id="pip-title">Meet Pip</h2>
       <div class="pip-layout">
         <div class="lesson-code-panel">
@@ -177,7 +243,53 @@
       </div>
     </section>
 
-    <footer><span>LITTLE MAKERS · FINALS</span><nav aria-label="Presentation controls"><button id="previous" aria-label="Previous slide">← <kbd>P</kbd></button><span id="slide-count" aria-live="polite">01 / 12</span><button id="next" aria-label="Next slide"><kbd>N</kbd> →</button><button id="fullscreen">Fullscreen <kbd>F</kbd></button></nav></footer>
+    <section id="typper" class="slide typper-slide" aria-labelledby="typper-title" hidden>
+      <p class="eyebrow">12 / A PARALLEL HACKATHON PROJECT</p>
+      <h2 id="typper-title">Before coding, get comfortable typing.</h2>
+      <div class="typper-layout">
+        <div class="typper-copy">
+          <h3>Typper</h3>
+          <p class="typper-intro">A Japanese typing arcade.<br>Type food orders to serve<br>yōkai customers.</p>
+          <ul>
+            <li><kbd>F</kbd> / <kbd>J</kbd> warm-up</li>
+            <li>Romaji typing practice</li>
+            <li>More words and faster rounds</li>
+          </ul>
+          <p class="typper-connection">Keyboard confidence<br><em>→ more attention for code.</em></p>
+          <p class="typper-note">A separate project, built alongside<br>Little Makers during the hackathon.</p>
+        </div>
+        <figure class="typper-preview">
+          <img src="./typper-gameplay.png" width="1200" height="630" alt="Typper gameplay: a lantern-lit Japanese food stall on a riverboat, with yōkai customers ordering bread, peach and sushi for the player to type.">
+          <figcaption><span>Type the order. Serve the customer.</span><a href="https://typper.ukeru.info/" target="_blank" rel="noopener noreferrer">typper.ukeru.info ↗</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="tldr" class="slide finale-slide" aria-labelledby="tldr-title" hidden>
+      <div class="finale-heading"><h2 id="tldr-title">Little Makers</h2><span>TL;DR</span><button id="finale-play" type="button" aria-pressed="true" disabled>Pause previews</button></div>
+      <div class="finale-main">
+        <div class="finale-points">
+          <div><h3>Low-code Python framework</h3><p>Games that run in the browser<br>and natively.</p></div>
+          <div><h3>A learning portal</h3><p>A curriculum from hello world<br>to complete games.</p></div>
+          <div><h3>An AI assistant</h3><p>Pip helps learners understand<br>their code, by text or voice.</p></div>
+          <p id="finale-status" role="status"></p>
+        </div>
+        <div class="finale-games" aria-label="Six games from the workshop">
+          <figure><canvas width="840" height="480" data-game="invaders" role="img" aria-label="Recorded gameplay preview: Space Invaders."></canvas><figcaption>Space Invaders</figcaption></figure>
+          <figure><canvas width="840" height="480" data-game="breaker" role="img" aria-label="Recorded gameplay preview: Brick breaker."></canvas><figcaption>Brick breaker</figcaption></figure>
+          <figure><canvas width="840" height="480" data-game="platformer" role="img" aria-label="Recorded gameplay preview: Platformer."></canvas><figcaption>Platformer</figcaption></figure>
+          <figure><canvas width="840" height="480" data-game="paratroopers" role="img" aria-label="Recorded gameplay preview: Sky Patrol."></canvas><figcaption>Sky Patrol</figcaption></figure>
+          <figure><canvas width="840" height="480" data-game="sokoban" role="img" aria-label="Recorded gameplay preview: Sokoban."></canvas><figcaption>Sokoban</figcaption></figure>
+          <figure><canvas width="840" height="480" data-game="asteroids" role="img" aria-label="Recorded gameplay preview: Asteroids."></canvas><figcaption>Asteroids</figcaption></figure>
+        </div>
+      </div>
+      <div class="finale-links">
+        <a href="https://game.blackbird.pw/" target="_blank" rel="noopener noreferrer"><img src="./qr-little-makers.png" width="330" height="330" alt="QR code linking to Little Makers at https://game.blackbird.pw/."><span><strong>Little Makers</strong><span>Learn Python. Make games.</span><small>game.blackbird.pw</small></span></a>
+        <a href="https://typper.ukeru.info/" target="_blank" rel="noopener noreferrer"><img src="./qr-typper.png" width="330" height="330" alt="QR code linking to Typper at https://typper.ukeru.info/."><span><strong>Typper</strong><span>Build confidence at the keyboard.</span><small>typper.ukeru.info</small></span></a>
+      </div>
+    </section>
+
+    <footer><span>LITTLE MAKERS · FINALS</span><nav aria-label="Presentation controls"><button id="previous" aria-label="Previous slide">← <kbd>P</kbd></button><span id="slide-count" aria-live="polite">01 / 15</span><button id="next" aria-label="Next slide"><kbd>N</kbd> →</button><button id="fullscreen">Fullscreen <kbd>F</kbd></button></nav></footer>
     <div id="progress" aria-hidden="true"></div>
   </main>
   <dialog id="ai-access-dialog" aria-labelledby="ai-access-title">

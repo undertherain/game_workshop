@@ -28,6 +28,13 @@ answers, spoken line pointers, mute/end, example/run/navigation cancellation, la
 microphone grants, AI-access gating and slide layout. Live audio remains a manual
 check with an authenticated AI session; no paid requests were made by this check.
 
+The fifteen-slide deck was checked in Chromium for the graphics and Typper
+illustrations, finale navigation, direct links, scaling and content above the footer.
+All six finale game canvases change during playback and remain unchanged when
+paused or off-slide; reduced motion starts playback paused and manual playback
+can resume. OpenCV decoded both finale QR codes from the source PNGs and rendered
+screenshots at 1600 × 900 and 1280 × 720, matching the exact published URLs.
+
 `ai-access.test.mjs` tests anonymous isolation with a configured shared key,
 atomic reusable invite redemption, secure cookies, exact Origin checks, expiry,
 revocation, per-invite and total caps, concurrent reservations, encrypted personal
