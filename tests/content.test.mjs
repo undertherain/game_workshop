@@ -48,6 +48,12 @@ test('a missing lesson fails clearly instead of silently dropping an entry', asy
     return readContent(path);
   }), /lessons\/event.json/);
 });
+test('explanation diagrams reject unknown renderers and preserve the drawing route', async () => {
+  const base = await readContent('lessons/pixels-intro.json');
+  const defaults = await readContent('lesson-defaults.json');
+  assert.throws(() => validateLesson({ ...base, explanation: [{ ...base.explanation[0], diagram: '<svg onload="alert(1)">' }] }, base.id, defaults, skillLabels), /unknown explanation diagram/);
+  assert.deepEqual(lessons.filter(lesson => lesson.branch === 'drawing').map(lesson => lesson.id), ['pixels-intro', 'screen-coordinates', 'dot', 'pattern', 'raster-lines', 'bresenham-steps', 'bresenham-rule', 'line', 'pixel-fan']);
+});
 test('museum sources reject malformed links and executable URL schemes', async () => {
   for (const source of [null, {title: 'Source', url: 'javascript:alert(1)'}, {title: 'Source', url: 'not a URL'}, {url: 'https://example.com'}]) {
     await assert.rejects(loadTemplates(['breaker'], async path => {

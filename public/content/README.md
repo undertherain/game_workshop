@@ -39,6 +39,7 @@ The lesson fields are:
 | `layout` | Optional `compact` for short single-column opening slides |
 | `presentation` | Optional `scene` (default) or `console`; console hides the scene and shows results in Output, while scene uses speech bubbles |
 | `explanation` | Optional 1–4 `{title, code, text}` cards on a compact reading slide; use an empty starter, or combine with `quiz.only` |
+| `explanation[].diagram` | Optional built-in illustration: `point-grid`, `pixel-grid`, interactive `pixel-coordinates`, `raster-line`, interactive `bresenham-steps`, or interactive `pixel-fan`. Two illustrated cards appear side by side on wider screens. Content cannot supply SVG or HTML. |
 | `actor` | Optional `character`, used after customization; omit for early fox lessons |
 | `placeholder` | Hint inside the empty editor |
 | `scene` | Optional `title` (omit to hide the caption) and required accessible `label` |
@@ -70,6 +71,11 @@ chapters retain their simple lesson list. New branches need no HTML changes. Run
 rendering primitives remain implemented capabilities; content selects them.
 
 Supported modes are `commands`, `loop`, `style`, `event`, `update`, `drawing`, `basics`, `robot`, and `jump-design`.
+The `drawing` mode provides `pixel(x, y)` and `line(x1, y1, x2, y2)` on an
+enlarged 8 × 5 picture. Whole-number coordinates select cells, with x from 0 to 7
+and y from 0 to 4. Lines use Bresenham and include both end pixels. Each shape
+snapshot includes its `pixels` array; the browser fills those cells. Reading slides
+introduce the coordinate model and the algorithm before the line activity.
 The `basics` mode supports numeric and text assignments, arithmetic including division,
 comparison values, `str(value)`, `fox.say(value)`, top-level expression output, `fox.move(distance)`,
 `fox.jump()`, bounded loops, top-level named functions with up to two parameters,

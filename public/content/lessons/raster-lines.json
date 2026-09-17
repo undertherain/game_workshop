@@ -1,0 +1,28 @@
+{
+  "id": "raster-lines",
+  "title": "A line made of squares",
+  "heading": "How can squares make a diagonal?",
+  "description": "Your loop drew a horizontal line by keeping y fixed. The simple diagonal increased x and y together. What if a line goes 7 pixels across but only 3 down? Now some columns must share a row, while others move to the next row.",
+  "explanation": [
+    {
+      "title": "The ideal line and its pixels",
+      "code": "From pixel (0, 0) to pixel (7, 3)",
+      "text": "The dashed guide joins the centres of the two end pixels. The coloured squares follow it as closely as the grid allows. At each new column, should we stay in the same row or move one row down? Next, Bresenham’s algorithm will make that choice.",
+      "diagram": "raster-line"
+    }
+  ],
+  "branch": "drawing",
+  "layout": "compact",
+  "mode": "drawing",
+  "skill": "coordinates",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the explanation, then continue",
+  "scene": {
+    "label": "Your loop drew a horizontal line by keeping y fixed. The simple diagonal increased x and y together. What if a line goes 7 pixels across but only 3 down? Now some columns must share a row, while others move to the next row."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Next, step through the choices that build this staircase."
+  }
+}

@@ -123,6 +123,30 @@ body[data-mode="lessons"] .topbar { padding-top:10px; padding-bottom:10px; }
 #quiz-check { margin-top:12px; }
 
 .lesson-explanation { display:grid; gap:16px; margin:8px 0 18px; }
+.lesson-explanation.diagram-comparison { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+.lesson-explanation.diagram-comparison article { padding:18px; }
+.lesson-explanation.diagram-comparison pre { font-size:16px; }
+.graphics-diagram svg { display:block; width:100%; max-width:440px; margin:0 auto 12px; font:13px system-ui; fill:#315d4c; }
+.pixel-controls { display:flex; gap:24px; margin:0 0 16px; }
+.pixel-controls label { flex:1; min-width:0; font-weight:600; color:#315d4c; }
+.pixel-controls input { display:block; width:100%; min-height:32px; accent-color:#b15b35; }
+.bresenham-controls { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 12px; }
+.bresenham-controls button { padding:8px 12px; font-size:13px; }
+.lesson-explanation .bresenham-status { margin-bottom:12px; font-size:15px; }
+.bresenham-table { margin:0 0 16px; overflow-x:auto; }
+.bresenham-table summary { cursor:pointer; padding:8px 0; }
+.bresenham-table table { width:100%; border-collapse:collapse; font-size:13px; }
+.bresenham-table caption { text-align:left; margin:8px 0; color:var(--muted); }
+.bresenham-table th, .bresenham-table td { text-align:left; padding:8px 4px; border-bottom:1px solid var(--border); }
+#lessons[data-layout="compact"] .pixel-fan canvas { display:block; width:576px; max-width:100%; height:auto; aspect-ratio:4/3; object-fit:contain; image-rendering:pixelated; margin:0 auto 18px; }
+.fan-controls { display:flex; flex-wrap:wrap; gap:12px 20px; margin:0 0 18px; }
+.fan-controls label { display:flex; flex-direction:column; gap:6px; font-size:14px; color:#315d4c; }
+.fan-controls label:last-child { flex-direction:row; align-items:center; flex-basis:100%; }
+.fan-controls select { max-width:100%; padding:8px; font:inherit; color:inherit; background:#fffef9; border:1px solid var(--border); border-radius:6px; }
+.fan-controls input { accent-color:#315d4c; }
+@media(max-width:900px) { #lessons[data-layout="compact"] .pixel-fan canvas { width:384px; } }
+@media(max-width:540px) { #lessons[data-layout="compact"] .pixel-fan canvas { width:192px; } }
+@media(max-width:540px) { .lesson-explanation.diagram-comparison { grid-template-columns:1fr; } }
 .lesson-explanation article { padding:22px 26px; border:1px solid var(--border); border-radius:14px; background:#fffef9; }
 .lesson-explanation h2 { font-size:18px; margin:0 0 14px; }
 .lesson-explanation pre { margin:0 0 12px; padding:14px 16px; border-radius:8px; background:#edf2e6; white-space:pre-wrap; overflow-wrap:anywhere; font:22px/1.5 var(--mono); }

@@ -3,6 +3,7 @@ import { createLessonTutor } from './lesson-tutor.js';
 import { stopPipVoice } from './pip-voice.js';
 import { createScene, initialState } from './scene.js';
 import { drawRobot, robotStart, robotPose } from './robot-scene.js';
+import { graphicsDiagram } from './graphics-diagrams.js';
 import { startWorkshop } from './app.js';
 import { lessons, games, skillLabels, branches } from './curriculum.js';
 import { progress, movementOffer } from './progress.js';
@@ -102,14 +103,18 @@ function render() {
   $('lessons').dataset.layout = lesson.layout || 'split';
   $('lessons').dataset.console = String(lesson.presentation === 'console');
   $('lessons').dataset.explanation = String(!!lesson.explanation);
-  document.querySelector('.lesson-topline .eyebrow').textContent = lesson.explanation ? 'A LITTLE PYTHON' : lesson.layout === 'compact' ? 'TRY IT IN CODE' : 'YOUR NEXT LITTLE PROGRAM';
+  document.querySelector('.lesson-topline .eyebrow').textContent = lesson.explanation ? (lesson.branch === 'drawing' ? 'COMPUTER GRAPHICS' : 'A LITTLE PYTHON') : lesson.layout === 'compact' ? 'TRY IT IN CODE' : 'YOUR NEXT LITTLE PROGRAM';
   $('lesson-explanation').hidden = !lesson.explanation;
+  $('lesson-explanation').setAttribute('aria-label', lesson.branch === 'drawing' ? 'Computer graphics explained' : 'Python explained');
+  $('lesson-explanation').classList.toggle('diagram-comparison', lesson.explanation?.length === 2 && lesson.explanation.every(card => card.diagram));
   $('lesson-explanation').replaceChildren(...(lesson.explanation || []).map(card => {
     const article = document.createElement('article');
     const title = document.createElement('h2'); title.textContent = card.title;
     const code = document.createElement('pre'); const example = document.createElement('code'); example.textContent = card.code; code.append(example);
     const description = document.createElement('p'); description.textContent = card.text;
-    article.append(title, code, description); return article;
+    article.append(title);
+    if (card.diagram) article.append(graphicsDiagram(card.diagram, example));
+    article.append(code, description); return article;
   }));
   $('lesson-title').textContent = lesson.heading; $('lesson-description').textContent = lesson.description;
   if (branchInfo.chapters) document.querySelector('.lesson-topline .eyebrow').textContent = `CHAPTER ${chapterIndex + 1} OF ${chapters.length}`;
@@ -200,7 +205,10 @@ function receive(data) {
     canvas.focus({ preventScroll: true });
     feedback(current().feedback.installed);
   } else if (current().mode === 'drawing') {
-    finish(); recordPractice(); feedback(data.shapes.length ? `You drew ${data.shapes.length} ${data.shapes.length === 1 ? 'shape' : 'shapes'}. ${current().feedback.drawn}` : current().feedback.empty);
+    const pixels = [...new Set(data.shapes.flatMap(shape => shape.pixels.map(point => point.join(', '))))];
+    finish(); recordPractice();
+    canvas.setAttribute('aria-label', `${current().scene.label} Coloured pixels: ${pixels.length ? pixels.map(point => `(${point})`).join('; ') : 'none'}.`);
+    feedback(pixels.length ? `You coloured ${pixels.length} ${pixels.length === 1 ? 'pixel' : 'pixels'}. ${current().feedback.drawn}` : current().feedback.empty);
   } else {
     if (current().mode === 'style') { personal = { sky: data.world.sky, costume: data.player.costume }; persist(); }
     actions = [...data.actions]; actionStart = null;
@@ -226,16 +234,23 @@ function run() {
   worker.onmessage = ({ data }) => { if (worker === thisWorker) receive(data); };
 }
 function drawGrid() {
-  ctx.fillStyle = '#fbfaf2'; ctx.fillRect(0, 0, 840, 480); ctx.lineWidth = 1;
-  ctx.strokeStyle = '#dce4d3'; ctx.beginPath();
-  for (let a = 0; a <= 840; a += 60) { ctx.moveTo(a, 0); ctx.lineTo(a, 480); }
-  for (let b = 0; b <= 480; b += 60) { ctx.moveTo(0, b); ctx.lineTo(840, b); } ctx.stroke();
-  ctx.fillStyle = '#6f8065'; ctx.font = '14px system-ui'; ctx.textAlign = 'left';
-  ctx.fillText('0, 0', 10, 22); ctx.fillText('x → 840', 750, 22); ctx.fillText('y ↓ 480', 10, 465);
+  const left = 140, top = 70, cell = 70;
+  ctx.fillStyle = '#fbfaf2'; ctx.fillRect(0, 0, 840, 480);
+  ctx.fillStyle = '#edf2e6'; ctx.fillRect(left, top, 8 * cell, 5 * cell);
+  ctx.fillStyle = '#b15b35';
   for (const shape of result?.shapes || []) {
-    const [a, b, c, d] = shape.points; ctx.fillStyle = '#bf7649'; ctx.strokeStyle = '#315d4c'; ctx.lineWidth = 5;
-    ctx.beginPath(); if (shape.kind === 'dot') { ctx.arc(a, b, 9, 0, Math.PI * 2); ctx.fill(); } else { ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); }
+    for (const [x, y] of shape.pixels) ctx.fillRect(left + x * cell, top + y * cell, cell, cell);
   }
+  ctx.lineWidth = 1; ctx.strokeStyle = '#acbba5'; ctx.beginPath();
+  for (let x = 0; x <= 8; x++) { ctx.moveTo(left + x * cell, top); ctx.lineTo(left + x * cell, top + 5 * cell); }
+  for (let y = 0; y <= 5; y++) { ctx.moveTo(left, top + y * cell); ctx.lineTo(left + 8 * cell, top + y * cell); }
+  ctx.stroke();
+  ctx.fillStyle = '#315d4c'; ctx.font = '22px system-ui'; ctx.textAlign = 'center';
+  for (let x = 0; x < 8; x++) ctx.fillText(x, left + (x + .5) * cell, top - 15);
+  for (let y = 0; y < 5; y++) ctx.fillText(y, left - 25, top + (y + .5) * cell + 8);
+  ctx.fillText('x increases →', 420, 25);
+  ctx.save(); ctx.translate(65, 245); ctx.rotate(-Math.PI / 2); ctx.fillText('← y increases', 0, 0); ctx.restore();
+  ctx.fillText('8 columns × 5 rows · enlarged pixels', 420, 460);
 }
 function frame(time) {
   if (document.body.dataset.mode === 'lessons' && !document.hidden && time - lastFrame >= 30) {

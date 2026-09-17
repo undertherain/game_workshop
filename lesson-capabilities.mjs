@@ -26,8 +26,8 @@ const profiles = {
     limits: ['No parameters or other top-level statements; only keyboard.right conditions, without else.', 'The lesson calls update 30 times a second; movement responds while Right is held.'],
   },
   drawing: {
-    commands: ['dot(x, y)', 'line(x1, y1, x2, y2)'], syntax: [countedLoop, 'numeric +, -, *, /, parentheses and loop-variable expressions', '# comments', 'pass'],
-    limits: ['x from 0 to 840; y from 0 to 480. At most 100 shapes per run.'],
+    commands: ['pixel(x, y)', 'line(x1, y1, x2, y2)'], syntax: [countedLoop, 'numeric +, -, *, /, parentheses and loop-variable expressions', '# comments', 'pass'],
+    limits: ['An enlarged 8-column by 5-row pixel picture. Whole-number coordinates: x from 0 to 7, y from 0 to 4; (0, 0) is the top left and y increases down.', 'pixel fills one whole cell. line fills a chain of pixel cells including both endpoints. At most 100 drawing commands per run.'],
   },
   robot: {
     commands: ['robot.move(steps)', 'robot.turn_right()'], syntax: ['sequential calls', countedLoop, 'numeric expressions for steps', '# comments', 'pass'],

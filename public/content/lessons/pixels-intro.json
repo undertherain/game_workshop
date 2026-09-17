@@ -1,0 +1,34 @@
+{
+  "id": "pixels-intro",
+  "title": "Pictures are made of pixels",
+  "heading": "Zoom in: a picture is a grid of colours.",
+  "description": "A pixel is one tiny colour sample in a digital picture. When we magnify the picture, we can show each pixel as a whole square. The grid lines below are guides to help us see the difference.",
+  "explanation": [
+    {
+      "title": "A point on graph paper",
+      "code": "A position at a crossing",
+      "text": "A geometric point has a position but no width or height. We draw a small marker where two lines cross to show where it is.",
+      "diagram": "point-grid"
+    },
+    {
+      "title": "A pixel in a picture",
+      "code": "A colour for the whole cell",
+      "text": "In this enlarged picture, one pixel fills one square. It sits between the grid lines, rather than at their intersection. Many coloured pixels make an image.",
+      "diagram": "pixel-grid"
+    }
+  ],
+  "branch": "drawing",
+  "layout": "compact",
+  "mode": "drawing",
+  "skill": "coordinates",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the picture, then continue",
+  "scene": {
+    "label": "A pixel is one tiny colour sample in a digital picture. When we magnify the picture, we can show each pixel as a whole square. The grid lines below are guides to help us see the difference."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Explore the drawing on the next slide."
+  }
+}

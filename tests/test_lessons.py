@@ -139,11 +139,39 @@ class LessonTests(unittest.TestCase):
         self.assertFalse(json.loads(runtime.step_lesson('{"space":true}'))['changed'])
 
     def test_drawing_uses_loop_values_and_checks_coordinates(self):
-        data = json.loads(runtime.run_lesson('for i in range(3):\n    dot(100 + i * 60, 240)\nline(0, 0, 840, 480)', 'drawing'))
-        self.assertEqual([s['points'] for s in data['shapes'][:3]], [[100, 240], [160, 240], [220, 240]])
+        data = json.loads(runtime.run_lesson('for i in range(3):\n    pixel(1 + i, 2)\nline(0, 0, 7, 3)', 'drawing'))
+        self.assertEqual([s['pixels'] for s in data['shapes'][:3]], [[[1, 2]], [[2, 2]], [[3, 2]]])
         self.assertEqual(data['shapes'][3]['kind'], 'line')
-        for source in ['dot(900, 0)', 'line(0, 0)', 'dot(1/0, 0)', 'dot(__import__("os"), 0)']:
+        self.assertEqual(data['shapes'][3]['pixels'], [[0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [5, 2], [6, 3], [7, 3]])
+        for source in ['pixel(8, 0)', 'pixel(0, 5)', 'pixel(-1, 0)', 'pixel(1.5, 0)', 'line(0, 0, 8, 4)', 'line(0, 0)', 'pixel(1/0, 0)', 'pixel(__import__("os"), 0)', 'dot(2, 1)']:
             self.assertIn('error', json.loads(runtime.run_lesson(source, 'drawing')))
+        self.assertEqual(json.loads(runtime.run_lesson('pixel(6/2, 4)', 'drawing'))['shapes'][0]['pixels'], [[3, 4]])
+        excessive = 'for i in range(6):\n    for step in range(6):\n        for side in range(6):\n            pixel(0, 0)'
+        self.assertIn('100 shapes', json.loads(runtime.run_lesson(excessive, 'drawing'))['error'])
+
+    def test_pixel_lines_cover_all_directions_endpoints_and_nearest_cells(self):
+        for x1 in range(8):
+            for y1 in range(5):
+                for x2 in range(8):
+                    for y2 in range(5):
+                        data = json.loads(runtime.run_lesson(f'line({x1}, {y1}, {x2}, {y2})', 'drawing'))
+                        pixels = data['shapes'][0]['pixels']
+                        dx, dy = x2 - x1, y2 - y1
+                        self.assertEqual(pixels[0], [x1, y1])
+                        self.assertEqual(pixels[-1], [x2, y2])
+                        self.assertEqual(len(pixels), max(abs(dx), abs(dy)) + 1)
+                        self.assertEqual(len({tuple(p) for p in pixels}), len(pixels))
+                        for x, y in pixels:
+                            self.assertTrue(0 <= x < 8 and 0 <= y < 5)
+                            # At most half a cell from the ideal line on the minor axis.
+                            if abs(dx) >= abs(dy) and dx:
+                                self.assertLessEqual(abs((y - y1) * dx - (x - x1) * dy) * 2, abs(dx))
+                            elif dy:
+                                self.assertLessEqual(abs((x - x1) * dy - (y - y1) * dx) * 2, abs(dy))
+                        for a, b in zip(pixels, pixels[1:]):
+                            self.assertEqual(max(abs(a[0] - b[0]), abs(a[1] - b[1])), 1)
+        tie = json.loads(runtime.run_lesson('line(0, 0, 2, 1)', 'drawing'))
+        self.assertEqual(tie['shapes'][0]['pixels'], [[0, 0], [1, 1], [2, 1]])
 
     def test_bad_load_clears_old_rule_and_rejects_function_defaults(self):
         runtime.run_lesson('def update():\n    character.move()', 'update')

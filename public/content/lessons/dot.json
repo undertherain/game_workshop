@@ -1,36 +1,72 @@
 {
   "id": "dot",
   "branch": "drawing",
-  "title": "Place a point",
-  "heading": "A point is a place to begin.",
-  "description": "This drawing grid is 840 across and 480 down. Change the two numbers to place your point. The first is x (across); the second is y (down).",
+  "title": "Colour one pixel",
+  "heading": "Now colour a pixel with Python.",
+  "description": "This is the same 8 × 5 picture. pixel(2, 1) colours one whole cell: column 2, row 1. Try (0, 0), then (7, 4). Increase y to move down; increase x to move right.",
   "rows": 1,
   "mode": "drawing",
   "skill": "coordinates",
   "starter": [
-    "dot(420, 240)"
+    "pixel(2, 1)"
   ],
   "scene": {
-    "title": "Your drawing. Your coordinates.",
-    "label": "Drawing grid: 840 pixels across, 480 down."
+    "title": "Your picture · 8 × 5 enlarged pixels",
+    "label": "An enlarged 8-column, 5-row pixel picture. Whole cells are shaded; x counts right from 0 to 7 and y counts down from 0 to 4."
   },
-  "placeholder": "Type dot or line",
+  "placeholder": "Type pixel",
   "completions": [
     {
-      "code": "dot(420, 240)",
-      "description": "Place a point at x, y"
-    },
-    {
-      "code": "line(220, 300, 620, 300)",
-      "description": "Connect two endpoints"
+      "code": "pixel(2, 1)",
+      "description": "Colour one whole pixel cell"
     }
   ],
   "feedback": {
-    "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
-    "drawn": "Change a number and run it again."
+    "empty": "Your program ran. Add pixel(...) to colour your picture.",
+    "drawn": "Change a coordinate and run it again."
   },
   "editor": {
     "runOnEnter": true,
     "maxLines": 1
-  }
+  },
+  "examples": [
+    {
+      "label": "Top-left pixel",
+      "code": "pixel(0, 0)"
+    },
+    {
+      "label": "Lower: bigger y",
+      "code": "pixel(2, 3)"
+    },
+    {
+      "label": "Bottom-right pixel",
+      "code": "pixel(7, 4)"
+    }
+  ],
+  "draftMigrations": [
+    {
+      "from": [
+        "dot(420, 240)"
+      ],
+      "to": [
+        "pixel(2, 1)"
+      ]
+    },
+    {
+      "from": [
+        "dot(420, 120)"
+      ],
+      "to": [
+        "pixel(2, 0)"
+      ]
+    },
+    {
+      "from": [
+        "dot(420, 360)"
+      ],
+      "to": [
+        "pixel(2, 3)"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,28 @@
+{
+  "id": "screen-coordinates",
+  "title": "Start at the top left",
+  "heading": "Across first. Then down.",
+  "description": "Images and screens usually count from the top-left corner, starting at zero. x counts columns to the right; y counts rows down. On many maths graphs y grows upward, but here a bigger y moves lower.",
+  "explanation": [
+    {
+      "title": "Move one coloured pixel",
+      "code": "Pixel (2, 1) · 2 right, 1 down",
+      "text": "The top-left pixel is (0, 0). Pixel (2, 1) is in the third column and second row because we start counting at zero. Move x, then y. Try (0, 0) and (7, 4): the last pixel in this 8 × 5 picture.",
+      "diagram": "pixel-coordinates"
+    }
+  ],
+  "branch": "drawing",
+  "layout": "compact",
+  "mode": "drawing",
+  "skill": "coordinates",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the picture, then continue",
+  "scene": {
+    "label": "Images and screens usually count from the top-left corner, starting at zero. x counts columns to the right; y counts rows down. On many maths graphs y grows upward, but here a bigger y moves lower."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Explore the drawing on the next slide."
+  }
+}

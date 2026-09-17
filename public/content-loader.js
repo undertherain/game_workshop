@@ -48,6 +48,7 @@ export function validateLesson(lesson, id, defaults, skills) {
   if (lesson.explanation) {
     requireValue(lesson.layout === 'compact' && Array.isArray(lesson.explanation) && lesson.explanation.length >= 1 && lesson.explanation.length <= 4 && lesson.explanation.every(card => text(card.title) && text(card.code) && text(card.text)), `${label}: explanation needs 1–4 cards with title, code and text`);
     requireValue(lesson.starter.length === 0 || lesson.quiz?.only === true, `${label}: explanations use an empty starter or a standalone quiz`);
+    requireValue(lesson.explanation.every(card => card.diagram === undefined || ['point-grid', 'pixel-grid', 'pixel-coordinates', 'raster-line', 'bresenham-steps', 'pixel-fan'].includes(card.diagram)), `${label}: unknown explanation diagram`);
   }
   if (lesson.quiz) {
     for (const key of ['title', 'initial', 'prompt', 'match', 'different', 'ready']) requireValue(text(lesson.quiz[key]), `${label}: missing quiz.${key}`);

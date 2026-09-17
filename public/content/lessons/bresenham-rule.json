@@ -1,0 +1,32 @@
+{
+  "id": "bresenham-rule",
+  "title": "Why the decision value works",
+  "heading": "Keep track of the halfway point.",
+  "description": "At each next column, ask whether the ideal line is above or below the halfway point between the two candidate pixel centres. Because y grows down, reaching that midpoint means choosing the lower pixel. We choose the lower pixel when exactly tied.",
+  "explanation": [
+    {
+      "title": "Turn the midpoint test into integers",
+      "code": "D = 2 × dx × (ideal_y_next − (y + ½))\nstart: D = 2 × dy − dx",
+      "text": "D is a scaled signed difference, not a distance in pixels. Negative means the ideal line has not reached the midpoint; zero or positive means it has. Moving one column adds 2 × dy. Moving down a row subtracts 2 × dx. After setup, only integer additions, subtractions and comparisons are needed."
+    },
+    {
+      "title": "The shallow, right-and-down case",
+      "code": "dx = x_end - x\ndy = y_end - y\nD = 2 * dy - dx\npixel(x, y)\nwhile x < x_end:\n    if D >= 0:\n        y = y + 1\n        D = D - 2 * dx\n    x = x + 1\n    D = D + 2 * dy\n    pixel(x, y)",
+      "text": "Read this algorithm: 0 ≤ dy ≤ dx and dx > 0. Steep lines exchange the roles of x and y; leftward or upward lines use negative steps. The next activity’s line(...) handles all directions for you. This reading example uses while; the small practice editor provides line(...) instead."
+    }
+  ],
+  "branch": "drawing",
+  "layout": "compact",
+  "mode": "drawing",
+  "skill": "coordinates",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the explanation, then continue",
+  "scene": {
+    "label": "At each next column, ask whether the ideal line is above or below the halfway point between the two candidate pixel centres. Because y grows down, reaching that midpoint means choosing the lower pixel. We choose the lower pixel when exactly tied."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Try drawing a line in the next code activity."
+  }
+}

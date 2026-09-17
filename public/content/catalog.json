@@ -177,10 +177,10 @@
     },
     {
       "id": "drawing",
-      "label": "Drawing",
+      "label": "Computer graphics",
       "eyebrow": "OPTIONAL EXPLORATION",
-      "title": "Draw your world",
-      "description": "Learn coordinates and loops by making a picture.",
+      "title": "Computer graphics: draw your world",
+      "description": "Explore pixels and screen coordinates, then draw with Python and loops.",
       "planned": [
         {
           "title": "Grow a fractal forest",

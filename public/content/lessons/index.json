@@ -32,7 +32,13 @@
   "customize",
   "event",
   "update",
+  "pixels-intro",
+  "screen-coordinates",
   "dot",
+  "pattern",
+  "raster-lines",
+  "bresenham-steps",
+  "bresenham-rule",
   "line",
-  "pattern"
+  "pixel-fan"
 ]

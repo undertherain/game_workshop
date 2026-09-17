@@ -1,0 +1,28 @@
+{
+  "id": "bresenham-steps",
+  "title": "Step through Bresenham",
+  "heading": "Right, or right and down?",
+  "description": "Bresenham’s line algorithm keeps an integer decision value D. For this line, dx = 7 columns and dy = 3 rows, so D starts at 2 × 3 − 7 = −1. Step forward and watch how D chooses the next pixel.",
+  "explanation": [
+    {
+      "title": "One decision per column",
+      "code": "Start at (0, 0). D = −1.",
+      "text": "D < 0: move right and add 6 to D. D ≥ 0: move right and down, subtract 14, then add 6. Here 6 is 2 × dy and 14 is 2 × dx. The outlined cells are the next candidates; the solid orange cells are already drawn.",
+      "diagram": "bresenham-steps"
+    }
+  ],
+  "branch": "drawing",
+  "layout": "compact",
+  "mode": "drawing",
+  "skill": "coordinates",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the explanation, then continue",
+  "scene": {
+    "label": "Bresenham’s line algorithm keeps an integer decision value D. For this line, dx = 7 columns and dy = 3 rows, so D starts at 2 × 3 − 7 = −1. Step forward and watch how D chooses the next pixel."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Try drawing a line in the next code activity."
+  }
+}

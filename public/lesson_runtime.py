@@ -31,6 +31,8 @@ def _validate(body, mode, loop_names=(), depth=0):
             call = node.value
             if call.keywords:
                 raise ValueError('Use the arguments shown in this lesson.')
+            if mode == 'drawing' and isinstance(call.func, ast.Name) and call.func.id == 'dot':
+                raise ValueError('This picture now uses pixel(x, y): x from 0 to 7, y from 0 to 4. Reset code shows the new example; Undo reset keeps your previous code available.')
             if (mode == 'robot' and isinstance(call.func, ast.Attribute)
                     and isinstance(call.func.value, ast.Name) and call.func.value.id == 'robot'):
                 if call.func.attr == 'turn_right' and not call.args:
@@ -42,9 +44,9 @@ def _validate(body, mode, loop_names=(), depth=0):
                     and isinstance(call.func.value, ast.Name) and call.func.value.id in (('fox', 'character') if mode in ('style', 'event', 'update') else ('fox',))
                     and call.func.attr in ('jump', 'move') and not call.args):
                 continue
-            if mode == 'drawing' and isinstance(call.func, ast.Name) and call.func.id in ('dot', 'line'):
-                if len(call.args) != (2 if call.func.id == 'dot' else 4):
-                    raise ValueError('dot(x, y) needs two numbers; line(x1, y1, x2, y2) needs four.')
+            if mode == 'drawing' and isinstance(call.func, ast.Name) and call.func.id in ('pixel', 'line'):
+                if len(call.args) != (2 if call.func.id == 'pixel' else 4):
+                    raise ValueError('pixel(x, y) needs two numbers; line(x1, y1, x2, y2) needs four.')
                 for arg in call.args:
                     _number(arg, loop_names)
                 continue
@@ -73,7 +75,7 @@ def _validate(body, mode, loop_names=(), depth=0):
         raise ValueError('This lesson uses a small vocabulary. Follow the example above; the full game editor opens up more Python.')
 
 
-_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'dot', 'line', 'str', 'print'}
+_RESERVED = {'fox', 'character', 'world', 'keyboard', 'range', 'pixel', 'line', 'str', 'print'}
 
 
 def _name(name, functions):
@@ -207,7 +209,7 @@ class Lesson:
         self.changed = False
         self.robot = {'x': 1, 'y': 1, 'turns': 0}
         self.scope = {'__builtins__': {}, 'range': range, 'world': self.world, 'fox': self.character, 'character': self.character,
-                      '_calculate': _calculate, 'str': str, 'print': self.say, 'keyboard': self.keyboard, 'dot': self.dot, 'line': self.line}
+                      '_calculate': _calculate, 'str': str, 'print': self.say, 'keyboard': self.keyboard, 'pixel': self.pixel, 'line': self.line}
         self.character.say = self.say
         self.character.jump = lambda height=110: self.actions.append({'kind': 'jump', 'height': height}) if mode == 'jump-design' else self.action('jump')
         self.character.move = lambda distance=80: self.action('move', distance)
@@ -296,8 +298,8 @@ class Lesson:
                 raise ValueError('Try at most 12 actions at a time so you can watch each one.')
             self.actions.append({'kind': name, 'distance': distance} if self.mode == 'basics' and name == 'move' else name)
 
-    def dot(self, x, y):
-        self.draw('dot', [x, y])
+    def pixel(self, x, y):
+        self.draw('pixel', [x, y])
 
     def line(self, x1, y1, x2, y2):
         self.draw('line', [x1, y1, x2, y2])
@@ -305,9 +307,28 @@ class Lesson:
     def draw(self, kind, points):
         if len(self.shapes) >= 100:
             raise ValueError('Keep this drawing to 100 shapes or fewer.')
-        if any(not 0 <= v <= (840 if i % 2 == 0 else 480) for i, v in enumerate(points)):
-            raise ValueError('Keep x between 0 and 840, and y between 0 and 480 so your drawing stays on the grid.')
-        self.shapes.append({'kind': kind, 'points': points})
+        if any(type(v) not in (int, float) or v != int(v) or not 0 <= v <= (7 if i % 2 == 0 else 4) for i, v in enumerate(points)):
+            raise ValueError('Use whole-number pixel coordinates: x from 0 to 7, y from 0 to 4.')
+        points = [int(v) for v in points]
+        x, y = points[:2]
+        end_x, end_y = points[2:] if kind == 'line' else points[:2]
+        dx, dy = abs(end_x - x), -abs(end_y - y)
+        step_x, step_y = (1 if x < end_x else -1), (1 if y < end_y else -1)
+        error = dx + dy
+        pixels = []
+        # Bresenham: each endpoint is a pixel, and the line fills whole cells.
+        while True:
+            pixels.append([x, y])
+            if x == end_x and y == end_y:
+                break
+            twice_error = 2 * error
+            if twice_error >= dy:
+                error += dy
+                x += step_x
+            if twice_error <= dx:
+                error += dx
+                y += step_y
+        self.shapes.append({'kind': kind, 'points': points, 'pixels': pixels})
 
     def snapshot(self):
         return {'actions': self.actions, 'shapes': self.shapes, 'features': self.features,

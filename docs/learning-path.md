@@ -20,7 +20,7 @@ hover and keyboard support.
 Foundations has seven chapters: First Python, Words and names, Numbers and variables,
 Repetition, Decisions, Reusable code, and Live game rules. The **Learning map** groups
 lessons into expandable chapters and connects thirty-three foundational lessons,
-three optional drawing lessons and the six game workshops. Back/Next continues
+nine optional computer graphics lessons and the six game workshops. Back/Next continues
 across chapter boundaries. All paths are open; the map recommends a starting route
 without locking later activities. Xonix and a fractal lesson are explicitly marked as
 planned, not playable.
@@ -83,9 +83,44 @@ additions; these lessons test visible assignments one run at a time.
 
 ### Drawing branch
 
-The optional drawing lessons offer `dot(x, y)`, `line(x1, y1, x2, y2)` and loops with
-simple coordinate expressions on a labelled grid. They use a small workshop-specific
-Python API and Canvas renderer; pycontextfree is not integrated.
+The Computer graphics branch opens with two visual slides: a geometric point at a
+grid intersection beside a whole shaded pixel cell, then an enlarged 8 × 5 pixel
+grid with keyboard-accessible x/y sliders. Columns and rows count from zero at the
+top left; increasing y moves down, unlike the usual upward y axis on a maths graph.
+These illustrations do not record code practice. Python practice continues on the
+same 8 × 5 grid: `pixel(x, y)` colours one whole cell. Coordinates must be whole
+numbers, with x from 0 to 7 and y from 0 to 4.
+
+Next, a `for` loop builds a horizontal line by colouring neighbouring pixels.
+Vertical and 45-degree diagonal examples vary y alone or x and y together. These
+early activities introduce only `pixel(...)`; `line(...)` comes after the algorithm.
+
+Three line explanations then introduce raster staircases, an interactive Bresenham
+walkthrough from (0, 0) to (7, 3), and the midpoint derivation with shallow-line
+pseudocode. The walkthrough has Previous/Next/Start again controls, outlined next
+candidates, an ideal centre-to-centre line, decision arithmetic and a full trace table.
+Its D ≥ 0 tie rule chooses the next row down in this shallow, rightward example.
+The integer decision recurrence follows [Bresenham’s original paper](https://janmr.com/files/papers/bresenham65.pdf), adapted to screen coordinates and filled cells.
+
+The next code activity introduces the `line(x1, y1, x2, y2)` primitive as a command
+that packages the algorithm: the Python runtime implements
+Bresenham in all directions and returns whole pixel cells, including both endpoints.
+Examples cover steep, upward and reversed lines. The reading pseudocode uses `while`; the practice runtime
+retains bounded `for` loops and supplies `line(...)` instead. It uses a small
+workshop-specific Python API and Canvas renderer; pycontextfree is not integrated.
+
+The final **Pixel fingerprint** slide draws a fan from a corner to every second
+pixel on the opposite two edges of a larger 192 × 144 image. Controls change edge
+spacing, shift endpoints by one pixel, and mirror the starting corner. Each line
+uses Bresenham and whole filled cells, with nearest-neighbour enlargement. It is
+an interactive illustration, separate from the 8 × 5 Python editor. The resulting
+moiré-like bands illustrate how fine repeated lines interact with a pixel grid;
+see the [UMBC line-rasterization lecture](https://courses.cs.umbc.edu/undergraduate/435/Spring16/lectures_post/06_pipeline.pdf)
+for a related line-fan example.
+
+The existing `dot`, `line` and `pattern` lesson IDs remain stable. Exact old prepared
+drafts migrate to pixel examples; custom drafts remain unchanged, with Reset code
+and Undo reset available. Old `dot()` code receives a migration hint when run.
 
 ## Quizzes and layout
 

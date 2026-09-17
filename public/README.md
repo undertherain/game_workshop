@@ -112,6 +112,17 @@ loop. Console lessons then introduce comparisons, boolean values, and the low/hi
 correct branches of a guessing-game referee before named functions. Their outputs
 use the same local Python worker and saved-draft system as the existing lessons.
 
+`graphics-diagrams.js` supplies SVG illustrations for the Computer graphics branch:
+a geometric point versus a filled pixel cell, and an enlarged pixel grid with x/y
+sliders. Python drawing uses the same 8 × 5 coordinate grid and fills whole cells
+with `pixel(...)` and `line(...)`. `bresenham-diagrams.js` illustrates the ideal line,
+pixel staircase and a step-by-step integer decision trace; `lesson_runtime.py`
+produces the actual cells with Bresenham for all line directions. Illustration
+controls do not run Python or record practice.
+`pixel-fan.js` supplies the final Pixel fingerprint illustration: Bresenham fans on
+a 192 × 144 bitmap, with edge spacing, one-pixel phase shift and corner controls.
+Canvas enlargement keeps the original two colours and visible square pixels.
+
 Foundations are grouped into seven content-defined chapters. The lesson header and
 markers describe the current chapter; the map uses expandable chapter groups with
 completion counts. Back/Next still follows the complete branch route.

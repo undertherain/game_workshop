@@ -86,6 +86,28 @@ that reset test progress; do not clear the learner's own browser data.
 
 `content.test.mjs` validates lesson files and manifests, checks malformed or missing
 content, and executes starters through the Python runtimes.
+It also rejects unknown explanation diagrams and checks the graphics lesson route.
+An isolated Chromium check covers the pixel comparison, keyboard-controlled x/y
+extremes, navigation and reload, the following real Python drawing activity, and
+390/320-pixel layouts without horizontal overflow. The illustrations were visually
+checked at desktop and narrow widths.
+
+`bresenham.test.mjs` compares the teaching trace with Python's renderer across every
+supported shallow slope, including midpoint ties, and checks exact old draft
+migrations without changing custom drafts. `test_lessons.py` checks pixel bounds,
+integer coordinates and command limits, plus all 1,600 endpoint pairs on the 8 × 5
+grid for included endpoints, connected cells, nearest-cell error and bounded length.
+An isolated Chromium check verifies full-cell canvas colour, actual Python lines
+and loops, the stepper's candidate/decision sequence, Previous/Next/Start again,
+keyboard use, trace table, saved drafts and all eight slides at desktop and 390/320
+pixel widths. No live AI calls are needed for these checks.
+The fan tests also compare its JavaScript rasterizer with Python in every direction,
+check alternating far-edge endpoints, phase shifting, bounds and corner mirroring.
+An isolated Chromium check covers the final Pixel fingerprint slide's controls,
+deterministic redraws, keyboard use, Back/Next, reload and 390/320-pixel layouts.
+A browser route check verifies pixel practice → pixel loops → Bresenham → the
+line primitive → the fan, in both directions; it executes horizontal, vertical and
+diagonal loop examples in Pyodide and checks the tutor's updated next-slide guide.
 
 `editor-guidance.test.mjs` checks scope-based anchors, shifted lines, saved rule
 regions, and protection of provided code. Browser checks exercise actual typing,

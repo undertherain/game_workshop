@@ -31,7 +31,7 @@ test('capability descriptions agree with accepted and rejected Python across all
     style: ['world.sky = "night"\ncharacter.costume = "bunny"\ncharacter.jump()', 'world.sky = "red"'],
     event: ['def on_space_pressed():\n    character.jump()', 'def on_space_pressed(height):\n    character.jump()'],
     update: ['def update():\n    if keyboard.right:\n        character.move()', 'def update():\n    if keyboard.left:\n        character.move()'],
-    drawing: ['for i in range(3):\n    dot(20 + i * 40, 100)', 'fox.jump()'],
+    drawing: ['for i in range(3):\n    pixel(1 + i, 2)', 'fox.jump()'],
     robot: ['robot.move(3)\nrobot.turn_right()', 'robot.move(6)'],
     basics: ['def travel(distance):\n    fox.move(distance)\nvalue = 30 + 20\nif value >= 50:\n    travel(value)\nprint(str(value))', 'while True:\n    fox.jump()'],
   };

@@ -1,0 +1,28 @@
+{
+  "id": "pixel-fan",
+  "branch": "drawing",
+  "layout": "compact",
+  "title": "The pixel fingerprint",
+  "heading": "Straight lines. Surprising patterns.",
+  "description": "Repeat the line primitive: draw from the top-left corner to every second pixel along the right and bottom edges. The overlapping pixel staircases make bands and ripples that look a little like a fingerprint. This is a moiré-like effect from the lines meeting the pixel grid.",
+  "mode": "drawing",
+  "skill": "loops",
+  "rows": 1,
+  "starter": [],
+  "placeholder": "Explore the pattern with the controls",
+  "scene": {
+    "label": "An interactive fan of Bresenham pixel lines."
+  },
+  "completions": [],
+  "feedback": {
+    "drawn": "Try changing the spacing between endpoints."
+  },
+  "explanation": [
+    {
+      "title": "A bigger screen, the same pixel rules",
+      "code": "192 × 144 pixels",
+      "text": "We have zoomed out from our 8 × 5 practice picture to a 192 × 144 picture, so there is room for many lines. Each line still uses Bresenham and colours whole pixels. Try every pixel, then every 2 or 3 pixels. Shift the endpoints by just one pixel and watch the bands change. No curves are being drawn!",
+      "diagram": "pixel-fan"
+    }
+  ]
+}

@@ -1,33 +1,57 @@
 {
   "id": "line",
   "branch": "drawing",
-  "title": "Connect two points",
-  "heading": "Give your line two ends.",
-  "description": "A line takes two pairs of coordinates: its start and its end. Move an endpoint. Can you make a diagonal, a roof, or a tiny mountain?",
+  "title": "Use the line primitive",
+  "heading": "Put the algorithm behind one command.",
+  "description": "A drawing primitive is a basic building block for a picture. Our workshop provides line(x1, y1, x2, y2): give it a start pixel and an end pixel, and it runs Bresenham for you. line(0, 0, 7, 3) draws the staircase you just explored. Change an endpoint to try another direction.",
   "rows": 3,
   "mode": "drawing",
   "skill": "coordinates",
   "starter": [
-    "line(220, 300, 420, 140)",
-    "line(420, 140, 620, 300)"
+    "line(0, 0, 7, 3)"
   ],
   "scene": {
-    "title": "Your drawing. Your coordinates.",
-    "label": "Drawing grid: 840 pixels across, 480 down."
+    "title": "Your picture · 8 × 5 enlarged pixels",
+    "label": "An enlarged 8-column, 5-row pixel picture. Whole cells are shaded; x counts right from 0 to 7 and y counts down from 0 to 4."
   },
-  "placeholder": "Type dot or line",
+  "placeholder": "Type pixel or line",
   "completions": [
     {
-      "code": "dot(420, 240)",
-      "description": "Place a point at x, y"
+      "code": "pixel(2, 1)",
+      "description": "Colour one whole pixel cell"
     },
     {
-      "code": "line(220, 300, 620, 300)",
-      "description": "Connect two endpoints"
+      "code": "line(0, 0, 7, 3)",
+      "description": "Draw a line made of pixel cells"
     }
   ],
   "feedback": {
-    "empty": "Your program ran. Add dot(...) or line(...) to draw something.",
-    "drawn": "Change a number and run it again."
-  }
+    "empty": "Your program ran. Add pixel(...) or line(...) to colour your picture.",
+    "drawn": "You can now draw a whole line with one call. Next, repeat many lines to make a surprising pattern."
+  },
+  "examples": [
+    {
+      "label": "Steep line",
+      "code": "line(1, 0, 3, 4)"
+    },
+    {
+      "label": "Climb upward",
+      "code": "line(0, 4, 7, 0)"
+    },
+    {
+      "label": "Right to left",
+      "code": "line(7, 3, 0, 0)"
+    }
+  ],
+  "draftMigrations": [
+    {
+      "from": [
+        "line(220, 300, 420, 140)",
+        "line(420, 140, 620, 300)"
+      ],
+      "to": [
+        "line(0, 0, 7, 3)"
+      ]
+    }
+  ]
 }

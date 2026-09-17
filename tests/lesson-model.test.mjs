@@ -19,7 +19,7 @@ test('chapters group the route without breaking navigation across boundaries', (
   }
   const drawing = lessonChapters(lessons, branches.find(branch => branch.id === 'drawing'));
   assert.equal(drawing.length, 1);
-  assert.equal(drawing[0].lessons.length, 3);
+  assert.equal(drawing[0].lessons.length, 9);
 });
 
 test('chapter content rejects missing and unknown chapter references', async () => {
