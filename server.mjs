@@ -26,7 +26,7 @@ if (process.env.VERCEL !== '1' && process.env.WORKSHOP_LOAD_DOTENV !== '0') {
   }
 }
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript',
-  '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
+  '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
 function json(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));

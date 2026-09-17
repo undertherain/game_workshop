@@ -8,7 +8,7 @@ are performed separately against the running local prototype.
 Return to the [prototype README](../README.md).
 
 The finals presentation adds server checks for its scoped `docs/presentation/`
-route, image MIME type and traversal rejection, plus deployment asset checks.
+route, image/video MIME types and traversal rejection, plus deployment asset checks.
 An isolated Chromium check exercises all six slides with real Pyodide: movement,
 quick-tap firing, a barebones alien hit, navigation while holding a game key,
 paused hidden games, restart, fullscreen and desktop/portrait scaling. No AI calls
@@ -34,6 +34,15 @@ All six finale game canvases change during playback and remain unchanged when
 paused or off-slide; reduced motion starts playback paused and manual playback
 can resume. OpenCV decoded both finale QR codes from the source PNGs and rendered
 screenshots at 1600 × 900 and 1280 × 720, matching the exact published URLs.
+The Typper recording was checked in Chromium for muted looping playback, manual
+pause/resume, off-slide and hidden-tab pause, preserved manual pause on return,
+reduced motion, blocked-autoplay recovery and a missing-video poster fallback.
+The clip uses only local assets and fits above the footer at 1280 × 720.
+Deployment checks verify that the bundled MP4 matches its source.
+Presentation keyboard checks use both real Python Invaders demos: arrow navigation
+across game slides without automatic focus, click/Tab to play, movement and firing
+only with canvas focus, Escape clearing held movement, click-away and Tab release,
+editor cursor arrows, and Page Down and N/P navigation during interaction.
 
 `ai-access.test.mjs` tests anonymous isolation with a configured shared key,
 atomic reusable invite redemption, secure cookies, exact Origin checks, expiry,

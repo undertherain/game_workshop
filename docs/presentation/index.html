@@ -55,12 +55,12 @@
 
     <section id="barebones" class="slide game-slide" data-demo="barebones" aria-labelledby="barebones-title" hidden>
       <div class="game-copy"><p class="eyebrow">03 / BASIC DEMO</p><h2 id="barebones-title">Invaders<br><em>Prototype</em></h2><p>One ship and seven stationary aliens. Move and shoot to clear the row.</p><p class="muted small">No enemy movement<br>or return fire yet.</p><div class="controls"><span><kbd>←</kbd> <kbd>→</kbd> Move</span><span><kbd>Space</kbd> Fire</span></div><button class="restart" data-restart="barebones">↻ Restart <kbd>R</kbd></button></div>
-      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="barebones-score">7 aliens</output></div><canvas id="barebones-canvas" width="960" height="640" tabindex="0" aria-label="Barebones Invaders. Left and Right move, Space shoots. N advances the slide."></canvas><p class="game-status" id="barebones-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
+      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="barebones-score">7 aliens</output></div><canvas id="barebones-canvas" width="960" height="640" tabindex="0" aria-label="Barebones Invaders. Left and Right move, Space shoots. Focus to play. Escape returns to slide navigation."></canvas><p class="game-status" id="barebones-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
     </section>
 
     <section id="full-game" class="slide game-slide" data-demo="full" aria-labelledby="full-title" hidden>
       <div class="game-copy"><p class="eyebrow">04 / COMPLETE GAME</p><h2 id="full-title">Invaders<br><em>Full version</em></h2><p>Three moving rows, enemy fire,<br>a score and three shields.</p><p class="muted small">The version available in<br>the Little Makers workshop.</p><div class="controls"><span><kbd>←</kbd> <kbd>→</kbd> Move</span><span><kbd>Space</kbd> Fire</span></div><button class="restart" data-restart="full">↻ Restart <kbd>R</kbd></button></div>
-      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="full-score">Score 0 · 3 shields</output></div><canvas id="full-canvas" width="840" height="480" tabindex="0" aria-label="Full Invaders. Left and Right move, Space shoots. P returns to the previous slide."></canvas><p class="game-status" id="full-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
+      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="full-score">Score 0 · 3 shields</output></div><canvas id="full-canvas" width="840" height="480" tabindex="0" aria-label="Full Invaders. Left and Right move, Space shoots. Focus to play. Escape returns to slide navigation."></canvas><p class="game-status" id="full-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
     </section>
 
     <section id="rendering" class="slide" aria-labelledby="rendering-title" hidden>
@@ -259,8 +259,8 @@
           <p class="typper-note">A separate project, built alongside<br>Little Makers during the hackathon.</p>
         </div>
         <figure class="typper-preview">
-          <img src="./typper-gameplay.png" width="1200" height="630" alt="Typper gameplay: a lantern-lit Japanese food stall on a riverboat, with yōkai customers ordering bread, peach and sushi for the player to type.">
-          <figcaption><span>Type the order. Serve the customer.</span><a href="https://typper.ukeru.info/" target="_blank" rel="noopener noreferrer">typper.ukeru.info ↗</a></figcaption>
+          <video id="typper-video" src="./typper-gameplay.mp4" poster="./typper-gameplay.png" width="1200" height="630" muted loop playsinline preload="none" aria-label="Recorded Typper gameplay: typing food orders, serving yōkai customers, and customers leaving the riverboat stall."></video>
+          <figcaption><span>Type the order. Serve the customer.</span><button id="typper-play" type="button" aria-pressed="true">Pause clip</button><a href="https://typper.ukeru.info/" target="_blank" rel="noopener noreferrer">typper.ukeru.info ↗</a></figcaption>
         </figure>
       </div>
     </section>
@@ -289,7 +289,7 @@
       </div>
     </section>
 
-    <footer><span>LITTLE MAKERS · FINALS</span><nav aria-label="Presentation controls"><button id="previous" aria-label="Previous slide">← <kbd>P</kbd></button><span id="slide-count" aria-live="polite">01 / 15</span><button id="next" aria-label="Next slide"><kbd>N</kbd> →</button><button id="fullscreen">Fullscreen <kbd>F</kbd></button></nav></footer>
+    <footer><span>LITTLE MAKERS · FINALS</span><nav aria-label="Presentation controls"><button id="previous" aria-label="Previous slide" title="Left / Up arrow · P / Page Up">← Previous</button><span id="slide-count" aria-live="polite">01 / 15</span><button id="next" aria-label="Next slide" title="Right / Down arrow · N / Page Down">Next →</button><button id="fullscreen">Fullscreen <kbd>F</kbd></button></nav></footer>
     <div id="progress" aria-hidden="true"></div>
   </main>
   <dialog id="ai-access-dialog" aria-labelledby="ai-access-title">

@@ -51,6 +51,7 @@ test('public HTTPS hosts support APIs while rejecting foreign origins and spoofe
     assert.equal((await request(pathname)).status, 200, pathname);
   }
   assert.match((await request('/docs/presentation/drake-template.jpg')).headers['content-type'], /image\/jpeg/);
+  assert.equal((await request('/docs/presentation/typper-gameplay.mp4')).headers['content-type'], 'video/mp4');
   for (const pathname of ['/docs/architecture.md', '/docs/presentation/%2e%2e%2farchitecture.md', '/docs/presentation/.env']) {
     assert.equal((await request(pathname)).status, 404, pathname);
   }

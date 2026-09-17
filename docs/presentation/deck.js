@@ -2,6 +2,7 @@ import { drawSpace } from '/space-scene.js';
 import { createLessonDemos } from './lesson-demos.js';
 import { createPipDemo } from './pip-demo.js';
 import { createFinale } from './finale.js';
+import { createTypperClip } from './typper-clip.js';
 
 const $ = id => document.getElementById(id);
 const slides = [...document.querySelectorAll('.slide')];
@@ -11,6 +12,7 @@ const resets = new Set();
 const lessons = createLessonDemos();
 const pip = createPipDemo();
 const finale = createFinale();
+const typper = createTypperClip();
 let index = 0, worker, ready = false, pending = false, timer, keys = {}, fireQueued = false, lastStep = 0;
 const mode = () => slides[index].dataset.demo;
 const clearKeys = () => { keys = {}; fireQueued = false; };
@@ -35,13 +37,13 @@ function showSlide() {
   slides.forEach((slide, i) => { slide.hidden = i !== index; });
   pip.show();
   finale.show(slides[index].id === 'tldr');
+  typper.show(slides[index].id === 'typper');
   $('slide-count').textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
   $('previous').disabled = index === 0;
   $('next').disabled = index === slides.length - 1;
   $('progress').style.width = `${(index + 1) / slides.length * 100}%`;
   document.title = `${slides[index].querySelector('h1,h2').textContent} · Little Makers`;
-  if (mode()) $(mode() + '-canvas').focus({ preventScroll: true });
-  else if (document.activeElement?.closest('.slide[hidden]')) document.activeElement.blur();
+  if (document.activeElement?.closest('.slide[hidden]')) document.activeElement.blur();
 }
 function sourceMarkup(source) {
   // Tokenize before escaping; source is shown as text, never interpreted as HTML.
@@ -121,7 +123,7 @@ function draw(name) {
     $('barebones-score').textContent = `${state.remaining} aliens`;
   }
   const ended = state.won || state.lost;
-  $(name + '-status').textContent = state.lost ? 'They got us! Press R to try again.' : state.won ? 'All clear! Press R to play again.' : '← → Move · Space fires one shot per press';
+  $(name + '-status').textContent = state.lost ? 'They got us! Press R to try again.' : state.won ? 'All clear! Press R to play again.' : document.activeElement === ctx.canvas ? '← → Move · Space fires · Esc returns to slides' : 'Click or Tab into the game to play · Arrows change slides';
   if (ended) {
     ctx.fillStyle = '#090d1dbb'; ctx.fillRect(0, ctx.canvas.height / 2 - 48, ctx.canvas.width, 96);
     ctx.textAlign = 'center'; ctx.fillStyle = '#d4f58b'; ctx.font = 'bold 36px monospace';
@@ -130,7 +132,7 @@ function draw(name) {
 }
 function gameKey(event) { return ({ ArrowLeft:'left', ArrowRight:'right', a:'left', d:'right', ' ':'fire' })[event.key]; }
 document.addEventListener('keydown', event => {
-  if (document.getElementById('ai-access-dialog').open) return;
+  if (event.defaultPrevented || document.getElementById('ai-access-dialog').open) return;
   // Presenter navigation also works while typing Python in the lesson editors.
   if (!event.ctrlKey && !event.metaKey && !event.altKey && ['PageDown', 'PageUp'].includes(event.key)) {
     event.preventDefault();
@@ -138,6 +140,22 @@ document.addEventListener('keydown', event => {
     return;
   }
   if (event.ctrlKey || event.metaKey || event.altKey || event.target.closest('input,textarea,[contenteditable="true"]')) return;
+  const gameFocused = mode() && document.activeElement === $(mode() + '-canvas');
+  if (gameFocused && event.key === 'Escape') {
+    event.preventDefault();
+    document.activeElement.blur();
+    return;
+  }
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    event.preventDefault();
+    if (gameFocused) {
+      const action = gameKey(event);
+      if (action) setKey(action, true);
+    } else if (!event.repeat) {
+      navigate(index + (['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1));
+    }
+    return;
+  }
   const key = event.key.toLowerCase();
   if (['n', 'p', 'pagedown', 'pageup', 'f', 'r'].includes(key)) {
     event.preventDefault();
@@ -149,7 +167,7 @@ document.addEventListener('keydown', event => {
     return;
   }
   const action = gameKey(event);
-  if (mode() && action && !event.target.closest('button,a')) { event.preventDefault(); setKey(action, true); }
+  if (gameFocused && action) { event.preventDefault(); setKey(action, true); }
 });
 document.addEventListener('keyup', event => { const action = gameKey(event); if (action) setKey(action, false); });
 document.querySelectorAll('[data-key]').forEach(button => {
@@ -183,7 +201,12 @@ $('fullscreen').onclick = fullscreen;
 window.addEventListener('resize', fit);
 window.addEventListener('hashchange', showSlide);
 window.addEventListener('blur', clearKeys);
-for (const name of ['barebones', 'full']) $(name + '-canvas').addEventListener('blur', clearKeys);
+for (const name of ['barebones', 'full']) {
+  const canvas = $(name + '-canvas');
+  canvas.addEventListener('pointerdown', () => canvas.focus({ preventScroll: true }));
+  canvas.addEventListener('focus', () => draw(name));
+  canvas.addEventListener('blur', () => { clearKeys(); draw(name); });
+}
 document.addEventListener('visibilitychange', clearKeys);
 window.addEventListener('pagehide', () => { clearTimeout(timer); worker?.terminate(); worker = null; ready = false; });
 window.addEventListener('pageshow', event => { if (event.persisted) boot(); });

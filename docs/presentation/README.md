@@ -1,7 +1,14 @@
 # Finals presentation — rough opening draft
 
-Run `npm run present` from the project root, then open
-<http://localhost:4179/docs/presentation/index.html>.
+On a new machine, install Node.js 22 and run these commands from the project root:
+
+```bash
+npm ci
+npm run present
+```
+
+Then open <http://localhost:4179/docs/presentation/index.html>.
+On later starts, only `npm run present` is needed.
 This enables Pip with your local `OPENAI_API_KEY`, loaded from the environment or
 the nearest `.env` in this directory or its parents. The key stays on the server;
 there is no need to enter it in the slides. The presentation server binds to
@@ -14,15 +21,20 @@ build also includes the presentation; this change does not deploy it.
 
 ## Present
 
-- **N / Page Down**: next slide. **P / Page Up**: previous slide.
+- **Right / Down arrow**: next slide. **Left / Up arrow**: previous slide.
+  **N / Page Down** and **P / Page Up** also work, including during gameplay.
 - **F**: fullscreen; Escape exits browser fullscreen.
-- **Left / Right** (or A / D): move. **Space**: one shot per press.
+- Click or Tab into an Invaders canvas to play; a green outline marks focus.
+  While focused, **Left / Right** (or A / D) move and **Space** fires one shot per
+  press. **Escape**, Tab, or clicking outside releases game controls and returns
+  arrows to slide navigation. Entering a game slide does not grab focus.
 - **R** or the Restart button: restart the current demo.
 - Footer buttons also navigate. Touch devices show game buttons.
 - On the fox, robot and programming-puzzle slides, edit Python and press **Ctrl/Cmd+Enter** or
   **Run Python**. Example buttons load code without running it. **Reset** restores
   the initial code and scene. **Page Up/Down** changes slides even with the editor
-  focused; Escape leaves the editor so N/P/F/R work again. Tab inserts four spaces;
+  focused; arrows move the editor cursor. Escape leaves the editor so arrows and
+  N/P/F/R work again. Tab inserts four spaces;
   Shift+Tab moves focus out of the editor.
 - On the Pip slide, the first visit runs the prefilled failing expression.
   **Run Python** (or Enter in its one-line editor) reruns the code. The example
@@ -31,6 +43,9 @@ build also includes the presentation; this change does not deploy it.
 - The TL;DR finale loops six recorded game previews. **Pause previews** freezes
   them; **Play previews** resumes. Reduced-motion preferences start them paused.
   The two QR codes link to Little Makers and Typper.
+- The Typper slide loops a muted gameplay clip. **Pause clip** / **Play clip**
+  controls playback; reduced-motion preferences start it paused. It pauses when
+  leaving the slide or hiding the tab, and preserves manual pause on return.
 
 Slide links use hashes: `#intro`, `#meme`, `#framework`, `#code`, `#barebones`,
 `#full-game`, `#rendering`, `#python-basics`, `#fox`, `#robot`, `#puzzles`, `#computer-graphics`, `#pip`, `#typper`, `#tldr`. The fixed 16:9 stage scales to the
@@ -92,8 +107,12 @@ The `#typper` slide introduces a separate project built in parallel during
 the hackathon: a Japanese typing arcade, connected to Little Makers through keyboard
 practice before coding. Its F/J warm-up, romaji orders and increasing difficulty
 are documented in `/home/blackbird/Projects_heavy/Games/typper/README.md`.
-`typper-gameplay.png` is a local copy of that project's `assets/social/typper.png`
-gameplay screenshot. The slide works without running Typper or accessing its site;
+`typper-gameplay.mp4` is an 18-second recording of real gameplay, captured with
+Chromium and encoded with FFmpeg as H.264 without audio. `typper-clip.js` controls
+playback. The existing `typper-gameplay.png`, copied from that project's
+`assets/social/typper.png`, remains the poster and unavailable-video fallback.
+The clip is bundled locally; recording tools are not presentation dependencies.
+The slide works without running Typper or accessing its site;
 an optional link opens <https://typper.ukeru.info/> in a new tab. It introduces no
 shared runtime or integration between the two projects.
 
