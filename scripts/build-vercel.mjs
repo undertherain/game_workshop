@@ -30,6 +30,11 @@ export async function buildDeployment(output = new URL('.vercel/output/', root))
   };
   await cp(sourcePublic, assets, { recursive: true, filter });
   await cp(sourcePublic, new URL('public/', fn), { recursive: true, filter });
+  for (const target of [new URL('docs/presentation/', assets), new URL('docs/presentation/', fn)]) {
+    await cp(new URL('docs/presentation/', root), target, { recursive: true,
+      filter: source => !path.relative(fileURLToPath(new URL('docs/presentation/', root)), source).split(path.sep)
+        .some(part => part.startsWith('.') || part === '__pycache__') });
+  }
   await copyFiles(root, fn, serverFiles);
   for (const target of [new URL('framework/', assets), new URL('framework/', fn)]) {
     await copyFiles(new URL('framework/', root), target, frameworkFiles);

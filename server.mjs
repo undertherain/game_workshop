@@ -26,7 +26,7 @@ if (process.env.VERCEL !== '1' && process.env.WORKSHOP_LOAD_DOTENV !== '0') {
   }
 }
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript',
-  '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
+  '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.py': 'text/plain', '.wasm': 'application/wasm', '.zip': 'application/zip' };
 function json(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(body));
@@ -170,9 +170,10 @@ export function createServer({ apiKey = process.env.OPENAI_API_KEY, model = proc
       const pathname = decodeURIComponent(url.pathname);
       const vendor = pathname.startsWith('/vendor/pyodide/');
       const framework = pathname.startsWith('/framework/');
+      const presentation = pathname.startsWith('/docs/presentation/');
       if (framework && !frameworkFiles.includes(pathname.slice('/framework/'.length))) return json(res, 404, { error: 'Not found.' });
-      const base = path.join(root, vendor ? 'node_modules/pyodide' : framework ? 'framework' : 'public');
-      const relative = vendor ? pathname.slice('/vendor/pyodide/'.length) : framework ? pathname.slice('/framework/'.length) : pathname === '/' ? 'index.html' : pathname.slice(1);
+      const base = path.join(root, vendor ? 'node_modules/pyodide' : framework ? 'framework' : presentation ? 'docs/presentation' : 'public');
+      const relative = vendor ? pathname.slice('/vendor/pyodide/'.length) : framework ? pathname.slice('/framework/'.length) : presentation ? pathname.slice('/docs/presentation/'.length) || 'index.html' : pathname === '/' ? 'index.html' : pathname.slice(1);
       const target = path.resolve(base, relative);
       if (!target.startsWith(base + path.sep) || relative.split('/').some(s => s.startsWith('.'))) return json(res, 404, { error: 'Not found.' });
       const info = await stat(target);

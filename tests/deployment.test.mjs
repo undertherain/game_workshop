@@ -23,6 +23,10 @@ test('fresh deployment includes Python assets, an importable default handler and
   }
   for (const [artifact, source] of [
     ['static/index.html', '../public/index.html'],
+    ['static/docs/presentation/index.html', '../docs/presentation/index.html'],
+    ['static/docs/presentation/runtime-worker.js', '../docs/presentation/runtime-worker.js'],
+    ['static/docs/presentation/barebones.py', '../docs/presentation/barebones.py'],
+    ['functions/api/status.func/docs/presentation/deck.js', '../docs/presentation/deck.js'],
     ['static/vendor/pyodide/pyodide.asm.wasm', '../node_modules/pyodide/pyodide.asm.wasm'],
     ['static/framework/workshop.py', '../framework/workshop.py'],
     ['functions/api/status.func/node_modules/pyodide/python_stdlib.zip', '../node_modules/pyodide/python_stdlib.zip'],

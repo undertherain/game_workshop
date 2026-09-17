@@ -7,6 +7,27 @@ are performed separately against the running local prototype.
 
 Return to the [prototype README](../README.md).
 
+The finals presentation adds server checks for its scoped `docs/presentation/`
+route, image MIME type and traversal rejection, plus deployment asset checks.
+An isolated Chromium check exercises all six slides with real Pyodide: movement,
+quick-tap firing, a barebones alien hit, navigation while holding a game key,
+paused hidden games, restart, fullscreen and desktop/portrait scaling. No AI calls
+are used. Screenshots were inspected for code readability, the meme and both demos.
+The nine-slide extension was also checked in Chromium with real lesson workers:
+fox jump, edited movement, command sequences and speech; robot square, three-side
+and one-side programs; pause on slide changes; editor shortcuts and navigation;
+invalid-code feedback and recovery; and laptop/portrait scaling. Lesson code runs
+in the existing tested `basics` and `robot` Python modes.
+The programming-puzzle slide was checked with the live Python worker: the rotating
+starter and a smaller square remain unsolved, the full perimeter solves it, Hint
+and Reset work, and the neighboring robot demo retains independent state.
+The Pip presentation slide was checked with real Python and local server endpoints,
+using simulated microphone, WebRTC and upstream AI responses: mixed-type errors,
+numeric/string addition, typed help and canonical voice context, captions and written
+answers, spoken line pointers, mute/end, example/run/navigation cancellation, late
+microphone grants, AI-access gating and slide layout. Live audio remains a manual
+check with an authenticated AI session; no paid requests were made by this check.
+
 `ai-access.test.mjs` tests anonymous isolation with a configured shared key,
 atomic reusable invite redemption, secure cookies, exact Origin checks, expiry,
 revocation, per-invite and total caps, concurrent reservations, encrypted personal

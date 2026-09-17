@@ -77,6 +77,7 @@ files and a small authenticated AI endpoint; the tutor has no tools and cannot r
 or edit code.
 
 - [Architecture and verification](docs/architecture.md)
+- [Finals presentation](docs/presentation/README.md): HTML draft with live Invaders, fox and robot Python demos
 - [Framework API](framework/README.md) and standalone raylib
   [examples](examples/alien_invaders/README.md)
 - [Browser workspace](public/README.md), [content](public/content/README.md) and

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Little Makers · Finals</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/pip-avatar.css">
+  <link rel="stylesheet" href="/pip-pointer.css">
+  <link rel="stylesheet" href="/ai-access.css">
+  <link rel="stylesheet" href="./deck.css">
+</head>
+<body>
+  <main id="deck" aria-label="Little Makers finals presentation">
+    <header><a href="#intro">Little Makers<span class="logo-dot">▚</span></a><span>FINALS / LIVE DEMO</span></header>
+
+    <section id="intro" class="slide intro" aria-labelledby="intro-title">
+      <p class="eyebrow">PYTHON / GAME DEVELOPMENT / EDUCATION</p>
+      <h1 id="intro-title">Little Makers</h1>
+      <p class="lead">Teaching Python through game development.</p>
+      <p class="intro-foot">Short lessons, a small Python framework,<br>and games children can play and modify in the browser.</p>
+    </section>
+
+    <section id="meme" class="slide" aria-labelledby="meme-title" hidden>
+      <p class="eyebrow">CHOOSING A LANGUAGE</p>
+      <h2 id="meme-title">Why Python?</h2>
+      <div class="meme-layout">
+        <!-- Logos stay separate from the meme template for easy replacement. -->
+        <figure class="meme" aria-label="Drake rejecting Scratch and approving Python">
+          <img src="./drake-template.jpg" width="1200" height="1200" alt="Drake turns away in the upper panel and points approvingly in the lower panel.">
+          <span class="meme-logo scratch"><img src="./scratch-logo.png" alt="Scratch"></span>
+          <span class="meme-logo python"><img src="./python-logo.png" alt="Python"></span>
+        </figure>
+        <div class="meme-copy"><p>The goal is to teach Python.</p><p class="muted">Games give us something<br>concrete to work on.</p></div>
+      </div>
+    </section>
+
+    <section id="framework" class="slide" aria-labelledby="framework-title" hidden>
+      <p class="eyebrow">01 / THE FRAMEWORK</p>
+      <h2 id="framework-title">Low-code, but not no-code.<br>A Python game framework built on raylib.</h2>
+      <p class="framework-name">Working name: <span>Framework</span></p>
+      <div class="framework-grid">
+        <div class="framework-card"><span class="card-number">01</span><h3>Game setup</h3><code>class Invaders(Game):</code><p>A default screen<br>and game loop.</p></div>
+        <div class="framework-card"><span class="card-number">02</span><h3>Actors and sprites</h3><code>self.actor(ship, …)</code><p>Create objects with positions,<br>sprites and projectiles.</p></div>
+        <div class="framework-card"><span class="card-number">03</span><h3>Python rules</h3><code>def update(self, dt):</code><p>Define controls and behavior<br>in ordinary Python.</p></div>
+      </div>
+      <p class="framework-foot">The framework handles movement bounds, projectile travel and collisions.</p>
+    </section>
+
+    <section id="code" class="slide" aria-labelledby="code-title" hidden>
+      <div class="code-heading"><div><p class="eyebrow">02 / PYTHON SOURCE</p><h2 id="code-title">A minimal Invaders game</h2></div><span class="file-label">alien_invaders.py</span></div>
+      <pre class="source"><code id="game-source">Loading Python source…</code></pre>
+      <p class="code-foot">The next slide runs this code. <span>Next: playable demo →</span></p>
+    </section>
+
+    <section id="barebones" class="slide game-slide" data-demo="barebones" aria-labelledby="barebones-title" hidden>
+      <div class="game-copy"><p class="eyebrow">03 / BASIC DEMO</p><h2 id="barebones-title">Invaders<br><em>Prototype</em></h2><p>One ship and seven stationary aliens. Move and shoot to clear the row.</p><p class="muted small">No enemy movement<br>or return fire yet.</p><div class="controls"><span><kbd>←</kbd> <kbd>→</kbd> Move</span><span><kbd>Space</kbd> Fire</span></div><button class="restart" data-restart="barebones">↻ Restart <kbd>R</kbd></button></div>
+      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="barebones-score">7 aliens</output></div><canvas id="barebones-canvas" width="960" height="640" tabindex="0" aria-label="Barebones Invaders. Left and Right move, Space shoots. N advances the slide."></canvas><p class="game-status" id="barebones-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
+    </section>
+
+    <section id="full-game" class="slide game-slide" data-demo="full" aria-labelledby="full-title" hidden>
+      <div class="game-copy"><p class="eyebrow">04 / COMPLETE GAME</p><h2 id="full-title">Invaders<br><em>Full version</em></h2><p>Three moving rows, enemy fire,<br>a score and three shields.</p><p class="muted small">The version available in<br>the Little Makers workshop.</p><div class="controls"><span><kbd>←</kbd> <kbd>→</kbd> Move</span><span><kbd>Space</kbd> Fire</span></div><button class="restart" data-restart="full">↻ Restart <kbd>R</kbd></button></div>
+      <div class="game-stage"><div class="game-topline"><span><i></i> LIVE PYTHON</span><output id="full-score">Score 0 · 3 shields</output></div><canvas id="full-canvas" width="840" height="480" tabindex="0" aria-label="Full Invaders. Left and Right move, Space shoots. P returns to the previous slide."></canvas><p class="game-status" id="full-status" role="status">Loading Python…</p><div class="touch-controls"><button data-key="left" aria-label="Move left">←</button><button data-key="right" aria-label="Move right">→</button><button data-key="fire">Fire</button></div></div>
+    </section>
+
+    <section id="rendering" class="slide" aria-labelledby="rendering-title" hidden>
+      <p class="eyebrow">05 / RENDERING BACKENDS</p>
+      <h2 id="rendering-title">Same Python framework.<br>Different rendering backends.</h2>
+      <div class="backend-diagram" role="group" aria-label="Shared Python game logic and framework, rendered with raylib on desktop or Canvas 2D in the browser.">
+        <div class="backend-core"><span class="runtime-label">SHARED PYTHON</span><h3>Game code + framework</h3><p>Objects, movement,<br>collisions and game rules.</p><code>Game / World</code></div>
+        <span class="backend-arrow" aria-hidden="true">→</span>
+        <div class="backend-hosts">
+          <div class="backend-host"><h3>Desktop</h3><p>Python + <em>raylib</em></p><span>Native window, input and rendering.</span></div>
+          <div class="backend-host"><h3>Browser</h3><p>Python via Pyodide + <em>Canvas 2D</em></p><span>The rendering backend used in this presentation.</span></div>
+        </div>
+      </div>
+      <p class="framework-foot">The Invaders prototype runs the same Python simulation in both.</p>
+    </section>
+
+    <section id="python-basics" class="slide basics-intro" aria-labelledby="basics-title" hidden>
+      <p class="eyebrow">06 / GETTING STARTED</p>
+      <h2 id="basics-title">New to Python?<br>Start with the basics.</h2>
+      <p class="basics-lead">Before writing a game, work through small examples<br>and understand what each line does.</p>
+      <div class="framework-grid">
+        <div class="framework-card"><span class="card-number">01</span><h3>Run a command</h3><code>fox.jump()</code><p>One line, one action.<br>See what a method call does.</p></div>
+        <div class="framework-card"><span class="card-number">02</span><h3>Change a value</h3><code>fox.move(80)</code><p>Change the distance.<br>Run it and compare.</p></div>
+        <div class="framework-card"><span class="card-number">03</span><h3>Repeat instructions</h3><code>for side in range(4):</code><p>Use a loop to repeat<br>a sequence of commands.</p></div>
+      </div>
+    </section>
+
+    <section id="fox" class="slide lesson-slide" data-lesson="fox" aria-labelledby="fox-title" hidden>
+      <p class="eyebrow">07 / COMMANDS AND VALUES</p>
+      <h2 id="fox-title">Python, one line at a time</h2>
+      <div class="lesson-layout">
+        <div class="lesson-code-panel">
+          <p class="lesson-description">Start with a command. Run it,<br>then change it.</p>
+          <label for="fox-code">Python</label>
+          <textarea id="fox-code" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="1000" aria-describedby="fox-editor-help">fox.jump()</textarea>
+          <div class="lesson-toolbar"><button class="lesson-run" data-lesson-run="fox">Run Python</button><button data-lesson-reset="fox">Reset</button></div>
+          <p id="fox-editor-help" class="editor-help"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run<br><kbd>Page Down</kbd> / <kbd>Page Up</kbd> to change slides</p>
+          <div class="lesson-examples" aria-label="Fox examples"><button data-example="jump">Jump</button><button data-example="move">Move</button><button data-example="say">Say</button><button data-example="sequence">Sequence</button></div>
+          <p class="lesson-note">Try changing <code>80</code> to <code>160</code>,<br>or put two commands on separate lines.</p>
+        </div>
+        <div class="lesson-scene-panel">
+          <canvas id="fox-canvas" width="840" height="480" aria-label="A fox in a forest. Run the Python code to make it jump, move or speak."></canvas>
+          <p id="fox-status" class="lesson-status" role="status">Press Run Python to try the command.</p>
+          <p id="fox-speech" class="lesson-speech" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="robot" class="slide lesson-slide" data-lesson="robot" aria-labelledby="robot-title" hidden>
+      <p class="eyebrow">08 / LOOPS</p>
+      <h2 id="robot-title">Repeat a sequence with a loop</h2>
+      <div class="lesson-layout robot-layout">
+        <div class="lesson-code-panel">
+          <p class="lesson-description">Move three tiles, then turn right.<br>Repeat both instructions four times.</p>
+          <label for="robot-code">Python</label>
+          <textarea id="robot-code" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="1000" aria-describedby="robot-editor-help">for side in range(4):
+    robot.move(3)
+    robot.turn_right()</textarea>
+          <div class="lesson-toolbar"><button class="lesson-run" data-lesson-run="robot">Run Python</button><button data-lesson-reset="robot">Reset</button></div>
+          <p id="robot-editor-help" class="editor-help"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run<br><kbd>Page Down</kbd> / <kbd>Page Up</kbd> to change slides</p>
+          <div class="lesson-examples" aria-label="Robot examples"><button data-example="side">One side</button><button data-example="square">Four sides</button><button data-example="three">Three sides</button></div>
+          <p class="lesson-note">Change <code>range(4)</code> to <code>range(3)</code>.<br>Which side will be missing?</p>
+        </div>
+        <div class="lesson-scene-panel robot-scene-panel">
+          <canvas id="robot-canvas" width="480" height="480" aria-label="A robot on a six by six grid. Its trail follows a dotted square when the loop repeats four times."></canvas>
+          <p id="robot-status" class="lesson-status" role="status">Press Run Python to trace the square.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="puzzles" class="slide lesson-slide" data-lesson="puzzles" aria-labelledby="puzzles-title" hidden>
+      <p class="eyebrow">09 / PROGRAMMING PUZZLES</p>
+      <h2 id="puzzles-title">Use what you’ve learned to solve a task</h2>
+      <div class="lesson-layout robot-layout">
+        <div class="lesson-code-panel">
+          <p class="lesson-description">Trace the dotted square and return<br>to the start, facing right.</p>
+          <label for="puzzles-code">Replace pass with the missing command</label>
+          <textarea id="puzzles-code" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="1000" aria-describedby="puzzles-editor-help">for side in range(4):
+    pass
+    robot.turn_right()</textarea>
+          <div class="lesson-toolbar"><button class="lesson-run" data-lesson-run="puzzles">Run Python</button><button data-lesson-reset="puzzles">Reset</button><button id="puzzle-hint-toggle" aria-expanded="false" aria-controls="puzzle-hint">Hint</button></div>
+          <p id="puzzles-editor-help" class="editor-help"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run<br><kbd>Page Down</kbd> / <kbd>Page Up</kbd> to change slides</p>
+          <p id="puzzle-hint" class="lesson-note" hidden>Each side is three tiles long.<br>Use <code>robot.move(...)</code> before the turn.</p>
+          <p class="lesson-note">A goal, a short program and feedback.<br>The learner supplies the missing rule.</p>
+        </div>
+        <div class="lesson-scene-panel robot-scene-panel">
+          <canvas id="puzzles-canvas" width="480" height="480" aria-label="Programming puzzle: make the robot trace all four sides of the dotted square and return to its starting position facing right."></canvas>
+          <p id="puzzles-status" class="lesson-status" role="status">Run the starter to see what’s missing.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pip" class="slide lesson-slide" aria-labelledby="pip-title" hidden>
+      <p class="eyebrow">10 / AI TUTOR</p>
+      <h2 id="pip-title">Meet Pip</h2>
+      <div class="pip-layout">
+        <div class="lesson-code-panel">
+          <p class="lesson-description">Ask questions about your code,<br>by text or voice.</p>
+          <label for="lesson-code">Try adding a number and a string</label>
+          <div class="pip-code-editor"><textarea id="lesson-code" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="1000" aria-describedby="pip-editor-help">3 + "4"</textarea></div>
+          <div class="lesson-toolbar"><button id="pip-run" class="lesson-run">Run Python</button><button id="pip-reset">Reset</button></div>
+          <p id="pip-editor-help" class="editor-help"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run<br><kbd>Page Down</kbd> / <kbd>Page Up</kbd> to change slides</p>
+          <div class="lesson-examples" aria-label="Python examples for Pip"><button data-pip-example="mixed">3 + "4"</button><button data-pip-example="numbers">3 + 4</button><button data-pip-example="strings">"3" + "4"</button></div>
+          <div class="pip-output-panel"><span>Python result</span><pre id="pip-output" role="status">Press Run Python to try the example.</pre></div>
+          <p class="lesson-note">Pip sees the code and the latest result.<br>It explains; you make the changes.</p>
+        </div>
+        <aside id="presentation-pip" aria-label="Pip AI tutor">
+          <div class="helper-heading"><div class="pip-avatar" aria-hidden="true"></div><div><h3>Pip</h3><p id="presentation-pip-mode">Checking AI access…</p></div><button id="ai-access-open" type="button">AI access</button></div>
+          <p class="pip-introduction">Run the example, then ask what went wrong.</p>
+          <div id="pip-messages" role="log" aria-live="polite" aria-label="Conversation and voice captions"></div>
+          <form id="pip-form"><label for="pip-question">Ask Pip</label><textarea id="pip-question" rows="2" maxlength="2000" required>Why doesn't 3 + "4" work?</textarea><button type="submit" id="pip-send">Send</button></form>
+          <p id="pip-chat-status" role="status"></p>
+        </aside>
+      </div>
+    </section>
+
+    <footer><span>LITTLE MAKERS · FINALS</span><nav aria-label="Presentation controls"><button id="previous" aria-label="Previous slide">← <kbd>P</kbd></button><span id="slide-count" aria-live="polite">01 / 12</span><button id="next" aria-label="Next slide"><kbd>N</kbd> →</button><button id="fullscreen">Fullscreen <kbd>F</kbd></button></nav></footer>
+    <div id="progress" aria-hidden="true"></div>
+  </main>
+  <dialog id="ai-access-dialog" aria-labelledby="ai-access-title">
+    <button type="button" data-close aria-label="Close AI access">Close</button>
+    <h2 id="ai-access-title">AI access</h2>
+    <p id="ai-access-summary">Checking AI access…</p>
+    <button id="ai-activate-invite" type="button" hidden>Activate demo AI</button>
+    <form id="ai-key-form">
+      <label for="ai-personal-key">Enter your own OpenAI API key</label>
+      <input id="ai-personal-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="503" placeholder="sk-…" required aria-describedby="ai-key-notice">
+      <small id="ai-key-notice">AI requests use your OpenAI account and billing. The server keeps your key encrypted for up to 8 hours. It is not saved in browser storage. Disconnect to forget it. A ChatGPT subscription does not include API usage.</small>
+      <button type="submit">Use my key</button>
+    </form>
+    <button id="ai-disconnect" type="button" hidden>Disconnect / use built-in guide</button>
+    <p id="ai-access-status" role="status"></p>
+  </dialog>
+  <script type="module" src="./deck.js"></script>
+</body>
+</html>

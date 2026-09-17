@@ -47,6 +47,13 @@ test('public HTTPS hosts support APIs while rejecting foreign origins and spoofe
     req.end(body === undefined ? undefined : JSON.stringify(body));
   });
   assert.equal((await request('/')).status, 200);
+  for (const pathname of ['/docs/presentation/', '/docs/presentation/index.html', '/docs/presentation/runtime-worker.js', '/docs/presentation/barebones.py']) {
+    assert.equal((await request(pathname)).status, 200, pathname);
+  }
+  assert.match((await request('/docs/presentation/drake-template.jpg')).headers['content-type'], /image\/jpeg/);
+  for (const pathname of ['/docs/architecture.md', '/docs/presentation/%2e%2e%2farchitecture.md', '/docs/presentation/.env']) {
+    assert.equal((await request(pathname)).status, 404, pathname);
+  }
   assert.equal((await request('/api/status', { host: 'game-workshop-xi.vercel.app' })).status, 200);
   assert.equal((await request('/api/status', { host: 'evil.example', headers: { 'X-Forwarded-Host': 'game.blackbird.pw', 'X-Forwarded-Proto': 'https' } })).status, 403);
   for (const pathname of ['/.env', '/server-config.mjs', '/framework/raylib_host.py']) assert.equal((await request(pathname)).status, 404);
